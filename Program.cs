@@ -6,6 +6,8 @@ namespace GPTArticleGen
 {
     internal static class Program
     {
+        public static SynchronizationContext SyncContext { get; private set; }
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -32,6 +34,7 @@ namespace GPTArticleGen
             // Initialize the Presenter to set the View to the initial state
             presenter.Initialize();
 
+            SyncContext = SynchronizationContext.Current;
             // Star the Application Loop with the main Form
             Application.Run(view);
         }

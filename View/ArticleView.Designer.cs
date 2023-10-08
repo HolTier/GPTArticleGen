@@ -33,6 +33,8 @@
             content = new TextBox();
             tabPrompt = new TabPage();
             prompt = new TextBox();
+            tabPage1 = new TabPage();
+            webView2 = new Microsoft.Web.WebView2.WinForms.WebView2();
             titlesBox = new ListBox();
             generateButton = new Button();
             generateAllButton = new Button();
@@ -42,16 +44,19 @@
             textAndPromptControl.SuspendLayout();
             tabContent.SuspendLayout();
             tabPrompt.SuspendLayout();
+            tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)webView2).BeginInit();
             SuspendLayout();
             // 
             // textAndPromptControl
             // 
             textAndPromptControl.Controls.Add(tabContent);
             textAndPromptControl.Controls.Add(tabPrompt);
+            textAndPromptControl.Controls.Add(tabPage1);
             textAndPromptControl.Location = new Point(0, 0);
             textAndPromptControl.Name = "textAndPromptControl";
             textAndPromptControl.SelectedIndex = 0;
-            textAndPromptControl.Size = new Size(406, 452);
+            textAndPromptControl.Size = new Size(812, 572);
             textAndPromptControl.TabIndex = 0;
             // 
             // tabContent
@@ -70,7 +75,7 @@
             content.Location = new Point(0, 0);
             content.Multiline = true;
             content.Name = "content";
-            content.Size = new Size(398, 424);
+            content.Size = new Size(808, 540);
             content.TabIndex = 0;
             // 
             // tabPrompt
@@ -92,18 +97,40 @@
             prompt.Size = new Size(402, 419);
             prompt.TabIndex = 0;
             // 
+            // tabPage1
+            // 
+            tabPage1.Controls.Add(webView2);
+            tabPage1.Location = new Point(4, 29);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(804, 539);
+            tabPage1.TabIndex = 2;
+            tabPage1.Text = "tabPage1";
+            tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // webView2
+            // 
+            webView2.AllowExternalDrop = true;
+            webView2.CreationProperties = null;
+            webView2.DefaultBackgroundColor = Color.White;
+            webView2.Location = new Point(0, 0);
+            webView2.Name = "webView2";
+            webView2.Size = new Size(808, 543);
+            webView2.TabIndex = 0;
+            webView2.ZoomFactor = 1D;
+            // 
             // titlesBox
             // 
             titlesBox.FormattingEnabled = true;
             titlesBox.ItemHeight = 20;
-            titlesBox.Location = new Point(412, 29);
+            titlesBox.Location = new Point(818, 28);
             titlesBox.Name = "titlesBox";
-            titlesBox.Size = new Size(208, 424);
+            titlesBox.Size = new Size(208, 544);
             titlesBox.TabIndex = 1;
             // 
             // generateButton
             // 
-            generateButton.Location = new Point(626, 29);
+            generateButton.Location = new Point(1032, 28);
             generateButton.Name = "generateButton";
             generateButton.Size = new Size(149, 29);
             generateButton.TabIndex = 2;
@@ -112,7 +139,7 @@
             // 
             // generateAllButton
             // 
-            generateAllButton.Location = new Point(626, 64);
+            generateAllButton.Location = new Point(1032, 63);
             generateAllButton.Name = "generateAllButton";
             generateAllButton.Size = new Size(149, 29);
             generateAllButton.TabIndex = 3;
@@ -121,7 +148,7 @@
             // 
             // changePromptButton
             // 
-            changePromptButton.Location = new Point(626, 99);
+            changePromptButton.Location = new Point(1032, 98);
             changePromptButton.Name = "changePromptButton";
             changePromptButton.Size = new Size(149, 29);
             changePromptButton.TabIndex = 4;
@@ -130,7 +157,7 @@
             // 
             // importTitlesButton
             // 
-            importTitlesButton.Location = new Point(626, 134);
+            importTitlesButton.Location = new Point(1032, 133);
             importTitlesButton.Name = "importTitlesButton";
             importTitlesButton.Size = new Size(149, 29);
             importTitlesButton.TabIndex = 5;
@@ -139,7 +166,7 @@
             // 
             // addToPageButton
             // 
-            addToPageButton.Location = new Point(626, 169);
+            addToPageButton.Location = new Point(1032, 168);
             addToPageButton.Name = "addToPageButton";
             addToPageButton.Size = new Size(149, 29);
             addToPageButton.TabIndex = 6;
@@ -150,7 +177,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 465);
+            ClientSize = new Size(1193, 572);
             Controls.Add(addToPageButton);
             Controls.Add(importTitlesButton);
             Controls.Add(changePromptButton);
@@ -165,6 +192,8 @@
             tabContent.PerformLayout();
             tabPrompt.ResumeLayout(false);
             tabPrompt.PerformLayout();
+            tabPage1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)webView2).EndInit();
             ResumeLayout(false);
         }
 
@@ -181,5 +210,7 @@
         private Button changePromptButton;
         private Button importTitlesButton;
         private Button addToPageButton;
+        private TabPage tabPage1;
+        private Microsoft.Web.WebView2.WinForms.WebView2 webView2;
     }
 }
