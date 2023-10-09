@@ -4,6 +4,7 @@ using Microsoft.Web.WebView2.WinForms;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ namespace GPTArticleGen.Presenter
         private readonly IArticleView _view;
         private readonly ArticleModel _model;
 
+        #region Initialize
         public ArticlePresenter(IArticleView view, ArticleModel model)
         {
             _view = view;
@@ -33,15 +35,20 @@ namespace GPTArticleGen.Presenter
         {
             _view.Title = _model.Title;
             _view.Content = _model.Content;
-            _view.Tags = _model.Tags;
+            //_view.Tags = _model.Tags;
             _view.Prompt = _model.Prompt;
+            // _view.Description = _model.Description;
             _view.WebView2.Source = new Uri("https://chat.openai.com");
-
+            //_view.Tags = new ObservableCollection<string>();
+            
         }
+        #endregion
 
+        #region Event Handlers
         private void AddToPage(object? sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            Debug.WriteLine(_view.Tags.Count);
+            _view.Tags.Add("test3");
         }
 
         private void ImportTitles(object? sender, EventArgs e)
@@ -84,10 +91,15 @@ namespace GPTArticleGen.Presenter
                 {
                     await GenerateByGPTAsync(_view.WebView2, _view);
                     //_view.WebView2.Reload();
+                    _view.Prompt = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
+                    _view.Description = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
+                    _view.Tags.Add(await ExtractTagsAsync(_view.Content, "Meta tags:"));
                 }, null);
             });
         }
+        #endregion
 
+        #region Webview2 Methods
         static async Task<string> ExecuteJavaScriptAndWaitAsync(WebView2 webView2, string jsCode, string targetAttribute)
         {
             if (webView2 != null)
@@ -174,7 +186,7 @@ namespace GPTArticleGen.Presenter
             string jsCode = @"
                 let inputElement = document.getElementById('prompt-textarea');
                 inputElement.focus();
-                document.execCommand('insertText', false, 'Napisz artykuł na temat ""Chomiki głębinowe. Czy zagrażają ludzią."" na 1500 do 2000 znaków, artykuł podziel na trzy części Meta title:, Meta content:, Meta tags:. Gdzie w Meta content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części.');
+                document.execCommand('insertText', false, 'Napisz artykuł na temat ""Chomiki głębinowe. Czy zagrażają ludzią."" na 1500 do 2000 znaków, artykuł podziel na trzy części Meta title:, Meta content:, Meta tags:. Gdzie w Meta content znajduje się cała treść.  Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!!');
                 document.querySelector('[data-testid=""send-button""]').disabled = false;
                 document.querySelector('[data-testid=""send-button""]').click();
                 document.querySelector('[data-testid=""send-button""]').disabled = false;
@@ -216,6 +228,43 @@ namespace GPTArticleGen.Presenter
                 Console.WriteLine("No matching element found.");
             }
         }
+        #endregion
+
+        #region String Operations Methods
+        static async Task<string> ExtractValueBetweenAsync(string text, string startMarker, string endMarker)
+        {
+            int startIndex = text.IndexOf(startMarker);
+            if (startIndex >= 0)
+            {
+                startIndex += startMarker.Length; // Move past the startMarker
+                int endIndex = text.IndexOf(endMarker, startIndex);
+                if (endIndex >= 0)
+                {
+                    return text.Substring(startIndex, endIndex - startIndex).Trim();
+                }
+                // If endMarker is not found, return from startIndex to the end of the text
+                return text.Substring(startIndex).Trim();
+            }
+            return null; // Handle error if startMarker is not found
+        }
+
+        static async Task<string> ExtractTagsAsync(string text, string startMarker)
+        {
+            int startIndex = text.IndexOf(startMarker);
+            if (startIndex >= 0)
+            {
+                startIndex += startMarker.Length;
+                string tagSection = text.Substring(startIndex).Trim();
+                string[] tags = tagSection.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < tags.Length; i++)
+                {
+                    tags[i] = tags[i].Trim();
+                }
+                return string.Join(", ", tags);
+            }
+            return null; // Return null if marker is not found
+        }
+        #endregion
     }
 }
 

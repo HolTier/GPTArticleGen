@@ -32,7 +32,12 @@
             tabContent = new TabPage();
             content = new TextBox();
             tabPrompt = new TabPage();
-            prompt = new TextBox();
+            tagsListBox = new ListBox();
+            tagsLabel = new Label();
+            contentTextBox = new TextBox();
+            contentLabel = new Label();
+            titleLabel = new Label();
+            titleTextBox = new TextBox();
             tabPage1 = new TabPage();
             webView2 = new Microsoft.Web.WebView2.WinForms.WebView2();
             titlesBox = new ListBox();
@@ -81,7 +86,12 @@
             // 
             // tabPrompt
             // 
-            tabPrompt.Controls.Add(prompt);
+            tabPrompt.Controls.Add(tagsListBox);
+            tabPrompt.Controls.Add(tagsLabel);
+            tabPrompt.Controls.Add(contentTextBox);
+            tabPrompt.Controls.Add(contentLabel);
+            tabPrompt.Controls.Add(titleLabel);
+            tabPrompt.Controls.Add(titleTextBox);
             tabPrompt.Location = new Point(4, 29);
             tabPrompt.Name = "tabPrompt";
             tabPrompt.Padding = new Padding(3);
@@ -90,13 +100,60 @@
             tabPrompt.Text = "Prompt";
             tabPrompt.UseVisualStyleBackColor = true;
             // 
-            // prompt
+            // tagsListBox
             // 
-            prompt.Location = new Point(0, 0);
-            prompt.Multiline = true;
-            prompt.Name = "prompt";
-            prompt.Size = new Size(402, 419);
-            prompt.TabIndex = 0;
+            tagsListBox.FormattingEnabled = true;
+            tagsListBox.ItemHeight = 20;
+            tagsListBox.Location = new Point(8, 404);
+            tagsListBox.Name = "tagsListBox";
+            tagsListBox.Size = new Size(790, 104);
+            tagsListBox.TabIndex = 5;
+            // 
+            // tagsLabel
+            // 
+            tagsLabel.AutoSize = true;
+            tagsLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            tagsLabel.Location = new Point(8, 371);
+            tagsLabel.Name = "tagsLabel";
+            tagsLabel.Size = new Size(56, 30);
+            tagsLabel.TabIndex = 4;
+            tagsLabel.Text = "Tags";
+            // 
+            // contentTextBox
+            // 
+            contentTextBox.Location = new Point(8, 102);
+            contentTextBox.Multiline = true;
+            contentTextBox.Name = "contentTextBox";
+            contentTextBox.ScrollBars = ScrollBars.Horizontal;
+            contentTextBox.Size = new Size(790, 266);
+            contentTextBox.TabIndex = 3;
+            // 
+            // contentLabel
+            // 
+            contentLabel.AutoSize = true;
+            contentLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            contentLabel.Location = new Point(8, 69);
+            contentLabel.Name = "contentLabel";
+            contentLabel.Size = new Size(90, 30);
+            contentLabel.TabIndex = 2;
+            contentLabel.Text = "Content";
+            // 
+            // titleLabel
+            // 
+            titleLabel.AutoSize = true;
+            titleLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            titleLabel.Location = new Point(3, 3);
+            titleLabel.Name = "titleLabel";
+            titleLabel.Size = new Size(54, 30);
+            titleLabel.TabIndex = 1;
+            titleLabel.Text = "Title";
+            // 
+            // titleTextBox
+            // 
+            titleTextBox.Location = new Point(8, 35);
+            titleTextBox.Name = "titleTextBox";
+            titleTextBox.Size = new Size(790, 27);
+            titleTextBox.TabIndex = 0;
             // 
             // tabPage1
             // 
@@ -214,7 +271,7 @@
         private TabPage tabContent;
         private TextBox content;
         private TabPage tabPrompt;
-        private TextBox prompt;
+        private TextBox titleTextBox;
         private ListBox titlesBox;
         private Button generateButton;
         private Button generateAllButton;
@@ -224,5 +281,10 @@
         private TabPage tabPage1;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView2;
         private Button regenerateArticleButton;
+        private Label titleLabel;
+        private TextBox contentTextBox;
+        private Label contentLabel;
+        private Label tagsLabel;
+        private ListBox tagsListBox;
     }
 }

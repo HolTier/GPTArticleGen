@@ -2,6 +2,7 @@
 using Microsoft.Web.WebView2.WinForms;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -16,7 +17,8 @@ namespace GPTArticleGen.View
     public partial class ArticleView : Form, IArticleView
     {
         private string _title;
-        private string[] _tags;
+        private string _description;
+        private BindingList<string> _tags = new BindingList<string>();
         Control _uiControl;
 
 
@@ -33,6 +35,9 @@ namespace GPTArticleGen.View
             addToPageButton.Click += (sender, args) => AddToPage?.Invoke(this, EventArgs.Empty);
             regenerateArticleButton.Click += (sender, args) => RegenarateArticle?.Invoke(this, EventArgs.Empty);
 
+            tagsListBox.DataSource = _tags;
+            _tags.Add("test");
+            _tags.Add("test2");
 
             InitializeWebView2();
         }
@@ -78,15 +83,19 @@ namespace GPTArticleGen.View
             get => content.Text;
             set => content.Text = value;
         }
-        public string[] Tags
+        public BindingList<string> Tags
         {
             get => _tags;
-            set => _tags = value;
+            set
+            {
+                _tags = value;
+                tagsListBox.DataSource = _tags;
+            }
         }
         public string Prompt
         {
-            get => prompt.Text;
-            set => prompt.Text = value;
+            get => titleTextBox.Text;
+            set => titleTextBox.Text = value;
         }
 
         public WebView2 WebView2
@@ -96,6 +105,12 @@ namespace GPTArticleGen.View
         }
 
         public Control UiControl => UiControl;
+
+        public string Description
+        {
+            get => contentTextBox.Text;
+            set => contentTextBox.Text = value;
+        }
 
         public event EventHandler GenerateArticle;
         public event EventHandler GenerateForAll;
