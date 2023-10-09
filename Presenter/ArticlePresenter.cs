@@ -26,6 +26,7 @@ namespace GPTArticleGen.Presenter
             _view.ChangeDefaultPrompt += ChangeDefaultPrompt;
             _view.ImportTitles += ImportTitles;
             _view.AddToPage += AddToPage;
+            _view.RegenarateArticle += RegenarateArticle;
         }
 
         public void Initialize()
@@ -58,6 +59,19 @@ namespace GPTArticleGen.Presenter
             throw new NotImplementedException();
         }
 
+        private void RegenarateArticle(object? sender, EventArgs e)
+        {
+            Task.Run(async () =>
+            {
+                // Update the UI with the result on the UI thread
+                Program.SyncContext.Post(async _ =>
+                {
+                    await RegenarateByGPTAsync(_view.WebView2, _view);
+                    //_view.WebView2.Reload();
+                }, null);
+            });
+        }
+
         private void GenerateArticle(object? sender, EventArgs e)
         {
             //_view.Content = _view.Prompt;
@@ -69,7 +83,7 @@ namespace GPTArticleGen.Presenter
                 Program.SyncContext.Post(async _ =>
                 {
                     await GenerateByGPTAsync(_view.WebView2, _view);
-                    _view.WebView2.Reload();
+                    //_view.WebView2.Reload();
                 }, null);
             });
         }
@@ -82,13 +96,13 @@ namespace GPTArticleGen.Presenter
                 {
                     // Execute the JavaScript code
                     await webView2.ExecuteScriptAsync(jsCode);
-                    await Task.Delay(20000);
+                    await Task.Delay(TimeSpan.FromSeconds(30));
                     string highestNValue = await FindHighestNAsync(webView2);
 
                     // Wait for the element with the specified attribute
                     string result = await WaitForElementWithAttributeAsync(webView2, targetAttribute, highestNValue);
                     
-
+                    webView2.Reload();
                     return result;
                 }
                 catch (Exception ex)
@@ -126,22 +140,23 @@ namespace GPTArticleGen.Presenter
             }
 
             Console.WriteLine("Element not found after retries.");
+
             return null;
         }
 
         static async Task<string> FindHighestNAsync(WebView2 webView2)
         {
             string jsCode = @"
-        let elements = document.querySelectorAll('[data-testid^=""conversation-turn-""]');
-        let highestN = -1;
-        elements.forEach(element => {
-            let value = parseInt(element.getAttribute('data-testid').substring('conversation-turn-'.length));
-            if (!isNaN(value) && value > highestN) {
-                highestN = value;
-            }
-        });
-        highestN;
-    ";
+                let elements = document.querySelectorAll('[data-testid^=""conversation-turn-""]');
+                let highestN = -1;
+                elements.forEach(element => {
+                    let value = parseInt(element.getAttribute('data-testid').substring('conversation-turn-'.length));
+                    if (!isNaN(value) && value > highestN) {
+                        highestN = value;
+                    }
+                });
+                highestN;
+            ";
 
             string result = await webView2.ExecuteScriptAsync(jsCode);
 
@@ -159,10 +174,33 @@ namespace GPTArticleGen.Presenter
             string jsCode = @"
                 let inputElement = document.getElementById('prompt-textarea');
                 inputElement.focus();
-                document.execCommand('insertText', false, 'Wygeneruj testowy artykuł');
+                document.execCommand('insertText', false, 'Napisz artykuł na temat ""Chomiki głębinowe. Czy zagrażają ludzią."" na 1500 do 2000 znaków, artykuł podziel na trzy części Meta title:, Meta content:, Meta tags:. Gdzie w Meta content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części.');
                 document.querySelector('[data-testid=""send-button""]').disabled = false;
                 document.querySelector('[data-testid=""send-button""]').click();
                 document.querySelector('[data-testid=""send-button""]').disabled = false;
+            ";
+
+            string targetAttribute = "conversation-turn-"; // You can set the target attribute here
+
+            string result = await ExecuteJavaScriptAndWaitAsync(webView2, jsCode, targetAttribute);
+
+            if (!string.IsNullOrEmpty(result))
+            {
+                view.Content = result;
+            }
+            else
+            {
+                Console.WriteLine("No matching element found.");
+            }
+        }
+
+        static async Task RegenarateByGPTAsync(WebView2 webView2, IArticleView view)
+        {
+            string jsCode = @"
+                let customButton = document.querySelector('button.btn.relative.-z-0.whitespace-nowrap.border-0.md\\:border');
+                if (customButton) {
+                    customButton.click();
+                }
             ";
 
             string targetAttribute = "conversation-turn-"; // You can set the target attribute here

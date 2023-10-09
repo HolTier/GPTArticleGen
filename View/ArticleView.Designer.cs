@@ -41,6 +41,7 @@
             changePromptButton = new Button();
             importTitlesButton = new Button();
             addToPageButton = new Button();
+            regenerateArticleButton = new Button();
             textAndPromptControl.SuspendLayout();
             tabContent.SuspendLayout();
             tabPrompt.SuspendLayout();
@@ -65,7 +66,7 @@
             tabContent.Location = new Point(4, 29);
             tabContent.Name = "tabContent";
             tabContent.Padding = new Padding(3);
-            tabContent.Size = new Size(398, 419);
+            tabContent.Size = new Size(804, 539);
             tabContent.TabIndex = 0;
             tabContent.Text = "Content";
             tabContent.UseVisualStyleBackColor = true;
@@ -84,7 +85,7 @@
             tabPrompt.Location = new Point(4, 29);
             tabPrompt.Name = "tabPrompt";
             tabPrompt.Padding = new Padding(3);
-            tabPrompt.Size = new Size(398, 419);
+            tabPrompt.Size = new Size(804, 539);
             tabPrompt.TabIndex = 1;
             tabPrompt.Text = "Prompt";
             tabPrompt.UseVisualStyleBackColor = true;
@@ -173,11 +174,21 @@
             addToPageButton.Text = "Add to page";
             addToPageButton.UseVisualStyleBackColor = true;
             // 
+            // regenerateArticleButton
+            // 
+            regenerateArticleButton.Location = new Point(1032, 203);
+            regenerateArticleButton.Name = "regenerateArticleButton";
+            regenerateArticleButton.Size = new Size(149, 29);
+            regenerateArticleButton.TabIndex = 7;
+            regenerateArticleButton.Text = "Regenerate";
+            regenerateArticleButton.UseVisualStyleBackColor = true;
+            // 
             // ArticleView
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1193, 572);
+            Controls.Add(regenerateArticleButton);
             Controls.Add(addToPageButton);
             Controls.Add(importTitlesButton);
             Controls.Add(changePromptButton);
@@ -212,5 +223,6 @@
         private Button addToPageButton;
         private TabPage tabPage1;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView2;
+        private Button regenerateArticleButton;
     }
 }

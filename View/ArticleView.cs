@@ -31,6 +31,8 @@ namespace GPTArticleGen.View
             changePromptButton.Click += (sender, args) => ChangeDefaultPrompt?.Invoke(this, EventArgs.Empty);
             importTitlesButton.Click += (sender, args) => ImportTitles?.Invoke(this, EventArgs.Empty);
             addToPageButton.Click += (sender, args) => AddToPage?.Invoke(this, EventArgs.Empty);
+            regenerateArticleButton.Click += (sender, args) => RegenarateArticle?.Invoke(this, EventArgs.Empty);
+
 
             InitializeWebView2();
         }
@@ -100,31 +102,13 @@ namespace GPTArticleGen.View
         public event EventHandler ChangeDefaultPrompt;
         public event EventHandler ImportTitles;
         public event EventHandler AddToPage;
+        public event EventHandler RegenarateArticle;
 
         public void NavigateToPage(string url)
         {
             if (webView2 != null)
             {
                 webView2.Source = new Uri(url);
-            }
-        }
-
-        static async Task GenerateByGPTAsync(WebView2 webView2)
-        {
-            if (webView2 != null)
-            {
-                // Inject JavaScript to enter text into an input field with a specific selector
-                string enterTextScript = $"let inputElement = document.getElementById('prompt-textarea');" +
-                    $"\r\ninputElement.focus();" +
-                    $"\r\ndocument.execCommand('insertText', false, 'Wygeneruj testowy artukuł');";
-                await webView2.CoreWebView2.ExecuteScriptAsync(enterTextScript);
-
-                string enableButtonScript = "document.querySelector('[data-testid=\"send-button\"]').disabled = false;";
-                await webView2.CoreWebView2.ExecuteScriptAsync(enableButtonScript);
-
-                // Inject JavaScript to click a button with a specific selector
-                string clickButtonScript = "document.querySelector('[data-testid=\"send-button\"]').click();";
-                await webView2.CoreWebView2.ExecuteScriptAsync(clickButtonScript);
             }
         }
     }

@@ -24,6 +24,7 @@ namespace GPTArticleGen.View
         event EventHandler ChangeDefaultPrompt;
         event EventHandler ImportTitles;
         event EventHandler AddToPage;
+        event EventHandler RegenarateArticle;
 
         // Methods
         void NavigateToPage(string url);
