@@ -1,4 +1,5 @@
-﻿using Microsoft.Web.WebView2.Core;
+﻿using GPTArticleGen.Model;
+using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace GPTArticleGen.View
     {
         private string _title;
         private string _description;
-        private BindingList<string> _tags = new BindingList<string>();
+        private BindingList<ArticleModel> _titles = new BindingList<ArticleModel>();
         Control _uiControl;
 
 
@@ -35,9 +36,7 @@ namespace GPTArticleGen.View
             addToPageButton.Click += (sender, args) => AddToPageAsync?.Invoke(this, EventArgs.Empty);
             regenerateArticleButton.Click += (sender, args) => RegenarateArticle?.Invoke(this, EventArgs.Empty);
 
-            // tagsListBox.DataSource = _tags;
-            _tags.Add("test");
-            _tags.Add("test2");
+            titlesListBox.DataSource = _titles;
 
             InitializeWebView2();
         }
@@ -87,7 +86,7 @@ namespace GPTArticleGen.View
         {
             get => tagsTextBox.Text;
             set => tagsTextBox.Text = value;
-            
+
         }
         public string Prompt
         {
@@ -107,6 +106,15 @@ namespace GPTArticleGen.View
         {
             get => contentTextBox.Text;
             set => contentTextBox.Text = value;
+        }
+        public BindingList<ArticleModel> Titles
+        {
+            get => _titles;
+            set
+            {
+                _titles = value;
+                titlesListBox.DataSource = _titles;
+            }
         }
 
         public event EventHandler GenerateArticle;

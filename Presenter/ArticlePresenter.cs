@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
@@ -44,21 +45,37 @@ namespace GPTArticleGen.Presenter
             //_view.Tags = new ObservableCollection<string>();
 
             // Initialize SQLiteDB
-            string connectionString = "Data Source=ArticleDatabase.db;Version=3;";
-            SQLiteDB db = new SQLiteDB(connectionString);
+            SQLiteDB db = new SQLiteDB();
             db.OpenConnection();
-            
+
             // Create table if not exists
             string createTableQuery = @"CREATE TABLE IF NOT EXISTS Articles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                content TEXT NOT NULL,
-                tags TEXT NOT NULL,
-                prompt TEXT NOT NULL
+                title TEXT,
+                content TEXT,
+                tags TEXT,
+                prompt TEXT
             )";
             SQLiteCommand createTableCommand = db.CreateCommand();
             createTableCommand.CommandText = createTableQuery;
             createTableCommand.ExecuteNonQuery();
+
+            // Get all articles from database
+            DataTable dataTable = Task.Run(async () => await db.GetAllArticleAsync()).Result;
+            List<ArticleModel> articles = new List<ArticleModel>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                ArticleModel article = new ArticleModel();
+                article.Id = Convert.ToInt32(row["id"]);
+                article.Title = row["title"].ToString();
+                article.Content = row["content"].ToString();
+                article.Tags = row["tags"].ToString();
+                article.Prompt = row["prompt"].ToString();
+                articles.Add(article);
+            }
+
+            // Add article titles to listbox
+            
 
             db.CloseConnection();
 
@@ -70,7 +87,7 @@ namespace GPTArticleGen.Presenter
         {
             // Initialize SQLiteDB
             string connectionString = "Data Source=ArticleDatabase.db;Version=3;";
-            SQLiteDB db = new SQLiteDB(connectionString);
+            SQLiteDB db = new SQLiteDB();
             db.OpenConnection();
 
             // Insert article to database

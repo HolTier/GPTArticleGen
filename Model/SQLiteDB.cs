@@ -10,7 +10,12 @@ public class SQLiteDB
     #region Basic Commands
     public SQLiteDB(string connectionString)
     {
-        connection = new SQLiteConnection(connectionString);
+        connection = new SQLiteConnection();
+    }
+
+    public SQLiteDB()
+    {
+        connection = new SQLiteConnection("Data Source=Articles.db;Version=3;");
     }
 
     public void OpenConnection()
@@ -39,7 +44,7 @@ public class SQLiteDB
     public async Task InsertArticleAsync(ArticleModel articleModel)
     {
         SQLiteCommand command = CreateCommand();
-        command.CommandText = "INSERT INTO Article (Title, Content, Tags, Prompt) VALUES (@Title, @Content, @Tags, @Prompt)";
+        command.CommandText = "INSERT INTO Articles (Title, Content, Tags, Prompt) VALUES (@Title, @Content, @Tags, @Prompt)";
         command.Parameters.AddWithValue("@Title", articleModel.Title);
         command.Parameters.AddWithValue("@Content", articleModel.Content);
         command.Parameters.AddWithValue("@Tags", articleModel.Tags);
@@ -57,7 +62,7 @@ public class SQLiteDB
     public async Task<DataTable> GetAllArticleAsync()
     {
         SQLiteCommand selectCommand = CreateCommand();
-        selectCommand.CommandText = "SELECT * FROM Article";
+        selectCommand.CommandText = "SELECT * FROM Articles";
         SQLiteDataAdapter adapter = new SQLiteDataAdapter(selectCommand);
         DataTable dataTable = new DataTable();
         await Task.Run(() => adapter.Fill(dataTable)); // Run the Fill operation asynchronously
@@ -67,7 +72,7 @@ public class SQLiteDB
     public async Task UpdateArticleAsync(ArticleModel articleModel)
     {
         SQLiteCommand command = CreateCommand();
-        command.CommandText = "UPDATE Article SET Title = @Title, Content = @Content, Tags = @Tags, Prompt = @Prompt WHERE Id = @Id";
+        command.CommandText = "UPDATE Articles SET Title = @Title, Content = @Content, Tags = @Tags, Prompt = @Prompt WHERE Id = @Id";
         command.Parameters.AddWithValue("@Id", articleModel.Id);
         command.Parameters.AddWithValue("@Title", articleModel.Title);
         command.Parameters.AddWithValue("@Content", articleModel.Content);
@@ -86,7 +91,7 @@ public class SQLiteDB
     public async Task DeleteArticleAsync(ArticleModel articleModel)
     {
         SQLiteCommand command = CreateCommand();
-        command.CommandText = "DELETE FROM Article WHERE Id = @Id";
+        command.CommandText = "DELETE FROM Articles WHERE Id = @Id";
         command.Parameters.AddWithValue("@Id", articleModel.Id);
         try
         {
@@ -101,7 +106,7 @@ public class SQLiteDB
     public async Task<int> GetLastArticleIdAsync()
     {
         SQLiteCommand command = CreateCommand();
-        command.CommandText = "SELECT Id FROM Article ORDER BY Id DESC LIMIT 1";
+        command.CommandText = "SELECT Id FROM Articles ORDER BY Id DESC LIMIT 1";
         DbDataReader reader = await command.ExecuteReaderAsync();
         int id = 0;
 

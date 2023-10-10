@@ -15,6 +15,7 @@ namespace GPTArticleGen.Model
         public string Content { get; set; }
         public string Tags { get; set; }
         public string Prompt { get; set; }
+        public string PromptTitle { get; set; }
 
     }
 }

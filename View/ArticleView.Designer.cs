@@ -32,6 +32,7 @@
             tabContent = new TabPage();
             content = new TextBox();
             tabPrompt = new TabPage();
+            tagsTextBox = new TextBox();
             tagsLabel = new Label();
             contentTextBox = new TextBox();
             contentLabel = new Label();
@@ -39,14 +40,13 @@
             titleTextBox = new TextBox();
             tabPage1 = new TabPage();
             webView2 = new Microsoft.Web.WebView2.WinForms.WebView2();
-            titlesBox = new ListBox();
+            titlesListBox = new ListBox();
             generateButton = new Button();
             generateAllButton = new Button();
             changePromptButton = new Button();
             importTitlesButton = new Button();
             addToPageButton = new Button();
             regenerateArticleButton = new Button();
-            tagsTextBox = new TextBox();
             textAndPromptControl.SuspendLayout();
             tabContent.SuspendLayout();
             tabPrompt.SuspendLayout();
@@ -99,6 +99,13 @@
             tabPrompt.TabIndex = 1;
             tabPrompt.Text = "Prompt";
             tabPrompt.UseVisualStyleBackColor = true;
+            // 
+            // tagsTextBox
+            // 
+            tagsTextBox.Location = new Point(8, 504);
+            tagsTextBox.Name = "tagsTextBox";
+            tagsTextBox.Size = new Size(789, 27);
+            tagsTextBox.TabIndex = 5;
             // 
             // tagsLabel
             // 
@@ -168,14 +175,14 @@
             webView2.TabIndex = 0;
             webView2.ZoomFactor = 1D;
             // 
-            // titlesBox
+            // titlesListBox
             // 
-            titlesBox.FormattingEnabled = true;
-            titlesBox.ItemHeight = 20;
-            titlesBox.Location = new Point(818, 28);
-            titlesBox.Name = "titlesBox";
-            titlesBox.Size = new Size(208, 544);
-            titlesBox.TabIndex = 1;
+            titlesListBox.FormattingEnabled = true;
+            titlesListBox.ItemHeight = 20;
+            titlesListBox.Location = new Point(818, 28);
+            titlesListBox.Name = "titlesListBox";
+            titlesListBox.Size = new Size(208, 544);
+            titlesListBox.TabIndex = 1;
             // 
             // generateButton
             // 
@@ -231,13 +238,6 @@
             regenerateArticleButton.Text = "Regenerate";
             regenerateArticleButton.UseVisualStyleBackColor = true;
             // 
-            // tagsTextBox
-            // 
-            tagsTextBox.Location = new Point(8, 504);
-            tagsTextBox.Name = "tagsTextBox";
-            tagsTextBox.Size = new Size(789, 27);
-            tagsTextBox.TabIndex = 5;
-            // 
             // ArticleView
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -249,7 +249,7 @@
             Controls.Add(changePromptButton);
             Controls.Add(generateAllButton);
             Controls.Add(generateButton);
-            Controls.Add(titlesBox);
+            Controls.Add(titlesListBox);
             Controls.Add(textAndPromptControl);
             Name = "ArticleView";
             Text = "ArticleForm";
@@ -270,7 +270,7 @@
         private TextBox content;
         private TabPage tabPrompt;
         private TextBox titleTextBox;
-        private ListBox titlesBox;
+        private ListBox titlesListBox;
         private Button generateButton;
         private Button generateAllButton;
         private Button changePromptButton;
