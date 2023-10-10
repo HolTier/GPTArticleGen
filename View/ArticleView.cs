@@ -36,6 +36,8 @@ namespace GPTArticleGen.View
             addToPageButton.Click += (sender, args) => AddToPageAsync?.Invoke(this, EventArgs.Empty);
             regenerateArticleButton.Click += (sender, args) => RegenarateArticle?.Invoke(this, EventArgs.Empty);
             titlesListBox.SelectedIndexChanged += (sender, args) => SelectedTitleChanged?.Invoke(this, EventArgs.Empty);
+            promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
 
             titlesListBox.DataSource = _titles;
             titlesListBox.DisplayMember = "PromptTitle";
@@ -78,15 +80,13 @@ namespace GPTArticleGen.View
         public string Title
         {
             get => titleTextBox.Text;
-            set 
-            {
-                titleTextBox.Text = value;
-            } 
+            set => titleTextBox.Text = value;
+            
         }
         public string Content
         {
-            get => promptFormatTextBox.Text;
-            set => promptFormatTextBox.Text = value;
+            get => contentTextBox.Text;
+            set => contentTextBox.Text = value;
         }
         public string Tags
         {
@@ -96,8 +96,8 @@ namespace GPTArticleGen.View
         }
         public string Prompt
         {
-            get => contentTextBox.Text;
-            set => contentTextBox.Text = value;
+            get => promptTextBox.Text;
+            set => promptTextBox.Text = value;
         }
 
         public WebView2 WebView2
@@ -140,7 +140,7 @@ namespace GPTArticleGen.View
             }
         }
 
-        public string promptFormat 
+        public string PromptFormat 
         { 
             get => promptFormatTextBox.Text; 
             set => promptFormatTextBox.Text = value; 
@@ -153,12 +153,24 @@ namespace GPTArticleGen.View
         public event EventHandler AddToPageAsync;
         public event EventHandler RegenarateArticle;
         public event EventHandler SelectedTitleChanged;
+        public event EventHandler PromptFormatTextBoxChanged;
+        public event EventHandler PromptTextBoxChanged;
 
-        public void NavigateToPage(string url)
+        public void EnableUI()
         {
-            if (webView2 != null)
+            // Enable UI elements as needed
+            foreach (Control control in this.Controls)
             {
-                webView2.Source = new Uri(url);
+                control.Enabled = true;
+            }
+        }
+
+        public void DisableUI()
+        {
+            // Disable UI elements as needed
+            foreach (Control control in this.Controls)
+            {
+                control.Enabled = false;
             }
         }
     }

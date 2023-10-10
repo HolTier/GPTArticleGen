@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace GPTArticleGen.Presenter
 {
@@ -20,6 +21,7 @@ namespace GPTArticleGen.Presenter
     {
         private readonly IArticleView _view;
         private readonly ArticleModel _model;
+        private string _basicPrompt;
 
         #region Initialize
         public ArticlePresenter(IArticleView view, ArticleModel model)
@@ -34,6 +36,8 @@ namespace GPTArticleGen.Presenter
             _view.AddToPageAsync += AddToPageAsync;
             _view.RegenarateArticle += RegenarateArticle;
             _view.SelectedTitleChanged += SelectedTitleChanged;
+            _view.PromptFormatTextBoxChanged += PromptFormatTextBoxChanged;
+            _view.PromptTextBoxChanged += PromptTextBoxChanged;
         }
 
         public void Initialize()
@@ -76,8 +80,12 @@ namespace GPTArticleGen.Presenter
                 articles.Add(article);
             }
 
-            // Add article titles to listbox
-            
+            _basicPrompt = "Napisz artykuł na temat \"{title}\" " +
+                "na 1500 do 2000 znaków, artykuł podziel na trzy części Meta title:, Meta content:, " +
+                "Meta tags:. Gdzie w Meta content znajduje się cała treść.  " +
+                "Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!!";
+
+
 
             db.CloseConnection();
 
@@ -92,13 +100,10 @@ namespace GPTArticleGen.Presenter
             SQLiteDB db = new SQLiteDB();
             db.OpenConnection();
 
-            // Insert article to database
-            ArticleModel articleModel = new ArticleModel();
-            articleModel.Title = _view.Title;
-            articleModel.Content = _view.Description;
-            articleModel.Tags = _view.Tags;
-            articleModel.Prompt = _view.Prompt;
-            await db.InsertArticleAsync(articleModel);
+            foreach (ArticleModel article in _view.Titles)
+            {
+                await db.InsertArticleAsync(article);
+            }
 
             db.CloseConnection();
         }
@@ -140,7 +145,35 @@ namespace GPTArticleGen.Presenter
 
         private void GenerateForAll(object? sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            bool isFirst = true;
+            Task.Run(async () =>
+            {
+                // Update the UI with the result on the UI thread
+                Program.SyncContext.Post(async _ =>
+                {
+                    _view.DisableUI();
+
+                    foreach (ArticleModel selected in _view.Titles)
+                    {
+                        if (isFirst)
+                        {
+                            await GenerateByGPTAsync(_view.WebView2, _view);
+                            isFirst = false;
+                        }
+                        else
+                            await RegenarateByGPTAsync(_view.WebView2, _view);
+
+                        selected.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
+                        selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
+                        selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
+
+                        SelectedTitleChanged(this, EventArgs.Empty);
+
+                        await Task.Delay(TimeSpan.FromSeconds(5));
+                    }
+                    _view.EnableUI();
+                }, null);
+            });
         }
 
         private void RegenarateArticle(object? sender, EventArgs e)
@@ -150,11 +183,19 @@ namespace GPTArticleGen.Presenter
                 // Update the UI with the result on the UI thread
                 Program.SyncContext.Post(async _ =>
                 {
+                    _view.DisableUI();
+
+                    ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
                     await RegenarateByGPTAsync(_view.WebView2, _view);
 
-                    _view.Prompt = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
-                    _view.Description = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
-                    _view.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
+                    selected.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
+                    selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
+                    selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
+
+                    SelectedTitleChanged(this, EventArgs.Empty);
+
+                    _view.EnableUI();
+
                 }, null);
             });
         }
@@ -166,11 +207,18 @@ namespace GPTArticleGen.Presenter
                 // Update the UI with the result on the UI thread
                 Program.SyncContext.Post(async _ =>
                 {
+                    _view.DisableUI();
+
+                    ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
                     await GenerateByGPTAsync(_view.WebView2, _view);
 
-                    _view.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
-                    _view.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
-                    _view.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
+                    selected.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
+                    selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
+                    selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
+
+                    SelectedTitleChanged(this, EventArgs.Empty);
+
+                    _view.EnableUI();
                 }, null);
             });
         }
@@ -182,14 +230,36 @@ namespace GPTArticleGen.Presenter
             // Update your view accordingly (e.g., set the Title and Description properties)
             if (selectedArticle != null)
             {
-                if(String.IsNullOrEmpty(_view.Title))
+                if(String.IsNullOrEmpty(selectedArticle.Title))
                     _view.Title = selectedArticle.PromptTitle;
                 else
                     _view.Title = selectedArticle.Title;
                 _view.Content = selectedArticle.Content;
                 _view.Tags = selectedArticle.Tags;
                 _view.Prompt = selectedArticle.Prompt;
+                _view.PromptFormat = selectedArticle.PromptFormat;
+
             }
+        }
+
+        private void PromptFormatTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel article = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if (article != null)
+                article.PromptFormat = _view.PromptFormat;
+
+            _view.Prompt = Task.Run(async () => _view.PromptFormat.Replace("{title}", article.PromptFormat)).Result;
+        }
+
+        private void PromptTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+            
+            if (selectedArticle != null)
+                selectedArticle.Prompt = _view.Prompt;
+
+
         }
         #endregion
 
@@ -202,7 +272,7 @@ namespace GPTArticleGen.Presenter
                 {
                     // Execute the JavaScript code
                     await webView2.ExecuteScriptAsync(jsCode);
-                    await Task.Delay(TimeSpan.FromSeconds(30));
+                    await Task.Delay(TimeSpan.FromSeconds(75));
                     string highestNValue = await FindHighestNAsync(webView2);
 
                     // Wait for the element with the specified attribute
@@ -228,7 +298,6 @@ namespace GPTArticleGen.Presenter
             int currentRetry = 0;
             string result = null;
 
-            await Task.Delay(000);
             while (currentRetry < maxRetries)
             {
                 result = await webView2.ExecuteScriptAsync(
@@ -322,6 +391,34 @@ namespace GPTArticleGen.Presenter
                 Console.WriteLine("No matching element found.");
             }
         }
+
+        static async Task EditRegenerateByGPTAsync(WebView2 webView2, IArticleView view)
+        {
+            string jsCode = @"
+                (async()=>{
+                    document.querySelector('.p-1.gizmo\\:pl-0.rounded-md.disabled\\:dark\\:hover\\:text-gray-400.dark\\:hover\\:text-gray-200.dark\\:text-gray-400.hover\\:bg-gray-100.hover\\:text-gray-700.dark\\:hover\\:bg-gray-700').click();
+                    await new Promise(r => setTimeout(r, 1000));    
+                    let inputElement = document.querySelector('.m-0.resize-none.border-0.bg-transparent.p-0.focus\\:ring-0.focus-visible\\:ring-0')
+                    inputElement.value = '';
+                    inputElement.focus();
+                    document.execCommand('insertText', false, 'Hehe test');
+                    document.querySelector('.btn.relative.btn-primary.mr-2').click();
+                })();
+            ";
+
+            string targetAttribute = "conversation-turn-"; // You can set the target attribute here
+
+            string result = await ExecuteJavaScriptAndWaitAsync(webView2, jsCode, targetAttribute);
+
+            if (!string.IsNullOrEmpty(result))
+            {
+                view.Content = result;
+            }
+            else
+            {
+                Console.WriteLine("No matching element found.");
+            }
+        }
         #endregion
 
         #region String Operations Methods
@@ -387,6 +484,12 @@ namespace GPTArticleGen.Presenter
             else
             {
                 throw new FileNotFoundException("The CSV file does not exist.");
+            }
+
+            foreach (ArticleModel article in _view.Titles)
+            {
+                article.PromptFormat = _basicPrompt;
+                article.Prompt = _basicPrompt.Replace("{title}", article.PromptTitle);
             }
         }
         #endregion

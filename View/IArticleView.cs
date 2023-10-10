@@ -19,7 +19,7 @@ namespace GPTArticleGen.View
         string Prompt { get; set; }
 
         string Description { get; set; }
-        string promptFormat { get; set; }
+        string PromptFormat { get; set; }
         ArticleModel SelectedTitle { get; set; }
         WebView2 WebView2 { get; set; }
         Control UiControl { get; }
@@ -33,6 +33,8 @@ namespace GPTArticleGen.View
         event EventHandler AddToPageAsync;
         event EventHandler RegenarateArticle;
         event EventHandler SelectedTitleChanged;
+        event EventHandler PromptFormatTextBoxChanged;
+        event EventHandler PromptTextBoxChanged;
 
         /*
         event EventHandler TitleTextBoxChanged;
@@ -42,6 +44,7 @@ namespace GPTArticleGen.View
         event EventHandler PromptFormatTextBoxChanged;*/
 
         // Methods
-        void NavigateToPage(string url);
+        void EnableUI();
+        void DisableUI();
     }
 }
