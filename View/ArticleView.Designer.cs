@@ -29,16 +29,16 @@
         private void InitializeComponent()
         {
             textAndPromptControl = new TabControl();
-            tabContent = new TabPage();
-            content = new TextBox();
-            tabPrompt = new TabPage();
+            tabContext = new TabPage();
             tagsTextBox = new TextBox();
             tagsLabel = new Label();
             contentTextBox = new TextBox();
             contentLabel = new Label();
             titleLabel = new Label();
             titleTextBox = new TextBox();
-            tabPage1 = new TabPage();
+            tabPrompt = new TabPage();
+            promptFormatTextBox = new TextBox();
+            tabWebView2 = new TabPage();
             webView2 = new Microsoft.Web.WebView2.WinForms.WebView2();
             titlesListBox = new ListBox();
             generateButton = new Button();
@@ -47,58 +47,42 @@
             importTitlesButton = new Button();
             addToPageButton = new Button();
             regenerateArticleButton = new Button();
+            promptFormatLabel = new Label();
+            promptLabel = new Label();
+            promptTextBox = new TextBox();
             textAndPromptControl.SuspendLayout();
-            tabContent.SuspendLayout();
+            tabContext.SuspendLayout();
             tabPrompt.SuspendLayout();
-            tabPage1.SuspendLayout();
+            tabWebView2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)webView2).BeginInit();
             SuspendLayout();
             // 
             // textAndPromptControl
             // 
-            textAndPromptControl.Controls.Add(tabContent);
+            textAndPromptControl.Controls.Add(tabContext);
             textAndPromptControl.Controls.Add(tabPrompt);
-            textAndPromptControl.Controls.Add(tabPage1);
+            textAndPromptControl.Controls.Add(tabWebView2);
             textAndPromptControl.Location = new Point(0, 0);
             textAndPromptControl.Name = "textAndPromptControl";
             textAndPromptControl.SelectedIndex = 0;
             textAndPromptControl.Size = new Size(812, 572);
             textAndPromptControl.TabIndex = 0;
             // 
-            // tabContent
+            // tabContext
             // 
-            tabContent.Controls.Add(content);
-            tabContent.Location = new Point(4, 29);
-            tabContent.Name = "tabContent";
-            tabContent.Padding = new Padding(3);
-            tabContent.Size = new Size(804, 539);
-            tabContent.TabIndex = 0;
-            tabContent.Text = "Content";
-            tabContent.UseVisualStyleBackColor = true;
-            // 
-            // content
-            // 
-            content.Location = new Point(0, 0);
-            content.Multiline = true;
-            content.Name = "content";
-            content.Size = new Size(808, 540);
-            content.TabIndex = 0;
-            // 
-            // tabPrompt
-            // 
-            tabPrompt.Controls.Add(tagsTextBox);
-            tabPrompt.Controls.Add(tagsLabel);
-            tabPrompt.Controls.Add(contentTextBox);
-            tabPrompt.Controls.Add(contentLabel);
-            tabPrompt.Controls.Add(titleLabel);
-            tabPrompt.Controls.Add(titleTextBox);
-            tabPrompt.Location = new Point(4, 29);
-            tabPrompt.Name = "tabPrompt";
-            tabPrompt.Padding = new Padding(3);
-            tabPrompt.Size = new Size(804, 539);
-            tabPrompt.TabIndex = 1;
-            tabPrompt.Text = "Prompt";
-            tabPrompt.UseVisualStyleBackColor = true;
+            tabContext.Controls.Add(tagsTextBox);
+            tabContext.Controls.Add(tagsLabel);
+            tabContext.Controls.Add(contentTextBox);
+            tabContext.Controls.Add(contentLabel);
+            tabContext.Controls.Add(titleLabel);
+            tabContext.Controls.Add(titleTextBox);
+            tabContext.Location = new Point(4, 29);
+            tabContext.Name = "tabContext";
+            tabContext.Padding = new Padding(3);
+            tabContext.Size = new Size(804, 539);
+            tabContext.TabIndex = 1;
+            tabContext.Text = "Context";
+            tabContext.UseVisualStyleBackColor = true;
             // 
             // tagsTextBox
             // 
@@ -153,16 +137,38 @@
             titleTextBox.Size = new Size(790, 27);
             titleTextBox.TabIndex = 0;
             // 
-            // tabPage1
+            // tabPrompt
             // 
-            tabPage1.Controls.Add(webView2);
-            tabPage1.Location = new Point(4, 29);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(804, 539);
-            tabPage1.TabIndex = 2;
-            tabPage1.Text = "tabPage1";
-            tabPage1.UseVisualStyleBackColor = true;
+            tabPrompt.Controls.Add(promptTextBox);
+            tabPrompt.Controls.Add(promptLabel);
+            tabPrompt.Controls.Add(promptFormatLabel);
+            tabPrompt.Controls.Add(promptFormatTextBox);
+            tabPrompt.Location = new Point(4, 29);
+            tabPrompt.Name = "tabPrompt";
+            tabPrompt.Padding = new Padding(3);
+            tabPrompt.Size = new Size(804, 539);
+            tabPrompt.TabIndex = 0;
+            tabPrompt.Text = "Prompt";
+            tabPrompt.UseVisualStyleBackColor = true;
+            // 
+            // promptFormatTextBox
+            // 
+            promptFormatTextBox.Location = new Point(8, 34);
+            promptFormatTextBox.Multiline = true;
+            promptFormatTextBox.Name = "promptFormatTextBox";
+            promptFormatTextBox.Size = new Size(790, 169);
+            promptFormatTextBox.TabIndex = 0;
+            // 
+            // tabWebView2
+            // 
+            tabWebView2.Controls.Add(webView2);
+            tabWebView2.Location = new Point(4, 29);
+            tabWebView2.Name = "tabWebView2";
+            tabWebView2.Padding = new Padding(3);
+            tabWebView2.Size = new Size(804, 539);
+            tabWebView2.TabIndex = 2;
+            tabWebView2.Text = "WebView";
+            tabWebView2.UseVisualStyleBackColor = true;
             // 
             // webView2
             // 
@@ -238,6 +244,34 @@
             regenerateArticleButton.Text = "Regenerate";
             regenerateArticleButton.UseVisualStyleBackColor = true;
             // 
+            // promptFormatLabel
+            // 
+            promptFormatLabel.AutoSize = true;
+            promptFormatLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            promptFormatLabel.Location = new Point(8, 3);
+            promptFormatLabel.Name = "promptFormatLabel";
+            promptFormatLabel.Size = new Size(160, 30);
+            promptFormatLabel.TabIndex = 1;
+            promptFormatLabel.Text = "Prompt Format";
+            // 
+            // promptLabel
+            // 
+            promptLabel.AutoSize = true;
+            promptLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            promptLabel.Location = new Point(8, 206);
+            promptLabel.Name = "promptLabel";
+            promptLabel.Size = new Size(160, 30);
+            promptLabel.TabIndex = 2;
+            promptLabel.Text = "Prompt Format";
+            // 
+            // promptTextBox
+            // 
+            promptTextBox.Location = new Point(8, 239);
+            promptTextBox.Multiline = true;
+            promptTextBox.Name = "promptTextBox";
+            promptTextBox.Size = new Size(790, 292);
+            promptTextBox.TabIndex = 3;
+            // 
             // ArticleView
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -254,11 +288,11 @@
             Name = "ArticleView";
             Text = "ArticleForm";
             textAndPromptControl.ResumeLayout(false);
-            tabContent.ResumeLayout(false);
-            tabContent.PerformLayout();
+            tabContext.ResumeLayout(false);
+            tabContext.PerformLayout();
             tabPrompt.ResumeLayout(false);
             tabPrompt.PerformLayout();
-            tabPage1.ResumeLayout(false);
+            tabWebView2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)webView2).EndInit();
             ResumeLayout(false);
         }
@@ -266,9 +300,9 @@
         #endregion
 
         private TabControl textAndPromptControl;
-        private TabPage tabContent;
-        private TextBox content;
         private TabPage tabPrompt;
+        private TextBox promptFormatTextBox;
+        private TabPage tabContext;
         private TextBox titleTextBox;
         private ListBox titlesListBox;
         private Button generateButton;
@@ -276,7 +310,7 @@
         private Button changePromptButton;
         private Button importTitlesButton;
         private Button addToPageButton;
-        private TabPage tabPage1;
+        private TabPage tabWebView2;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView2;
         private Button regenerateArticleButton;
         private Label titleLabel;
@@ -284,5 +318,8 @@
         private Label contentLabel;
         private Label tagsLabel;
         private TextBox tagsTextBox;
+        private Label promptFormatLabel;
+        private Label promptLabel;
+        private TextBox promptTextBox;
     }
 }

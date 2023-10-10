@@ -94,7 +94,7 @@ namespace GPTArticleGen.Presenter
 
             // Insert article to database
             ArticleModel articleModel = new ArticleModel();
-            articleModel.Title = _view.Prompt;
+            articleModel.Title = _view.Title;
             articleModel.Content = _view.Description;
             articleModel.Tags = _view.Tags;
             articleModel.Prompt = _view.Prompt;
@@ -168,8 +168,8 @@ namespace GPTArticleGen.Presenter
                 {
                     await GenerateByGPTAsync(_view.WebView2, _view);
 
-                    _view.Prompt = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
-                    _view.Description = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
+                    _view.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
+                    _view.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
                     _view.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
                 }, null);
             });
@@ -182,7 +182,13 @@ namespace GPTArticleGen.Presenter
             // Update your view accordingly (e.g., set the Title and Description properties)
             if (selectedArticle != null)
             {
-                
+                if(String.IsNullOrEmpty(_view.Title))
+                    _view.Title = selectedArticle.PromptTitle;
+                else
+                    _view.Title = selectedArticle.Title;
+                _view.Content = selectedArticle.Content;
+                _view.Tags = selectedArticle.Tags;
+                _view.Prompt = selectedArticle.Prompt;
             }
         }
         #endregion

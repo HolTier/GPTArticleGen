@@ -39,7 +39,7 @@ namespace GPTArticleGen.View
 
             titlesListBox.DataSource = _titles;
             titlesListBox.DisplayMember = "PromptTitle";
-            
+
 
             InitializeWebView2();
         }
@@ -77,13 +77,16 @@ namespace GPTArticleGen.View
 
         public string Title
         {
-            get => _title;
-            set => _title = value;
+            get => titleTextBox.Text;
+            set 
+            {
+                titleTextBox.Text = value;
+            } 
         }
         public string Content
         {
-            get => content.Text;
-            set => content.Text = value;
+            get => promptFormatTextBox.Text;
+            set => promptFormatTextBox.Text = value;
         }
         public string Tags
         {
@@ -93,8 +96,8 @@ namespace GPTArticleGen.View
         }
         public string Prompt
         {
-            get => titleTextBox.Text;
-            set => titleTextBox.Text = value;
+            get => contentTextBox.Text;
+            set => contentTextBox.Text = value;
         }
 
         public WebView2 WebView2
@@ -122,7 +125,7 @@ namespace GPTArticleGen.View
 
         public ArticleModel SelectedTitle
         {
-            get => titlesListBox.SelectedItem as ArticleModel; // Get the selected item's title
+            get => titlesListBox.SelectedItem as ArticleModel;
             set
             {
                 // Set the selected item based on the provided title
@@ -135,6 +138,12 @@ namespace GPTArticleGen.View
                     }
                 }
             }
+        }
+
+        public string promptFormat 
+        { 
+            get => promptFormatTextBox.Text; 
+            set => promptFormatTextBox.Text = value; 
         }
 
         public event EventHandler GenerateArticle;
