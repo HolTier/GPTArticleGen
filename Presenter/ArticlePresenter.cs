@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace GPTArticleGen.Presenter
 {
@@ -32,6 +33,7 @@ namespace GPTArticleGen.Presenter
             _view.ImportTitles += ImportTitles;
             _view.AddToPageAsync += AddToPageAsync;
             _view.RegenarateArticle += RegenarateArticle;
+            _view.SelectedTitleChanged += SelectedTitleChanged;
         }
 
         public void Initialize()
@@ -101,9 +103,34 @@ namespace GPTArticleGen.Presenter
             db.CloseConnection();
         }
 
-        private void ImportTitles(object? sender, EventArgs e)
+        private async void ImportTitles(object? sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            // Create and configure the OpenFileDialog
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Select a CSV file",
+                Filter = "CSV Files (*.csv)|*.csv",
+                CheckFileExists = true
+            };
+
+            // Show the dialog and get the selected file path
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string selectedFilePath = openFileDialog.FileName;
+
+                try
+                {
+                    // Call the LoadDataAsync function with the selected file path
+                    await LoadDataAsync(selectedFilePath);
+                    _view.SelectedTitle = _view.Titles.FirstOrDefault();
+                    SelectedTitleChanged(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    // Handle any exceptions that may occur during data loading
+                    MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void ChangeDefaultPrompt(object? sender, EventArgs e)
@@ -124,28 +151,39 @@ namespace GPTArticleGen.Presenter
                 Program.SyncContext.Post(async _ =>
                 {
                     await RegenarateByGPTAsync(_view.WebView2, _view);
-                    //_view.WebView2.Reload();
+
+                    _view.Prompt = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
+                    _view.Description = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
+                    _view.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
                 }, null);
             });
         }
 
         private void GenerateArticle(object? sender, EventArgs e)
         {
-            //_view.Content = _view.Prompt;
-            //_model.Content = _view.Content;
-            //_model.Prompt = _view.Prompt;
             Task.Run(async () =>
             {
                 // Update the UI with the result on the UI thread
                 Program.SyncContext.Post(async _ =>
                 {
                     await GenerateByGPTAsync(_view.WebView2, _view);
-                    //_view.WebView2.Reload();
+
                     _view.Prompt = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
                     _view.Description = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
                     _view.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
                 }, null);
             });
+        }
+
+        private void SelectedTitleChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            // Update your view accordingly (e.g., set the Title and Description properties)
+            if (selectedArticle != null)
+            {
+                
+            }
         }
         #endregion
 
@@ -313,6 +351,37 @@ namespace GPTArticleGen.Presenter
                 return string.Join(", ", tags);
             }
             return null; // Return null if marker is not found
+        }
+        #endregion
+
+        #region Read from file
+        public async Task LoadDataAsync(string csvFilePath)
+        {
+            if (File.Exists(csvFilePath))
+            {
+                using (StreamReader reader = new StreamReader(csvFilePath))
+                {
+                    string line;
+                    while ((line = await reader.ReadLineAsync()) != null)
+                    {
+                        string[] values = line.Split(',');
+                        if (values.Length >= 1)
+                        {
+                            string promptTitle = values[0].Trim();
+                            // Create a new ArticleModel for each line and set the PromptTitle
+                            ArticleModel article = new ArticleModel
+                            {
+                                PromptTitle = promptTitle
+                            };
+                            _view.Titles.Add(article);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException("The CSV file does not exist.");
+            }
         }
         #endregion
     }

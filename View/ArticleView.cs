@@ -35,8 +35,11 @@ namespace GPTArticleGen.View
             importTitlesButton.Click += (sender, args) => ImportTitles?.Invoke(this, EventArgs.Empty);
             addToPageButton.Click += (sender, args) => AddToPageAsync?.Invoke(this, EventArgs.Empty);
             regenerateArticleButton.Click += (sender, args) => RegenarateArticle?.Invoke(this, EventArgs.Empty);
+            titlesListBox.SelectedIndexChanged += (sender, args) => SelectedTitleChanged?.Invoke(this, EventArgs.Empty);
 
             titlesListBox.DataSource = _titles;
+            titlesListBox.DisplayMember = "PromptTitle";
+            
 
             InitializeWebView2();
         }
@@ -117,12 +120,30 @@ namespace GPTArticleGen.View
             }
         }
 
+        public ArticleModel SelectedTitle
+        {
+            get => titlesListBox.SelectedItem as ArticleModel; // Get the selected item's title
+            set
+            {
+                // Set the selected item based on the provided title
+                for (int i = 0; i < _titles.Count; i++)
+                {
+                    if (_titles[i] == value)
+                    {
+                        titlesListBox.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
         public event EventHandler GenerateArticle;
         public event EventHandler GenerateForAll;
         public event EventHandler ChangeDefaultPrompt;
         public event EventHandler ImportTitles;
         public event EventHandler AddToPageAsync;
         public event EventHandler RegenarateArticle;
+        public event EventHandler SelectedTitleChanged;
 
         public void NavigateToPage(string url)
         {
