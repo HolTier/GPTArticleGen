@@ -13,7 +13,7 @@ namespace GPTArticleGen.View
         // Properties
         string Title { get; set; }
         string Content { get; set; }
-        System.ComponentModel.BindingList<string> Tags { get; set; }
+        string Tags { get; set; }
         string Prompt { get; set; }
 
         string Description { get; set; }
@@ -25,7 +25,7 @@ namespace GPTArticleGen.View
         event EventHandler GenerateForAll;
         event EventHandler ChangeDefaultPrompt;
         event EventHandler ImportTitles;
-        event EventHandler AddToPage;
+        event EventHandler AddToPageAsync;
         event EventHandler RegenarateArticle;
 
         // Methods

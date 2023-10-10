@@ -32,10 +32,10 @@ namespace GPTArticleGen.View
             generateAllButton.Click += (sender, args) => GenerateForAll?.Invoke(this, EventArgs.Empty);
             changePromptButton.Click += (sender, args) => ChangeDefaultPrompt?.Invoke(this, EventArgs.Empty);
             importTitlesButton.Click += (sender, args) => ImportTitles?.Invoke(this, EventArgs.Empty);
-            addToPageButton.Click += (sender, args) => AddToPage?.Invoke(this, EventArgs.Empty);
+            addToPageButton.Click += (sender, args) => AddToPageAsync?.Invoke(this, EventArgs.Empty);
             regenerateArticleButton.Click += (sender, args) => RegenarateArticle?.Invoke(this, EventArgs.Empty);
 
-            tagsListBox.DataSource = _tags;
+            // tagsListBox.DataSource = _tags;
             _tags.Add("test");
             _tags.Add("test2");
 
@@ -83,14 +83,11 @@ namespace GPTArticleGen.View
             get => content.Text;
             set => content.Text = value;
         }
-        public BindingList<string> Tags
+        public string Tags
         {
-            get => _tags;
-            set
-            {
-                _tags = value;
-                tagsListBox.DataSource = _tags;
-            }
+            get => tagsTextBox.Text;
+            set => tagsTextBox.Text = value;
+            
         }
         public string Prompt
         {
@@ -116,7 +113,7 @@ namespace GPTArticleGen.View
         public event EventHandler GenerateForAll;
         public event EventHandler ChangeDefaultPrompt;
         public event EventHandler ImportTitles;
-        public event EventHandler AddToPage;
+        public event EventHandler AddToPageAsync;
         public event EventHandler RegenarateArticle;
 
         public void NavigateToPage(string url)

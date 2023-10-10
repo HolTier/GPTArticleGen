@@ -1,5 +1,6 @@
 ﻿using GPTArticleGen.Model;
 using System.Data;
+using System.Data.Common;
 using System.Data.SQLite;
 
 public class SQLiteDB
@@ -35,17 +36,17 @@ public class SQLiteDB
     #endregion
 
     #region CRUD
-    public void InsertArticle(ArticleModel articleModel)
+    public async Task InsertArticleAsync(ArticleModel articleModel)
     {
         SQLiteCommand command = CreateCommand();
         command.CommandText = "INSERT INTO Article (Title, Content, Tags, Prompt) VALUES (@Title, @Content, @Tags, @Prompt)";
         command.Parameters.AddWithValue("@Title", articleModel.Title);
         command.Parameters.AddWithValue("@Content", articleModel.Content);
-        command.Parameters.AddWithValue("@Author", articleModel.Tags);
-        command.Parameters.AddWithValue("@Date", articleModel.Prompt);
+        command.Parameters.AddWithValue("@Tags", articleModel.Tags);
+        command.Parameters.AddWithValue("@Prompt", articleModel.Prompt);
         try
         {
-            command.ExecuteNonQuery();
+            await command.ExecuteNonQueryAsync();
         }
         catch (SQLiteException e)
         {
@@ -53,17 +54,17 @@ public class SQLiteDB
         }
     }
 
-    public DataTable GetAllArticle()
+    public async Task<DataTable> GetAllArticleAsync()
     {
         SQLiteCommand selectCommand = CreateCommand();
         selectCommand.CommandText = "SELECT * FROM Article";
         SQLiteDataAdapter adapter = new SQLiteDataAdapter(selectCommand);
         DataTable dataTable = new DataTable();
-        adapter.Fill(dataTable);
+        await Task.Run(() => adapter.Fill(dataTable)); // Run the Fill operation asynchronously
         return dataTable;
     }
 
-    public void UpdateArticle(ArticleModel articleModel)
+    public async Task UpdateArticleAsync(ArticleModel articleModel)
     {
         SQLiteCommand command = CreateCommand();
         command.CommandText = "UPDATE Article SET Title = @Title, Content = @Content, Tags = @Tags, Prompt = @Prompt WHERE Id = @Id";
@@ -74,7 +75,7 @@ public class SQLiteDB
         command.Parameters.AddWithValue("@Prompt", articleModel.Prompt);
         try
         {
-            command.ExecuteNonQuery();
+            await command.ExecuteNonQueryAsync();
         }
         catch (SQLiteException e)
         {
@@ -82,14 +83,14 @@ public class SQLiteDB
         }
     }
 
-    public void DeleteArticle(ArticleModel articleModel)
+    public async Task DeleteArticleAsync(ArticleModel articleModel)
     {
         SQLiteCommand command = CreateCommand();
         command.CommandText = "DELETE FROM Article WHERE Id = @Id";
         command.Parameters.AddWithValue("@Id", articleModel.Id);
         try
         {
-            command.ExecuteNonQuery();
+            await command.ExecuteNonQueryAsync();
         }
         catch (SQLiteException e)
         {
@@ -97,16 +98,25 @@ public class SQLiteDB
         }
     }
 
-    public int GetastArticleId()
+    public async Task<int> GetLastArticleIdAsync()
     {
         SQLiteCommand command = CreateCommand();
         command.CommandText = "SELECT Id FROM Article ORDER BY Id DESC LIMIT 1";
-        SQLiteDataReader reader = command.ExecuteReader();
+        DbDataReader reader = await command.ExecuteReaderAsync();
         int id = 0;
-        while (reader.Read())
+
+        if (reader is SQLiteDataReader sqliteReader)
         {
-            id = reader.GetInt32(0);
+            while (await sqliteReader.ReadAsync())
+            {
+                id = sqliteReader.GetInt32(0);
+            }
         }
+        else
+        {
+            throw new InvalidOperationException("Unexpected database reader type.");
+        }
+
         return id;
     }
 

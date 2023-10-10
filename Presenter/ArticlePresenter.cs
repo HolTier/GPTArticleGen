@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace GPTArticleGen.Presenter
             _view.GenerateForAll += GenerateForAll;
             _view.ChangeDefaultPrompt += ChangeDefaultPrompt;
             _view.ImportTitles += ImportTitles;
-            _view.AddToPage += AddToPage;
+            _view.AddToPageAsync += AddToPageAsync;
             _view.RegenarateArticle += RegenarateArticle;
         }
 
@@ -53,38 +54,11 @@ namespace GPTArticleGen.Presenter
                 title TEXT NOT NULL,
                 content TEXT NOT NULL,
                 tags TEXT NOT NULL,
-                prompt TEXT NOT NULL,
-                description TEXT NOT NULL
+                prompt TEXT NOT NULL
             )";
             SQLiteCommand createTableCommand = db.CreateCommand();
             createTableCommand.CommandText = createTableQuery;
             createTableCommand.ExecuteNonQuery();
-
-            // Insert data
-            string insertDataQuery = @"INSERT INTO Articles (title, content, tags, prompt, description) VALUES (@title, @content, @tags, @prompt, @description)";
-            SQLiteCommand insertDataCommand = db.CreateCommand();
-            insertDataCommand.CommandText = insertDataQuery;
-            insertDataCommand.Parameters.AddWithValue("@title", "test");
-            insertDataCommand.Parameters.AddWithValue("@content", "test");
-            insertDataCommand.Parameters.AddWithValue("@tags", "test");
-            insertDataCommand.Parameters.AddWithValue("@prompt", "test");
-            insertDataCommand.Parameters.AddWithValue("@description", "test");
-            insertDataCommand.ExecuteNonQuery();
-
-            // Read data
-            string readDataQuery = @"SELECT * FROM Articles";
-            SQLiteCommand readDataCommand = db.CreateCommand();
-            readDataCommand.CommandText = readDataQuery;
-            SQLiteDataReader reader = readDataCommand.ExecuteReader();
-            while (reader.Read())
-            {
-                Debug.WriteLine(reader["title"]);
-                Debug.WriteLine(reader["content"]);
-                Debug.WriteLine(reader["tags"]);
-                Debug.WriteLine(reader["prompt"]);
-                Debug.WriteLine(reader["description"]);
-            }
-
 
             db.CloseConnection();
 
@@ -92,10 +66,22 @@ namespace GPTArticleGen.Presenter
         #endregion
 
         #region Event Handlers
-        private void AddToPage(object? sender, EventArgs e)
+        private async void AddToPageAsync(object? sender, EventArgs e)
         {
-            Debug.WriteLine(_view.Tags.Count);
-            _view.Tags.Add("test3");
+            // Initialize SQLiteDB
+            string connectionString = "Data Source=ArticleDatabase.db;Version=3;";
+            SQLiteDB db = new SQLiteDB(connectionString);
+            db.OpenConnection();
+
+            // Insert article to database
+            ArticleModel articleModel = new ArticleModel();
+            articleModel.Title = _view.Prompt;
+            articleModel.Content = _view.Description;
+            articleModel.Tags = _view.Tags;
+            articleModel.Prompt = _view.Prompt;
+            await db.InsertArticleAsync(articleModel);
+
+            db.CloseConnection();
         }
 
         private void ImportTitles(object? sender, EventArgs e)
@@ -140,7 +126,7 @@ namespace GPTArticleGen.Presenter
                     //_view.WebView2.Reload();
                     _view.Prompt = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
                     _view.Description = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
-                    _view.Tags.Add(await ExtractTagsAsync(_view.Content, "Meta tags:"));
+                    _view.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
                 }, null);
             });
         }

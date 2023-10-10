@@ -32,7 +32,6 @@
             tabContent = new TabPage();
             content = new TextBox();
             tabPrompt = new TabPage();
-            tagsListBox = new ListBox();
             tagsLabel = new Label();
             contentTextBox = new TextBox();
             contentLabel = new Label();
@@ -47,6 +46,7 @@
             importTitlesButton = new Button();
             addToPageButton = new Button();
             regenerateArticleButton = new Button();
+            tagsTextBox = new TextBox();
             textAndPromptControl.SuspendLayout();
             tabContent.SuspendLayout();
             tabPrompt.SuspendLayout();
@@ -86,7 +86,7 @@
             // 
             // tabPrompt
             // 
-            tabPrompt.Controls.Add(tagsListBox);
+            tabPrompt.Controls.Add(tagsTextBox);
             tabPrompt.Controls.Add(tagsLabel);
             tabPrompt.Controls.Add(contentTextBox);
             tabPrompt.Controls.Add(contentLabel);
@@ -100,20 +100,11 @@
             tabPrompt.Text = "Prompt";
             tabPrompt.UseVisualStyleBackColor = true;
             // 
-            // tagsListBox
-            // 
-            tagsListBox.FormattingEnabled = true;
-            tagsListBox.ItemHeight = 20;
-            tagsListBox.Location = new Point(8, 404);
-            tagsListBox.Name = "tagsListBox";
-            tagsListBox.Size = new Size(790, 104);
-            tagsListBox.TabIndex = 5;
-            // 
             // tagsLabel
             // 
             tagsLabel.AutoSize = true;
             tagsLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            tagsLabel.Location = new Point(8, 371);
+            tagsLabel.Location = new Point(8, 471);
             tagsLabel.Name = "tagsLabel";
             tagsLabel.Size = new Size(56, 30);
             tagsLabel.TabIndex = 4;
@@ -125,7 +116,7 @@
             contentTextBox.Multiline = true;
             contentTextBox.Name = "contentTextBox";
             contentTextBox.ScrollBars = ScrollBars.Horizontal;
-            contentTextBox.Size = new Size(790, 266);
+            contentTextBox.Size = new Size(790, 366);
             contentTextBox.TabIndex = 3;
             // 
             // contentLabel
@@ -240,6 +231,13 @@
             regenerateArticleButton.Text = "Regenerate";
             regenerateArticleButton.UseVisualStyleBackColor = true;
             // 
+            // tagsTextBox
+            // 
+            tagsTextBox.Location = new Point(8, 504);
+            tagsTextBox.Name = "tagsTextBox";
+            tagsTextBox.Size = new Size(789, 27);
+            tagsTextBox.TabIndex = 5;
+            // 
             // ArticleView
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -285,6 +283,6 @@
         private TextBox contentTextBox;
         private Label contentLabel;
         private Label tagsLabel;
-        private ListBox tagsListBox;
+        private TextBox tagsTextBox;
     }
 }
