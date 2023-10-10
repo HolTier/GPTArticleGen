@@ -157,11 +157,11 @@ namespace GPTArticleGen.Presenter
                     {
                         if (isFirst)
                         {
-                            await GenerateByGPTAsync(_view.WebView2, _view);
+                            await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt);
                             isFirst = false;
                         }
                         else
-                            await RegenarateByGPTAsync(_view.WebView2, _view);
+                            await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.Prompt);
 
                         selected.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
                         selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
@@ -210,7 +210,7 @@ namespace GPTArticleGen.Presenter
                     _view.DisableUI();
 
                     ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
-                    await GenerateByGPTAsync(_view.WebView2, _view);
+                    await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt);
 
                     selected.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
                     selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
@@ -344,16 +344,18 @@ namespace GPTArticleGen.Presenter
             return null;
         }
 
-        static async Task GenerateByGPTAsync(WebView2 webView2, IArticleView view)
+        static async Task GenerateByGPTAsync(WebView2 webView2, IArticleView view, string newTitle)
         {
             string jsCode = @"
                 let inputElement = document.getElementById('prompt-textarea');
                 inputElement.focus();
-                document.execCommand('insertText', false, 'Napisz artykuł na temat ""Chomiki głębinowe. Czy zagrażają ludzią."" na 1500 do 2000 znaków, artykuł podziel na trzy części Meta title:, Meta content:, Meta tags:. Gdzie w Meta content znajduje się cała treść.  Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!!');
+                document.execCommand('insertText', false, '{placeholder}');
                 document.querySelector('[data-testid=""send-button""]').disabled = false;
                 document.querySelector('[data-testid=""send-button""]').click();
                 document.querySelector('[data-testid=""send-button""]').disabled = false;
             ";
+
+            jsCode = jsCode.Replace("{placeholder}", newTitle);
 
             string targetAttribute = "conversation-turn-"; // You can set the target attribute here
 
@@ -392,7 +394,7 @@ namespace GPTArticleGen.Presenter
             }
         }
 
-        static async Task EditRegenerateByGPTAsync(WebView2 webView2, IArticleView view)
+        static async Task EditRegenerateByGPTAsync(WebView2 webView2, IArticleView view, string newTitle)
         {
             string jsCode = @"
                 (async()=>{
@@ -401,10 +403,12 @@ namespace GPTArticleGen.Presenter
                     let inputElement = document.querySelector('.m-0.resize-none.border-0.bg-transparent.p-0.focus\\:ring-0.focus-visible\\:ring-0')
                     inputElement.value = '';
                     inputElement.focus();
-                    document.execCommand('insertText', false, 'Hehe test');
+                    document.execCommand('insertText', false, '{placeholder}');
                     document.querySelector('.btn.relative.btn-primary.mr-2').click();
                 })();
             ";
+
+            jsCode = jsCode.Replace("{placeholder}", newTitle);
 
             string targetAttribute = "conversation-turn-"; // You can set the target attribute here
 

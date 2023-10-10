@@ -81,7 +81,7 @@ namespace GPTArticleGen.View
         {
             get => titleTextBox.Text;
             set => titleTextBox.Text = value;
-            
+
         }
         public string Content
         {
@@ -140,10 +140,10 @@ namespace GPTArticleGen.View
             }
         }
 
-        public string PromptFormat 
-        { 
-            get => promptFormatTextBox.Text; 
-            set => promptFormatTextBox.Text = value; 
+        public string PromptFormat
+        {
+            get => promptFormatTextBox.Text;
+            set => promptFormatTextBox.Text = value;
         }
 
         public event EventHandler GenerateArticle;

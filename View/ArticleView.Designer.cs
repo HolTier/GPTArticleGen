@@ -37,6 +37,9 @@
             titleLabel = new Label();
             titleTextBox = new TextBox();
             tabPrompt = new TabPage();
+            promptTextBox = new TextBox();
+            promptLabel = new Label();
+            promptFormatLabel = new Label();
             promptFormatTextBox = new TextBox();
             tabWebView2 = new TabPage();
             webView2 = new Microsoft.Web.WebView2.WinForms.WebView2();
@@ -47,9 +50,6 @@
             importTitlesButton = new Button();
             addToPageButton = new Button();
             regenerateArticleButton = new Button();
-            promptFormatLabel = new Label();
-            promptLabel = new Label();
-            promptTextBox = new TextBox();
             textAndPromptControl.SuspendLayout();
             tabContext.SuspendLayout();
             tabPrompt.SuspendLayout();
@@ -151,6 +151,34 @@
             tabPrompt.Text = "Prompt";
             tabPrompt.UseVisualStyleBackColor = true;
             // 
+            // promptTextBox
+            // 
+            promptTextBox.Location = new Point(8, 239);
+            promptTextBox.Multiline = true;
+            promptTextBox.Name = "promptTextBox";
+            promptTextBox.Size = new Size(790, 292);
+            promptTextBox.TabIndex = 3;
+            // 
+            // promptLabel
+            // 
+            promptLabel.AutoSize = true;
+            promptLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            promptLabel.Location = new Point(8, 206);
+            promptLabel.Name = "promptLabel";
+            promptLabel.Size = new Size(85, 30);
+            promptLabel.TabIndex = 2;
+            promptLabel.Text = "Prompt";
+            // 
+            // promptFormatLabel
+            // 
+            promptFormatLabel.AutoSize = true;
+            promptFormatLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            promptFormatLabel.Location = new Point(8, 3);
+            promptFormatLabel.Name = "promptFormatLabel";
+            promptFormatLabel.Size = new Size(160, 30);
+            promptFormatLabel.TabIndex = 1;
+            promptFormatLabel.Text = "Prompt Format";
+            // 
             // promptFormatTextBox
             // 
             promptFormatTextBox.Location = new Point(8, 34);
@@ -243,34 +271,6 @@
             regenerateArticleButton.TabIndex = 7;
             regenerateArticleButton.Text = "Regenerate";
             regenerateArticleButton.UseVisualStyleBackColor = true;
-            // 
-            // promptFormatLabel
-            // 
-            promptFormatLabel.AutoSize = true;
-            promptFormatLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            promptFormatLabel.Location = new Point(8, 3);
-            promptFormatLabel.Name = "promptFormatLabel";
-            promptFormatLabel.Size = new Size(160, 30);
-            promptFormatLabel.TabIndex = 1;
-            promptFormatLabel.Text = "Prompt Format";
-            // 
-            // promptLabel
-            // 
-            promptLabel.AutoSize = true;
-            promptLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            promptLabel.Location = new Point(8, 206);
-            promptLabel.Name = "promptLabel";
-            promptLabel.Size = new Size(160, 30);
-            promptLabel.TabIndex = 2;
-            promptLabel.Text = "Prompt Format";
-            // 
-            // promptTextBox
-            // 
-            promptTextBox.Location = new Point(8, 239);
-            promptTextBox.Multiline = true;
-            promptTextBox.Name = "promptTextBox";
-            promptTextBox.Size = new Size(790, 292);
-            promptTextBox.TabIndex = 3;
             // 
             // ArticleView
             // 
