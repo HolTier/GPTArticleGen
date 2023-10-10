@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,53 @@ namespace GPTArticleGen.Presenter
             // _view.Description = _model.Description;
             _view.WebView2.Source = new Uri("https://chat.openai.com");
             //_view.Tags = new ObservableCollection<string>();
+
+            // Initialize SQLiteDB
+            string connectionString = "Data Source=ArticleDatabase.db;Version=3;";
+            SQLiteDB db = new SQLiteDB(connectionString);
+            db.OpenConnection();
             
+            // Create table if not exists
+            string createTableQuery = @"CREATE TABLE IF NOT EXISTS Articles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                tags TEXT NOT NULL,
+                prompt TEXT NOT NULL,
+                description TEXT NOT NULL
+            )";
+            SQLiteCommand createTableCommand = db.CreateCommand();
+            createTableCommand.CommandText = createTableQuery;
+            createTableCommand.ExecuteNonQuery();
+
+            // Insert data
+            string insertDataQuery = @"INSERT INTO Articles (title, content, tags, prompt, description) VALUES (@title, @content, @tags, @prompt, @description)";
+            SQLiteCommand insertDataCommand = db.CreateCommand();
+            insertDataCommand.CommandText = insertDataQuery;
+            insertDataCommand.Parameters.AddWithValue("@title", "test");
+            insertDataCommand.Parameters.AddWithValue("@content", "test");
+            insertDataCommand.Parameters.AddWithValue("@tags", "test");
+            insertDataCommand.Parameters.AddWithValue("@prompt", "test");
+            insertDataCommand.Parameters.AddWithValue("@description", "test");
+            insertDataCommand.ExecuteNonQuery();
+
+            // Read data
+            string readDataQuery = @"SELECT * FROM Articles";
+            SQLiteCommand readDataCommand = db.CreateCommand();
+            readDataCommand.CommandText = readDataQuery;
+            SQLiteDataReader reader = readDataCommand.ExecuteReader();
+            while (reader.Read())
+            {
+                Debug.WriteLine(reader["title"]);
+                Debug.WriteLine(reader["content"]);
+                Debug.WriteLine(reader["tags"]);
+                Debug.WriteLine(reader["prompt"]);
+                Debug.WriteLine(reader["description"]);
+            }
+
+
+            db.CloseConnection();
+
         }
         #endregion
 
