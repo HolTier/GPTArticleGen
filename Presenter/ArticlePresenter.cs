@@ -239,8 +239,9 @@ namespace GPTArticleGen.Presenter
                     _view.Title = selectedArticle.Title;
                 _view.Content = selectedArticle.Content;
                 _view.Tags = selectedArticle.Tags;
-                _view.Prompt = selectedArticle.Prompt;
                 _view.PromptFormat = selectedArticle.PromptFormat;
+                _view.Prompt = selectedArticle.Prompt;
+                
 
             }
         }
@@ -250,9 +251,10 @@ namespace GPTArticleGen.Presenter
             ArticleModel article = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
 
             if (article != null)
+            {
                 article.PromptFormat = _view.PromptFormat;
-
-            _view.Prompt = Task.Run(async () => _view.PromptFormat.Replace("{title}", article.PromptFormat)).Result;
+                article.Prompt = _view.PromptFormat.Replace("{title}", article.PromptTitle);
+            }
         }
 
         private void PromptTextBoxChanged(object? sender, EventArgs e)
@@ -481,7 +483,9 @@ namespace GPTArticleGen.Presenter
                             // Create a new ArticleModel for each line and set the PromptTitle
                             ArticleModel article = new ArticleModel
                             {
-                                PromptTitle = promptTitle
+                                PromptTitle = promptTitle,
+                                PromptFormat = _basicPrompt,
+                                Prompt = _basicPrompt.Replace("{title}", promptTitle)
                             };
                             _view.Titles.Add(article);
                         }
@@ -491,12 +495,6 @@ namespace GPTArticleGen.Presenter
             else
             {
                 throw new FileNotFoundException("The CSV file does not exist.");
-            }
-
-            foreach (ArticleModel article in _view.Titles)
-            {
-                article.PromptFormat = _basicPrompt;
-                article.Prompt = _basicPrompt.Replace("{title}", article.PromptTitle);
             }
         }
         #endregion
