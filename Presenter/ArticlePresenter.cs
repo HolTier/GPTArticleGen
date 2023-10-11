@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -80,10 +81,12 @@ namespace GPTArticleGen.Presenter
                 articles.Add(article);
             }
 
-            _basicPrompt = "Napisz artykuł na temat \"{title}\" " +
-                "na 1500 do 2000 znaków, artykuł podziel na trzy części Meta title:, Meta content:, " +
-                "Meta tags:. Gdzie w Meta content znajduje się cała treść.  " +
-                "Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!!";
+            _basicPrompt = "Napisz artykuł na temat \"{title}\" na 1500 do 2000 znaków, artykuł podziel na trzy części " +
+                "Meta title:, Meta content:, Meta tags:. Gdzie w Meta content znajduje się cała treść.  " +
+                "Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. " +
+                "Nie zapomnij o Meta tags na końcu!!!! " +
+                "Gdzie używasz nagłówka użyj <h2></h2>, " +
+                "gdzie podgrubienie <strong></strong>, a nowy paragraf (np. po nagłówku) itp.";
 
 
 
@@ -306,7 +309,7 @@ namespace GPTArticleGen.Presenter
 
                 if (!string.IsNullOrEmpty(result))
                 {
-                    return result;
+                    return System.Text.RegularExpressions.Regex.Unescape(result);
                 }
 
                 // Wait for a short period before retrying
