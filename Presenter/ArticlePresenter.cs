@@ -154,7 +154,7 @@ namespace GPTArticleGen.Presenter
                 // Update the UI with the result on the UI thread
                 Program.SyncContext.Post(async _ =>
                 {
-                    _view.DisableUI();
+                    //_view.DisableUI();
 
                     foreach (ArticleModel selected in _view.Titles)
                     {
@@ -172,9 +172,9 @@ namespace GPTArticleGen.Presenter
 
                         SelectedTitleChanged(this, EventArgs.Empty);
 
-                        await Task.Delay(TimeSpan.FromSeconds(5));
+                        await Task.Delay(TimeSpan.FromSeconds(10));
                     }
-                    _view.EnableUI();
+                    //_view.EnableUI();
                 }, null);
             });
         }
@@ -277,7 +277,31 @@ namespace GPTArticleGen.Presenter
                 {
                     // Execute the JavaScript code
                     await webView2.ExecuteScriptAsync(jsCode);
-                    await Task.Delay(TimeSpan.FromSeconds(75));
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    string jsFirstCheck = @"
+                        let button = document.querySelector('button.btn.relative.-z-0.whitespace-nowrap.border-0.md\\:border');
+                    ";
+                    string jsCheck = @"
+                        button = document.querySelector('button.btn.relative.-z-0.whitespace-nowrap.border-0.md\\:border'); 
+                        if (button) {
+                            true;
+                        }
+                        else {
+                            false;
+                        }";
+
+                    await webView2.ExecuteScriptAsync(jsFirstCheck);
+
+                    bool resultCheck = false;
+                    string resultLocal;
+                    // Wait for the element with the specified attribute
+                    while (!resultCheck)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(0.5));
+                        resultLocal = await webView2.ExecuteScriptAsync(jsCheck);
+                        resultCheck = bool.Parse(resultLocal);
+                    }
+
                     string highestNValue = await FindHighestNAsync(webView2);
 
                     // Wait for the element with the specified attribute
@@ -418,6 +442,7 @@ namespace GPTArticleGen.Presenter
             string targetAttribute = "conversation-turn-"; // You can set the target attribute here
 
             string result = await ExecuteJavaScriptAndWaitAsync(webView2, jsCode, targetAttribute);
+            await Task.Delay(TimeSpan.FromSeconds(5));
 
             if (!string.IsNullOrEmpty(result))
             {
