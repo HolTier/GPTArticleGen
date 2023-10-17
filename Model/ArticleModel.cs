@@ -17,6 +17,7 @@ namespace GPTArticleGen.Model
         public string Prompt { get; set; }
         public string PromptTitle { get; set; }
         public string PromptFormat { get; set; }
+        public int Retries { get; set; } = 1;
 
     }
 }

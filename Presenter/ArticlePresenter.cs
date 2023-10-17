@@ -178,6 +178,9 @@ namespace GPTArticleGen.Presenter
                         selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
                         selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
 
+                        selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
+                        selected.Retries++;
+
                         SelectedTitleChanged(this, EventArgs.Empty);
 
                         await Task.Delay(TimeSpan.FromSeconds(10));
@@ -203,6 +206,9 @@ namespace GPTArticleGen.Presenter
                     selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
                     selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
 
+                    selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
+                    selected.Retries++;
+
                     SelectedTitleChanged(this, EventArgs.Empty);
 
                     _view.EnableUI();
@@ -227,7 +233,8 @@ namespace GPTArticleGen.Presenter
                     selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
                     selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
 
-                    selected.Tags = SubstreingFromString(selected.Tags, 1); 
+                    selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
+                    selected.Retries++;
 
                     SelectedTitleChanged(this, EventArgs.Empty);
 
@@ -521,7 +528,7 @@ namespace GPTArticleGen.Presenter
                 int lastIndex = input.LastIndexOf('/');
                 if (lastIndex >= 0)
                 {
-                    input = input.Substring(0, lastIndex - retries.ToString().Length);
+                    input = input.Substring(0, lastIndex - retries.ToString().Length - 1);
                 }
             }
 
