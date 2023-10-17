@@ -20,6 +20,5 @@ namespace GPTArticleGen.Model
         public string RawData { get; set; }
         public string PostData { get; set; }
         public int Retries { get; set; } = 1;
-
     }
 }

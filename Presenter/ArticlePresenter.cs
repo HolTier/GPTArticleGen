@@ -46,7 +46,8 @@ namespace GPTArticleGen.Presenter
             _view.TitleTextBoxChanged += TitleTextBoxChanged;
             _view.ContentTextBoxChanged += ContentTextBoxChanged;
             _view.TagsTextBoxChanged += TagsTextBoxChanged;
-
+            _view.SaveSettings += SaveSettings;
+            _view.CancelSettings += CancelSettings;
         }
 
         public void Initialize()
@@ -89,17 +90,11 @@ namespace GPTArticleGen.Presenter
                 articles.Add(article);
             }
 
-            _basicPrompt = "Napisz artykuł na temat \"{title}\" na 1500 do 2000 znaków, artykuł podziel na trzy części " +
-                "Meta title:, Meta content:, Meta tags:. Gdzie w Meta content znajduje się cała treść.  " +
-                "Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. " +
-                "Nie zapomnij o Meta tags na końcu!!!! " +
-                "Gdzie używasz nagłówka użyj <h2></h2>, " +
-                "gdzie podgrubienie <strong></strong>, a nowy paragraf (np. po nagłówku) itp.";
-
-
+            _basicPrompt = Properties.Settings.Default.BasicPrompt;
+            _view.DefaultPrompt = _basicPrompt;
+            _view.MaxRetries = Properties.Settings.Default.MaxRetries;
 
             db.CloseConnection();
-
         }
         #endregion
 
@@ -228,7 +223,7 @@ namespace GPTArticleGen.Presenter
                 // Update the UI with the result on the UI thread
                 Program.SyncContext.Post(async _ =>
                 {
-                    _view.DisableUI();
+                    //_view.DisableUI();
 
                     ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
                     await RegenarateByGPTAsync(_view.WebView2, _view, selected);
@@ -242,7 +237,7 @@ namespace GPTArticleGen.Presenter
 
                     SelectedTitleChanged(this, EventArgs.Empty);
 
-                    _view.EnableUI();
+                    //_view.EnableUI();
 
                 }, null);
             });
@@ -255,7 +250,7 @@ namespace GPTArticleGen.Presenter
                 // Update the UI with the result on the UI thread
                 Program.SyncContext.Post(async _ =>
                 {
-                    _view.DisableUI();
+                    //_view.DisableUI();
 
                     ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
                     await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
@@ -269,7 +264,7 @@ namespace GPTArticleGen.Presenter
 
                     SelectedTitleChanged(this, EventArgs.Empty);
 
-                    _view.EnableUI();
+                    //_view.EnableUI();
                 }, null);
             });
         }
@@ -337,6 +332,18 @@ namespace GPTArticleGen.Presenter
 
             if (selectedArticle != null)
                 selectedArticle.Title = _view.Title;
+        }
+
+        private void CancelSettings(object? sender, EventArgs e)
+        {
+            _view.DefaultPrompt = Properties.Settings.Default.BasicPrompt;
+            _view.MaxRetries = Properties.Settings.Default.MaxRetries;
+        }
+
+        private void SaveSettings(object? sender, EventArgs e)
+        {
+            Properties.Settings.Default.BasicPrompt = _view.DefaultPrompt;
+            Properties.Settings.Default.MaxRetries = _view.MaxRetries;
         }
         #endregion
 

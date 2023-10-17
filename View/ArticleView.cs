@@ -19,6 +19,8 @@ namespace GPTArticleGen.View
     {
         private string _title;
         private string _description;
+        private int _maxRetries;
+        private string _defaultPrompt;
         private BindingList<ArticleModel> _titles = new BindingList<ArticleModel>();
         Control _uiControl;
 
@@ -36,6 +38,8 @@ namespace GPTArticleGen.View
             addToPageButton.Click += (sender, args) => AddToPageAsync?.Invoke(this, EventArgs.Empty);
             regenerateArticleButton.Click += (sender, args) => RegenarateArticle?.Invoke(this, EventArgs.Empty);
             titlesListBox.SelectedIndexChanged += (sender, args) => SelectedTitleChanged?.Invoke(this, EventArgs.Empty);
+            saveSettingsButton.Click += (sender, args) => SaveSettings?.Invoke(this, EventArgs.Empty);
+            cancelSettingsButton.Click += (sender, args) => CancelSettings?.Invoke(this, EventArgs.Empty);
 
             promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
             promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
@@ -87,17 +91,20 @@ namespace GPTArticleGen.View
             set => titleTextBox.Text = value;
 
         }
+
         public string Content
         {
             get => contentTextBox.Text;
             set => contentTextBox.Text = value;
         }
+
         public string Tags
         {
             get => tagsTextBox.Text;
             set => tagsTextBox.Text = value;
 
         }
+
         public string Prompt
         {
             get => promptTextBox.Text;
@@ -117,6 +124,7 @@ namespace GPTArticleGen.View
             get => contentTextBox.Text;
             set => contentTextBox.Text = value;
         }
+
         public BindingList<ArticleModel> Titles
         {
             get => _titles;
@@ -150,6 +158,18 @@ namespace GPTArticleGen.View
             set => promptFormatTextBox.Text = value;
         }
 
+        public int MaxRetries
+        {
+            get => (int)maxRetriesNumeric.Value;
+            set => maxRetriesNumeric.Value = value;
+        }
+
+        public string DefaultPrompt
+        {
+            get => defaultPromptTextBox.Text;
+            set => defaultPromptTextBox.Text = value;
+        }
+
         public event EventHandler GenerateArticle;
         public event EventHandler GenerateForAll;
         public event EventHandler ChangeDefaultPrompt;
@@ -162,6 +182,8 @@ namespace GPTArticleGen.View
         public event EventHandler TitleTextBoxChanged;
         public event EventHandler ContentTextBoxChanged;
         public event EventHandler TagsTextBoxChanged;
+        public event EventHandler SaveSettings;
+        public event EventHandler CancelSettings;
 
         public void EnableUI()
         {

@@ -43,6 +43,13 @@
             promptFormatTextBox = new TextBox();
             tabWebView2 = new TabPage();
             webView2 = new Microsoft.Web.WebView2.WinForms.WebView2();
+            tabSettings = new TabPage();
+            cancelSettingsButton = new Button();
+            saveSettingsButton = new Button();
+            defaultPromptTextBox = new TextBox();
+            defaultLabel = new Label();
+            maxRetriesNumeric = new NumericUpDown();
+            maxRetriesLabel = new Label();
             titlesListBox = new ListBox();
             generateButton = new Button();
             generateAllButton = new Button();
@@ -55,6 +62,8 @@
             tabPrompt.SuspendLayout();
             tabWebView2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)webView2).BeginInit();
+            tabSettings.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)maxRetriesNumeric).BeginInit();
             SuspendLayout();
             // 
             // textAndPromptControl
@@ -62,6 +71,7 @@
             textAndPromptControl.Controls.Add(tabContext);
             textAndPromptControl.Controls.Add(tabPrompt);
             textAndPromptControl.Controls.Add(tabWebView2);
+            textAndPromptControl.Controls.Add(tabSettings);
             textAndPromptControl.Location = new Point(0, 0);
             textAndPromptControl.Name = "textAndPromptControl";
             textAndPromptControl.SelectedIndex = 0;
@@ -209,6 +219,82 @@
             webView2.TabIndex = 0;
             webView2.ZoomFactor = 1D;
             // 
+            // tabSettings
+            // 
+            tabSettings.Controls.Add(cancelSettingsButton);
+            tabSettings.Controls.Add(saveSettingsButton);
+            tabSettings.Controls.Add(defaultPromptTextBox);
+            tabSettings.Controls.Add(defaultLabel);
+            tabSettings.Controls.Add(maxRetriesNumeric);
+            tabSettings.Controls.Add(maxRetriesLabel);
+            tabSettings.Location = new Point(4, 29);
+            tabSettings.Name = "tabSettings";
+            tabSettings.Padding = new Padding(3);
+            tabSettings.Size = new Size(804, 539);
+            tabSettings.TabIndex = 3;
+            tabSettings.Text = "Settings";
+            tabSettings.UseVisualStyleBackColor = true;
+            // 
+            // cancelSettingsButton
+            // 
+            cancelSettingsButton.BackColor = Color.Transparent;
+            cancelSettingsButton.FlatAppearance.BorderColor = Color.Gray;
+            cancelSettingsButton.FlatAppearance.BorderSize = 0;
+            cancelSettingsButton.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            cancelSettingsButton.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            cancelSettingsButton.Location = new Point(679, 474);
+            cancelSettingsButton.Margin = new Padding(0);
+            cancelSettingsButton.Name = "cancelSettingsButton";
+            cancelSettingsButton.Size = new Size(119, 57);
+            cancelSettingsButton.TabIndex = 6;
+            cancelSettingsButton.Text = "CANCEL";
+            cancelSettingsButton.UseVisualStyleBackColor = false;
+            // 
+            // saveSettingsButton
+            // 
+            saveSettingsButton.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            saveSettingsButton.Location = new Point(554, 474);
+            saveSettingsButton.Name = "saveSettingsButton";
+            saveSettingsButton.Size = new Size(119, 57);
+            saveSettingsButton.TabIndex = 5;
+            saveSettingsButton.Text = "SAVE";
+            saveSettingsButton.UseVisualStyleBackColor = true;
+            // 
+            // defaultPromptTextBox
+            // 
+            defaultPromptTextBox.Location = new Point(6, 98);
+            defaultPromptTextBox.Multiline = true;
+            defaultPromptTextBox.Name = "defaultPromptTextBox";
+            defaultPromptTextBox.Size = new Size(795, 370);
+            defaultPromptTextBox.TabIndex = 4;
+            // 
+            // defaultLabel
+            // 
+            defaultLabel.AutoSize = true;
+            defaultLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            defaultLabel.Location = new Point(3, 65);
+            defaultLabel.Name = "defaultLabel";
+            defaultLabel.Size = new Size(161, 30);
+            defaultLabel.TabIndex = 3;
+            defaultLabel.Text = "Default prompt";
+            // 
+            // maxRetriesNumeric
+            // 
+            maxRetriesNumeric.Location = new Point(130, 6);
+            maxRetriesNumeric.Name = "maxRetriesNumeric";
+            maxRetriesNumeric.Size = new Size(150, 27);
+            maxRetriesNumeric.TabIndex = 2;
+            // 
+            // maxRetriesLabel
+            // 
+            maxRetriesLabel.AutoSize = true;
+            maxRetriesLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            maxRetriesLabel.Location = new Point(3, 3);
+            maxRetriesLabel.Name = "maxRetriesLabel";
+            maxRetriesLabel.Size = new Size(121, 30);
+            maxRetriesLabel.TabIndex = 0;
+            maxRetriesLabel.Text = "Max retries";
+            // 
             // titlesListBox
             // 
             titlesListBox.FormattingEnabled = true;
@@ -294,6 +380,9 @@
             tabPrompt.PerformLayout();
             tabWebView2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)webView2).EndInit();
+            tabSettings.ResumeLayout(false);
+            tabSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)maxRetriesNumeric).EndInit();
             ResumeLayout(false);
         }
 
@@ -321,5 +410,12 @@
         private Label promptFormatLabel;
         private Label promptLabel;
         private TextBox promptTextBox;
+        private TabPage tabSettings;
+        private NumericUpDown maxRetriesNumeric;
+        private Label maxRetriesLabel;
+        private TextBox defaultPromptTextBox;
+        private Label defaultLabel;
+        private Button cancelSettingsButton;
+        private Button saveSettingsButton;
     }
 }

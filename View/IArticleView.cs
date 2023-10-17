@@ -25,6 +25,9 @@ namespace GPTArticleGen.View
         Control UiControl { get; }
         BindingList<ArticleModel> Titles { get; set; }
 
+        int MaxRetries { get; set; }
+        string DefaultPrompt { get; set; }
+
         // Events
         event EventHandler GenerateArticle;
         event EventHandler GenerateForAll;
@@ -33,10 +36,11 @@ namespace GPTArticleGen.View
         event EventHandler AddToPageAsync;
         event EventHandler RegenarateArticle;
         event EventHandler SelectedTitleChanged;
+        event EventHandler SaveSettings;
+        event EventHandler CancelSettings;
+
         event EventHandler PromptFormatTextBoxChanged;
         event EventHandler PromptTextBoxChanged;
-
-        
         event EventHandler TitleTextBoxChanged;
         event EventHandler ContentTextBoxChanged;
         event EventHandler TagsTextBoxChanged;
