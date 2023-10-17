@@ -199,22 +199,22 @@ namespace GPTArticleGen.Presenter
                     {
                         if (isFirst)
                         {
-                            await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt);
+                            await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
                             isFirst = false;
                         }
                         else
-                            await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.Prompt);
+                            await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
 
-                        selected.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
-                        selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
-                        selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
+                        selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
+                        selected.Content = await ExtractValueBetweenAsync(selected.RawData , "Meta content:", "Meta tags:");
+                        selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
 
                         selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
                         selected.Retries++;
 
                         SelectedTitleChanged(this, EventArgs.Empty);
 
-                        await Task.Delay(TimeSpan.FromSeconds(10));
+                        await Task.Delay(TimeSpan.FromSeconds(2));
                     }
                     //_view.EnableUI();
                 }, null);
@@ -231,11 +231,11 @@ namespace GPTArticleGen.Presenter
                     _view.DisableUI();
 
                     ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
-                    await RegenarateByGPTAsync(_view.WebView2, _view);
+                    await RegenarateByGPTAsync(_view.WebView2, _view, selected);
 
-                    selected.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
-                    selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
-                    selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
+                    selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
+                    selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", "Meta tags:");
+                    selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
 
                     selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
                     selected.Retries++;
@@ -258,11 +258,11 @@ namespace GPTArticleGen.Presenter
                     _view.DisableUI();
 
                     ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
-                    await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt);
+                    await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
 
-                    selected.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
-                    selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
-                    selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
+                    selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
+                    selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", "Meta tags:");
+                    selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
 
                     selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
                     selected.Retries++;
@@ -445,8 +445,10 @@ namespace GPTArticleGen.Presenter
             return null;
         }
 
-        static async Task GenerateByGPTAsync(WebView2 webView2, IArticleView view, string newTitle)
+        static async Task GenerateByGPTAsync(WebView2 webView2, IArticleView view, string newTitle, ArticleModel article)
         {
+           
+
             string jsCode = @"
                 let inputElement = document.getElementById('prompt-textarea');
                 inputElement.focus();
@@ -464,7 +466,7 @@ namespace GPTArticleGen.Presenter
 
             if (!string.IsNullOrEmpty(result))
             {
-                view.Content = result;
+                article.RawData = result;
             }
             else
             {
@@ -472,7 +474,7 @@ namespace GPTArticleGen.Presenter
             }
         }
 
-        static async Task RegenarateByGPTAsync(WebView2 webView2, IArticleView view)
+        static async Task RegenarateByGPTAsync(WebView2 webView2, IArticleView view, ArticleModel article)
         {
             string jsCode = @"
                 let customButton = document.querySelector('button.btn.relative.-z-0.whitespace-nowrap.border-0.md\\:border');
@@ -487,7 +489,7 @@ namespace GPTArticleGen.Presenter
 
             if (!string.IsNullOrEmpty(result))
             {
-                view.Content = result;
+                article.RawData = result;
             }
             else
             {
@@ -495,7 +497,7 @@ namespace GPTArticleGen.Presenter
             }
         }
 
-        static async Task EditRegenerateByGPTAsync(WebView2 webView2, IArticleView view, string newTitle)
+        static async Task EditRegenerateByGPTAsync(WebView2 webView2, IArticleView view, string newTitle, ArticleModel article)
         {
             string jsCode = @"
                 (async()=>{
@@ -518,7 +520,7 @@ namespace GPTArticleGen.Presenter
 
             if (!string.IsNullOrEmpty(result))
             {
-                view.Content = result;
+                article.RawData = result;
             }
             else
             {
