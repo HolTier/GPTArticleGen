@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace GPTArticleGen.Model
 {
     public class WordpressRepository
     {
-        async Task<bool> WordpressAddPostAsync(List<string> tags, string postData, string username, string password, string siteUrl)
+        public async Task<bool> AddPostAsync(List<string> tags, string postData, string username, string password, string siteUrl)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -41,13 +42,13 @@ namespace GPTArticleGen.Model
 
                     if (response.IsSuccessStatusCode)
                     {
-                        Console.WriteLine("Post created successfully.");
+                        Debug.WriteLine("Post created successfully.");
                         return true;
                     }
                     else
                     {
-                        Console.WriteLine("Failed to create the post. Status Code: " + response.StatusCode);
-                        Console.WriteLine(await response.Content.ReadAsStringAsync()); // Print the response content for debugging
+                        Debug.WriteLine("Failed to create the post. Status Code: " + response.StatusCode);
+                        Debug.WriteLine(await response.Content.ReadAsStringAsync()); // Print the response content for debugging
                         return false;
                     }
                 }
@@ -56,7 +57,10 @@ namespace GPTArticleGen.Model
 
         async Task<string> GetTagsAsync(string tagName, HttpClient tagClient, string postData, string siteUrl)
         {
-            HttpResponseMessage tagResponse = await tagClient.GetAsync($"{siteUrl}/wp-json/wp/v2/tags?slug={tagName}");
+            // Generate the slug from the tag name
+            string tagSlug = Slugify(tagName);
+
+            HttpResponseMessage tagResponse = await tagClient.GetAsync($"{siteUrl}/wp-json/wp/v2/tags?slug={tagSlug}");
             string tagResponseContent = await tagResponse.Content.ReadAsStringAsync();
 
             if (tagResponse.IsSuccessStatusCode)
@@ -73,7 +77,7 @@ namespace GPTArticleGen.Model
                     // Tag does not exist, create it using the original HttpClient instance
                     JObject newTag = new JObject();
                     newTag["name"] = tagName;
-                    newTag["slug"] = tagName;
+                    newTag["slug"] = tagSlug;
 
                     HttpResponseMessage createTagResponse = await tagClient.PostAsync($"{siteUrl}/wp-json/wp/v2/tags", new StringContent(newTag.ToString(), System.Text.Encoding.UTF8, "application/json"));
 
@@ -100,6 +104,11 @@ namespace GPTArticleGen.Model
             return postData;
         }
 
+        string Slugify(string input)
+        {
+            // Implement a slugification logic to convert the tag name to a slug
+            // For example, you can replace spaces with dashes and convert to lowercase
+            return input.Replace(" ", "-").ToLower();
+        }
     }
-
 }

@@ -36,8 +36,12 @@ namespace GPTArticleGen.View
             addToPageButton.Click += (sender, args) => AddToPageAsync?.Invoke(this, EventArgs.Empty);
             regenerateArticleButton.Click += (sender, args) => RegenarateArticle?.Invoke(this, EventArgs.Empty);
             titlesListBox.SelectedIndexChanged += (sender, args) => SelectedTitleChanged?.Invoke(this, EventArgs.Empty);
+
             promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
             promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            titleTextBox.TextChanged += (sender, args) => TitleTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            contentTextBox.TextChanged += (sender, args) => ContentTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            tagsTextBox.TextChanged += (sender, args) => TagsTextBoxChanged?.Invoke(this, EventArgs.Empty);
 
             titlesListBox.DataSource = _titles;
             titlesListBox.DisplayMember = "PromptTitle";
@@ -155,6 +159,9 @@ namespace GPTArticleGen.View
         public event EventHandler SelectedTitleChanged;
         public event EventHandler PromptFormatTextBoxChanged;
         public event EventHandler PromptTextBoxChanged;
+        public event EventHandler TitleTextBoxChanged;
+        public event EventHandler ContentTextBoxChanged;
+        public event EventHandler TagsTextBoxChanged;
 
         public void EnableUI()
         {

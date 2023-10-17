@@ -1,6 +1,7 @@
 ﻿using GPTArticleGen.Model;
 using GPTArticleGen.View;
 using Microsoft.Web.WebView2.WinForms;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace GPTArticleGen.Presenter
 {
@@ -30,6 +32,7 @@ namespace GPTArticleGen.Presenter
         {
             _view = view;
             _model = model;
+            _wordpressRepository = new WordpressRepository();   
 
             _view.GenerateArticle += GenerateArticle;
             _view.GenerateForAll += GenerateForAll;
@@ -40,6 +43,10 @@ namespace GPTArticleGen.Presenter
             _view.SelectedTitleChanged += SelectedTitleChanged;
             _view.PromptFormatTextBoxChanged += PromptFormatTextBoxChanged;
             _view.PromptTextBoxChanged += PromptTextBoxChanged;
+            _view.TitleTextBoxChanged += TitleTextBoxChanged;
+            _view.ContentTextBoxChanged += ContentTextBoxChanged;
+            _view.TagsTextBoxChanged += TagsTextBoxChanged;
+
         }
 
         public void Initialize()
@@ -106,12 +113,36 @@ namespace GPTArticleGen.Presenter
 
             foreach (ArticleModel article in _view.Titles)
             {
-                // Add to wordpress
-                //if(await _wordpressRepository.AddPostAsync(article))
-                //{
-                    // Add to database
-                   // await db.InsertArticleAsync(article);
-               // }
+                // Create an object to hold your article data
+                var articleData = new
+                {
+                    title = article.Title,
+                    content = article.Content,
+                    status = "publish",
+                    tags = new[] { "[tag]" }
+                };
+
+                // Serialize the object to JSON
+                article.PostData = JsonConvert.SerializeObject(articleData);
+
+                article.PostData = article.PostData.Replace("\"[tag]\"", "[tag]");
+
+                List<string> tags = new List<string>();
+
+                // Get tags
+                if (!String.IsNullOrEmpty(article.Tags))
+                    tags = article.Tags.Split(", ").ToList();
+
+                //Add to wordpress
+                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, "user", "YByo i3XW arPu ip9R rctO JHZE", "http://127.0.0.1/wordpress/"))
+                {
+                    //Add to database
+                    await db.InsertArticleAsync(article);
+                }
+                else
+                {
+                    Debug.WriteLine("Failed to add post to wordpress. Post title: " + article.Title );
+                }
 
                 await db.InsertArticleAsync(article);
             }
@@ -282,6 +313,30 @@ namespace GPTArticleGen.Presenter
                 selectedArticle.Prompt = _view.Prompt;
 
 
+        }
+
+        private void TagsTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if (selectedArticle != null)
+                selectedArticle.Tags = _view.Tags;
+        }
+
+        private void ContentTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if (selectedArticle != null)
+                selectedArticle.Content = _view.Content;
+        }
+
+        private void TitleTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if (selectedArticle != null)
+                selectedArticle.Title = _view.Title;
         }
         #endregion
 

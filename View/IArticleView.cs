@@ -36,12 +36,10 @@ namespace GPTArticleGen.View
         event EventHandler PromptFormatTextBoxChanged;
         event EventHandler PromptTextBoxChanged;
 
-        /*
+        
         event EventHandler TitleTextBoxChanged;
         event EventHandler ContentTextBoxChanged;
         event EventHandler TagsTextBoxChanged;
-        event EventHandler PromptTextBoxChanged;
-        event EventHandler PromptFormatTextBoxChanged;*/
 
         // Methods
         void EnableUI();
