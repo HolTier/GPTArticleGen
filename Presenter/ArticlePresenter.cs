@@ -342,8 +342,12 @@ namespace GPTArticleGen.Presenter
 
         private void SaveSettings(object? sender, EventArgs e)
         {
+            // Assign your new values
             Properties.Settings.Default.BasicPrompt = _view.DefaultPrompt;
             Properties.Settings.Default.MaxRetries = _view.MaxRetries;
+
+            // Save the changes
+            Properties.Settings.Default.Save();
         }
         #endregion
 
