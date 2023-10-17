@@ -23,6 +23,7 @@ namespace GPTArticleGen.Presenter
         private readonly IArticleView _view;
         private readonly ArticleModel _model;
         private string _basicPrompt;
+        private WordpressRepository _wordpressRepository;
 
         #region Initialize
         public ArticlePresenter(IArticleView view, ArticleModel model)
@@ -105,6 +106,13 @@ namespace GPTArticleGen.Presenter
 
             foreach (ArticleModel article in _view.Titles)
             {
+                // Add to wordpress
+                //if(await _wordpressRepository.AddPostAsync(article))
+                //{
+                    // Add to database
+                   // await db.InsertArticleAsync(article);
+               // }
+
                 await db.InsertArticleAsync(article);
             }
 
@@ -218,6 +226,8 @@ namespace GPTArticleGen.Presenter
                     selected.Title = await ExtractValueBetweenAsync(_view.Content, "Meta title:", "Meta content:");
                     selected.Content = await ExtractValueBetweenAsync(_view.Content, "Meta content:", "Meta tags:");
                     selected.Tags = await ExtractTagsAsync(_view.Content, "Meta tags:");
+
+                    selected.Tags = SubstreingFromString(selected.Tags, 1); 
 
                     SelectedTitleChanged(this, EventArgs.Empty);
 
@@ -488,6 +498,34 @@ namespace GPTArticleGen.Presenter
                 return string.Join(", ", tags);
             }
             return null; // Return null if marker is not found
+        }
+
+        public static string SubstreingFromString(string input, int retries)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+
+            if (retries <= 0)
+            {
+                return input;
+            }
+
+            // Remove the last character
+            input = input.Substring(0, input.Length - 1);
+
+            if (retries > 1)
+            {
+                // Find the last "/" character and remove everything after it
+                int lastIndex = input.LastIndexOf('/');
+                if (lastIndex >= 0)
+                {
+                    input = input.Substring(0, lastIndex - retries.ToString().Length);
+                }
+            }
+
+            return input;
         }
         #endregion
 

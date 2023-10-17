@@ -10,7 +10,7 @@ namespace GPTArticleGen.Model
 {
     public class WordpressRepository
     {
-        async Task WordpressAddPostAsync(List<string> tags, string postData, string username, string password, string siteUrl)
+        async Task<bool> WordpressAddPostAsync(List<string> tags, string postData, string username, string password, string siteUrl)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -42,11 +42,13 @@ namespace GPTArticleGen.Model
                     if (response.IsSuccessStatusCode)
                     {
                         Console.WriteLine("Post created successfully.");
+                        return true;
                     }
                     else
                     {
                         Console.WriteLine("Failed to create the post. Status Code: " + response.StatusCode);
                         Console.WriteLine(await response.Content.ReadAsStringAsync()); // Print the response content for debugging
+                        return false;
                     }
                 }
             }
