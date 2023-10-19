@@ -64,37 +64,37 @@ namespace GPTArticleGen.Presenter
             SQLiteDB db = new SQLiteDB();
             db.OpenConnection();
 
+            // Create table of Pages if not exists
+            string createPagesTableQuery = @"CREATE TABLE IF NOT EXISTS Pages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                address TEXT,
+                username TEXT,
+                password TEXT
+            )";
+            SQLiteCommand createPagesTableCommand = db.CreateCommand();
+            createPagesTableCommand.CommandText = createPagesTableQuery;
+            createPagesTableCommand.ExecuteNonQuery();
+
             // Create table if not exists
             string createTableQuery = @"CREATE TABLE IF NOT EXISTS Articles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT,
                 content TEXT,
                 tags TEXT,
-                prompt TEXT
+                prompt TEXT,
+                isPublish BOOLEAN,
+                page_id INTEGER REFERENCES Pages(id)
             )";
             SQLiteCommand createTableCommand = db.CreateCommand();
             createTableCommand.CommandText = createTableQuery;
             createTableCommand.ExecuteNonQuery();
 
-            // Get all articles from database
-            DataTable dataTable = Task.Run(async () => await db.GetAllArticleAsync()).Result;
-            List<ArticleModel> articles = new List<ArticleModel>();
-            foreach (DataRow row in dataTable.Rows)
-            {
-                ArticleModel article = new ArticleModel();
-                article.Id = Convert.ToInt32(row["id"]);
-                article.Title = row["title"].ToString();
-                article.Content = row["content"].ToString();
-                article.Tags = row["tags"].ToString();
-                article.Prompt = row["prompt"].ToString();
-                articles.Add(article);
-            }
+            // Close connection to database
+            db.CloseConnection();
 
             _basicPrompt = Properties.Settings.Default.BasicPrompt;
             _view.DefaultPrompt = _basicPrompt;
             _view.MaxRetries = Properties.Settings.Default.MaxRetries;
-
-            db.CloseConnection();
         }
         #endregion
 
