@@ -15,10 +15,12 @@ namespace GPTArticleGen.Model
         public string Content { get; set; }
         public string Tags { get; set; }
         public string Prompt { get; set; }
+        public bool IsPublished { get; set; }
         public string PromptTitle { get; set; }
         public string PromptFormat { get; set; }
         public string RawData { get; set; }
         public string PostData { get; set; }
         public int Retries { get; set; } = 1;
+        
     }
 }

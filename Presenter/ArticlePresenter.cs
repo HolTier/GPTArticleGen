@@ -67,7 +67,7 @@ namespace GPTArticleGen.Presenter
             // Create table of Pages if not exists
             string createPagesTableQuery = @"CREATE TABLE IF NOT EXISTS Pages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                address TEXT,
+                site TEXT,
                 username TEXT,
                 password TEXT
             )";
@@ -82,7 +82,7 @@ namespace GPTArticleGen.Presenter
                 content TEXT,
                 tags TEXT,
                 prompt TEXT,
-                isPublish BOOLEAN,
+                isPublished BOOLEAN,
                 page_id INTEGER REFERENCES Pages(id)
             )";
             SQLiteCommand createTableCommand = db.CreateCommand();
