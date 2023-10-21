@@ -26,6 +26,8 @@ namespace GPTArticleGen.Presenter
         private readonly ArticleModel _model;
         private string _basicPrompt;
         private WordpressRepository _wordpressRepository;
+        private PageModel _pageModel;
+        private SQLiteDB _db;
 
         #region Initialize
         public ArticlePresenter(IArticleView view, ArticleModel model)
@@ -61,8 +63,8 @@ namespace GPTArticleGen.Presenter
             //_view.Tags = new ObservableCollection<string>();
 
             // Initialize SQLiteDB
-            SQLiteDB db = new SQLiteDB();
-            db.OpenConnection();
+            _db = new SQLiteDB();
+            _db.OpenConnection();
 
             // Create table of Pages if not exists
             string createPagesTableQuery = @"CREATE TABLE IF NOT EXISTS Pages (
@@ -71,7 +73,7 @@ namespace GPTArticleGen.Presenter
                 username TEXT,
                 password TEXT
             )";
-            SQLiteCommand createPagesTableCommand = db.CreateCommand();
+            SQLiteCommand createPagesTableCommand = _db.CreateCommand();
             createPagesTableCommand.CommandText = createPagesTableQuery;
             createPagesTableCommand.ExecuteNonQuery();
 
@@ -85,12 +87,12 @@ namespace GPTArticleGen.Presenter
                 isPublished BOOLEAN,
                 page_id INTEGER REFERENCES Pages(id)
             )";
-            SQLiteCommand createTableCommand = db.CreateCommand();
+            SQLiteCommand createTableCommand = _db.CreateCommand();
             createTableCommand.CommandText = createTableQuery;
             createTableCommand.ExecuteNonQuery();
 
             // Close connection to database
-            db.CloseConnection();
+            _db.CloseConnection();
 
             _basicPrompt = Properties.Settings.Default.BasicPrompt;
             _view.DefaultPrompt = _basicPrompt;
@@ -614,8 +616,26 @@ namespace GPTArticleGen.Presenter
                     string line;
                     while ((line = await reader.ReadLineAsync()) != null)
                     {
+                        string[] pageValues;
                         string[] values = line.Split(',');
-                        if (values.Length >= 1)
+                        
+                        if (line[0]=='#')
+                        {
+                            line = line.Replace("#", "");
+                            pageValues = line.Split(' ');
+
+                            _pageModel = new PageModel
+                            {
+                                Site = pageValues[0],
+                                Username = pageValues[1],
+                                Password = string.Join(" ", pageValues.Skip(2))
+                            };
+
+                            _db.OpenConnection();
+                            _pageModel.Id = await _db.GetPageIdByAttributes(_pageModel);
+                            _db.CloseConnection();
+                        }
+                        else if (values.Length >= 1)
                         {
                             string promptTitle = values[0].Trim();
                             // Create a new ArticleModel for each line and set the PromptTitle

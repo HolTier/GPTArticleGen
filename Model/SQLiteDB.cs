@@ -15,7 +15,7 @@ public class SQLiteDB
 
     public SQLiteDB()
     {
-        connection = new SQLiteConnection("Data Source=Articles.db;Version=3;");
+        connection = new SQLiteConnection("Data Source=WordpressArticles.db;Version=3;");
     }
 
     public void OpenConnection()
@@ -40,7 +40,7 @@ public class SQLiteDB
     }
     #endregion
 
-    #region CRUD
+    #region CRUD Article
     public async Task InsertArticleAsync(ArticleModel articleModel)
     {
         SQLiteCommand command = CreateCommand();
@@ -125,5 +125,116 @@ public class SQLiteDB
         return id;
     }
 
+    #endregion
+
+    #region CRUD Page
+    public async Task InsertPageAsync(PageModel pageModel)
+    {
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "INSERT INTO Pages (Site, Username, Password) VALUES (@Site, @Username, @Password)";
+        command.Parameters.AddWithValue("@Site", pageModel.Site);
+        command.Parameters.AddWithValue("@Username", pageModel.Username);
+        command.Parameters.AddWithValue("@Password", pageModel.Password);
+        try
+        {
+            await command.ExecuteNonQueryAsync();
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+    }
+
+    public async Task<DataTable> GetAllPageAsync()
+    {
+        SQLiteCommand selectCommand = CreateCommand();
+        selectCommand.CommandText = "SELECT * FROM Pages";
+        SQLiteDataAdapter adapter = new SQLiteDataAdapter(selectCommand);
+        DataTable dataTable = new DataTable();
+        await Task.Run(() => adapter.Fill(dataTable)); // Run the Fill operation asynchronously
+        return dataTable;
+    }
+
+    public async Task UpdatePageAsync(PageModel pageModel)
+    {
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "UPDATE Pages SET Site = @Site, Username = @Username, Password = @Password WHERE Id = @Id";
+        command.Parameters.AddWithValue("@Id", pageModel.Id);
+        command.Parameters.AddWithValue("@Site", pageModel.Site);
+        command.Parameters.AddWithValue("@Username", pageModel.Username);
+        command.Parameters.AddWithValue("@Password", pageModel.Password);
+        try
+        {
+            await command.ExecuteNonQueryAsync();
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+    }
+
+    public async Task DeletePageAsync(PageModel pageModel)
+    {
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "DELETE FROM Pages WHERE Id = @Id";
+        command.Parameters.AddWithValue("@Id", pageModel.Id);
+        try
+        {
+            await command.ExecuteNonQueryAsync();
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+    }
+
+    public async Task<int> GetLastPageIdAsync()
+    {
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "SELECT Id FROM Pages ORDER BY Id DESC LIMIT 1";
+        DbDataReader reader = await command.ExecuteReaderAsync();
+        int id = 0;
+
+        if (reader is SQLiteDataReader sqliteReader)
+        {
+            while (await sqliteReader.ReadAsync())
+            {
+                id = sqliteReader.GetInt32(0);
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException("Unexpected database reader type.");
+        }
+
+        return id;
+    }
+
+    public async Task<int> GetPageIdByAttributes(PageModel pageModel)
+    {
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "SELECT Id FROM Pages WHERE site = @Site AND username = @Username AND password = @Password";
+
+        // Add parameters for the command
+        command.Parameters.Add(new SQLiteParameter("@Site", pageModel.Site));
+        command.Parameters.Add(new SQLiteParameter("@Username", pageModel.Username));
+        command.Parameters.Add(new SQLiteParameter("@Password", pageModel.Password));
+
+        DbDataReader reader = await command.ExecuteReaderAsync();
+        int id = 0;
+
+        if (reader is SQLiteDataReader sqliteReader)
+        {
+            while (await sqliteReader.ReadAsync())
+            {
+                id = sqliteReader.GetInt32(0);
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException("Unexpected database reader type.");
+        }
+        return id;
+    }
     #endregion
 }
