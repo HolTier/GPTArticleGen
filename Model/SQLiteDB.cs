@@ -212,29 +212,120 @@ public class SQLiteDB
 
     public async Task<int> GetPageIdByAttributes(PageModel pageModel)
     {
-        SQLiteCommand command = CreateCommand();
-        command.CommandText = "SELECT Id FROM Pages WHERE site = @Site AND username = @Username AND password = @Password";
-
-        // Add parameters for the command
-        command.Parameters.Add(new SQLiteParameter("@Site", pageModel.Site));
-        command.Parameters.Add(new SQLiteParameter("@Username", pageModel.Username));
-        command.Parameters.Add(new SQLiteParameter("@Password", pageModel.Password));
-
-        DbDataReader reader = await command.ExecuteReaderAsync();
-        int id = 0;
-
-        if (reader is SQLiteDataReader sqliteReader)
+        try
         {
-            while (await sqliteReader.ReadAsync())
+            using (SQLiteCommand command = CreateCommand())
             {
-                id = sqliteReader.GetInt32(0);
+                command.CommandText = "SELECT Id FROM Pages WHERE site = @Site AND username = @Username AND password = @Password";
+
+                // Add parameters for the command
+                command.Parameters.Add(new SQLiteParameter("@Site", pageModel.Site));
+                command.Parameters.Add(new SQLiteParameter("@Username", pageModel.Username));
+                command.Parameters.Add(new SQLiteParameter("@Password", pageModel.Password));
+
+                using (DbDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    if (reader is SQLiteDataReader sqliteReader)
+                    {
+                        while (await sqliteReader.ReadAsync())
+                        {
+                            return sqliteReader.GetInt32(0);
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Unexpected database reader type.");
+                    }
+                }
+            }
+
+            // No matching record found, return -1
+            return -1;
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions, log, and possibly re-throw or return an error code as needed.
+            // Example: Console.WriteLine("Error: " + ex.Message);
+            // You can re-throw the exception or return an error code here.
+            return -1;
+        }
+    }
+
+    public async Task<int> AddPageAndReturnId(PageModel pageModel)
+    {
+        try
+        {
+            using (SQLiteCommand command = CreateCommand())
+            {
+                // Insert a new page record
+                command.CommandText = "INSERT INTO Pages (site, username, password) VALUES (@Site, @Username, @Password); SELECT last_insert_rowid();";
+
+                // Add parameters for the insert command
+                command.Parameters.Add(new SQLiteParameter("@Site", pageModel.Site));
+                command.Parameters.Add(new SQLiteParameter("@Username", pageModel.Username));
+                command.Parameters.Add(new SQLiteParameter("@Password", pageModel.Password));
+
+                // Execute the insert command and retrieve the newly created ID
+                int id = Convert.ToInt32(await command.ExecuteScalarAsync());
+
+                return id;
             }
         }
-        else
+        catch (Exception ex)
         {
-            throw new InvalidOperationException("Unexpected database reader type.");
+            // Handle exceptions, log, and possibly re-throw or return an error code as needed.
+            // Example: Console.WriteLine("Error: " + ex.Message);
+            // You can re-throw the exception or return an error code here.
+            return -1;
         }
-        return id;
     }
+
+    public async Task<PageModel> GetPageById(int pageId)
+    {
+        try
+        {
+            using (SQLiteCommand command = CreateCommand())
+            {
+                command.CommandText = "SELECT * FROM Pages WHERE Id = @Id";
+                command.Parameters.Add(new SQLiteParameter("@Id", pageId));
+
+                using (DbDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    if (reader is SQLiteDataReader sqliteReader)
+                    {
+                        if (await sqliteReader.ReadAsync())
+                        {
+                            // Create a PageModel and populate it with data from the database
+                            PageModel pageModel = new PageModel
+                            {
+                                Id = sqliteReader.GetInt32(0),
+                                Site = sqliteReader.GetString(1),
+                                Username = sqliteReader.GetString(2),
+                                Password = sqliteReader.GetString(3)
+                                // You may need to adapt these field indices based on your table structure
+                            };
+
+                            return pageModel;
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Unexpected database reader type.");
+                    }
+                }
+            }
+
+            // If no record with the specified ID is found, return null or handle it as needed.
+            return null;
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions, log, and possibly re-throw or return an error code as needed.
+            // Example: Console.WriteLine("Error: " + ex.Message);
+            // You can re-throw the exception or return null or handle it differently here.
+            return null;
+        }
+    }
+
     #endregion
 }

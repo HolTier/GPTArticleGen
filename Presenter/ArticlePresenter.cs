@@ -104,7 +104,6 @@ namespace GPTArticleGen.Presenter
         private async void AddToPageAsync(object? sender, EventArgs e)
         {
             // Initialize SQLiteDB
-            string connectionString = "Data Source=ArticleDatabase.db;Version=3;";
             SQLiteDB db = new SQLiteDB();
             db.OpenConnection();
 
@@ -126,12 +125,15 @@ namespace GPTArticleGen.Presenter
 
                 List<string> tags = new List<string>();
 
+                // Find page by ID
+                PageModel page = await db.GetPageById(article.SiteId);
+
                 // Get tags
                 if (!String.IsNullOrEmpty(article.Tags))
                     tags = article.Tags.Split(", ").ToList();
 
                 //Add to wordpress
-                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, "user", "YByo i3XW arPu ip9R rctO JHZE", "http://127.0.0.1/wordpress/"))
+                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, page.Username, page.Password, page.Site))
                 {
                     //Add to database
                     await db.InsertArticleAsync(article);
@@ -633,6 +635,10 @@ namespace GPTArticleGen.Presenter
 
                             _db.OpenConnection();
                             _pageModel.Id = await _db.GetPageIdByAttributes(_pageModel);
+                            if(_pageModel.Id == -1)
+                            {
+                                _pageModel.Id = await _db.AddPageAndReturnId(_pageModel);
+                            }
                             _db.CloseConnection();
                         }
                         else if (values.Length >= 1)
@@ -643,7 +649,8 @@ namespace GPTArticleGen.Presenter
                             {
                                 PromptTitle = promptTitle,
                                 PromptFormat = _basicPrompt,
-                                Prompt = _basicPrompt.Replace("{title}", promptTitle)
+                                Prompt = _basicPrompt.Replace("{title}", promptTitle),
+                                SiteId = _pageModel.Id
                             };
                             _view.Titles.Add(article);
                         }
