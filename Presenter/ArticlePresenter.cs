@@ -133,7 +133,7 @@ namespace GPTArticleGen.Presenter
                     tags = article.Tags.Split(", ").ToList();
 
                 //Add to wordpress
-                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, page.Username, page.Password, page.Site))
+                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, page.Username, page.Password, page.Site, ""))
                 {
                     //Add to database
                     await db.InsertArticleAsync(article);

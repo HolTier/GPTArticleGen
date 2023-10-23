@@ -3,15 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace GPTArticleGen.Model
 {
     public class WordpressRepository
     {
-        public async Task<bool> AddPostAsync(List<string> tags, string postData, string username, string password, string siteUrl)
+        public async Task<bool> AddPostAsync(List<string> tags, string postData, string username, string password, string siteUrl, string featuredImageBase64)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -30,6 +32,17 @@ namespace GPTArticleGen.Model
                         postData = postData.Replace(",[tag]", "");
                     else
                         postData = postData.Replace("[tag]", "");
+
+                    // Check if the featured image is set
+                    if (!string.IsNullOrEmpty(featuredImageBase64))
+                    {
+                        // Upload and set the featured image
+                        string featuredImageId = await UploadFeaturedImageAsync(featuredImageBase64, siteUrl, username, password);
+                        if (!string.IsNullOrEmpty(featuredImageId))
+                        {
+                            postData = postData.Replace("[featured_image]", featuredImageId);
+                        }
+                    }
 
                     client.BaseAddress = new Uri($"{siteUrl}/wp-json/wp/v2/posts");
                     client.DefaultRequestHeaders.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{username}:{password}")));
@@ -103,6 +116,42 @@ namespace GPTArticleGen.Model
 
             return postData;
         }
+
+        async Task<string> UploadFeaturedImageAsync(string featuredImageBase64, string siteUrl, string username, string password)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+
+
+                // Convert the base64 string back to a byte array
+                byte[] imageBytes = Convert.FromBase64String(featuredImageBase64);
+
+                // Set up the request to upload the image
+                client.BaseAddress = new Uri($"{siteUrl}/wp-json/wp/v2/media");
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.Add("Authorization", "Basic " + Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}")));
+
+                var content = new MultipartFormDataContent();
+                content.Add(new ByteArrayContent(imageBytes), "file", "featured-image.png");
+
+                HttpResponseMessage imageResponse = await client.PostAsync("", content);
+                if (imageResponse.IsSuccessStatusCode)
+                {
+                    // Extract the newly uploaded image's ID from the response
+                    string imageResponseContent = await imageResponse.Content.ReadAsStringAsync();
+                    JObject image = JObject.Parse(imageResponseContent);
+                    string imageId = image["id"].ToString();
+                    return imageId;
+                }
+                else
+                {
+                    Console.WriteLine("Failed to upload featured image. Status Code: " + imageResponse.StatusCode);
+                    Console.WriteLine(await imageResponse.Content.ReadAsStringAsync());
+                    return null;
+                }
+            }
+        }
+
 
         string Slugify(string input)
         {
