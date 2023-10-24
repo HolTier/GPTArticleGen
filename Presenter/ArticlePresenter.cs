@@ -72,8 +72,11 @@ namespace GPTArticleGen.Presenter
 
             // Initialize SQLiteDB
             _db = new SQLiteDB();
+            _db.OpenConnection();
 
             _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(_db.GetArticles().Result);
+
+            _db.CloseConnection();
 
             _basicPrompt = Properties.Settings.Default.BasicPrompt;
             _view.DefaultPrompt = _basicPrompt;
