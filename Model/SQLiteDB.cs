@@ -1,7 +1,9 @@
 ﻿using GPTArticleGen.Model;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
+using System.Diagnostics;
 
 public class SQLiteDB
 {
@@ -15,7 +17,7 @@ public class SQLiteDB
 
     public SQLiteDB()
     {
-        connection = new SQLiteConnection("Data Source=WordpressArticles.db;Version=3;");
+        connection = new SQLiteConnection("Data Source=WordpressArticlesDatabase2.db;Version=3;");
     }
 
     public void OpenConnection()
@@ -44,11 +46,14 @@ public class SQLiteDB
     public async Task InsertArticleAsync(ArticleModel articleModel)
     {
         SQLiteCommand command = CreateCommand();
-        command.CommandText = "INSERT INTO Articles (Title, Content, Tags, Prompt) VALUES (@Title, @Content, @Tags, @Prompt)";
+        command.CommandText = "INSERT INTO Articles (Title, Content, Tags, Prompt, isPublished, Image_id, Page_id) VALUES (@Title, @Content, @Tags, @Prompt, @IsPublished, @Image_id, @Page_id)";
         command.Parameters.AddWithValue("@Title", articleModel.Title);
         command.Parameters.AddWithValue("@Content", articleModel.Content);
         command.Parameters.AddWithValue("@Tags", articleModel.Tags);
         command.Parameters.AddWithValue("@Prompt", articleModel.Prompt);
+        command.Parameters.AddWithValue("@IsPublished", articleModel.IsPublished);
+        command.Parameters.AddWithValue("@Page_id", articleModel.SiteId);
+        command.Parameters.AddWithValue("@Image_id", articleModel.ImageId);
         try
         {
             await command.ExecuteNonQueryAsync();
@@ -144,6 +149,41 @@ public class SQLiteDB
         {
             CloseConnection();
         }
+    }
+
+    public async Task<BindingList<ArticleDatabaseModel>> GetArticles()
+    {
+        var articles = new BindingList<ArticleDatabaseModel>();
+
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "SELECT * FROM Articles";
+        DbDataReader reader = await command.ExecuteReaderAsync();
+
+        if (reader is SQLiteDataReader sqliteReader)
+        {
+            while (await sqliteReader.ReadAsync())
+            {
+                if(sqliteReader.IsDBNull(5))
+                {
+                    continue;
+                }
+                ArticleDatabaseModel article = new ArticleDatabaseModel
+                {
+                    Id = sqliteReader.GetInt32(0),
+                    Title = sqliteReader.IsDBNull(1) ? null :  sqliteReader.GetString(1),
+                    Content = sqliteReader.IsDBNull(2) ? null : sqliteReader.GetString(2),
+                    Tags = sqliteReader.IsDBNull(3) ? null : sqliteReader.GetString(3),
+                    Prompt = sqliteReader.IsDBNull(4) ? null : sqliteReader.GetString(4),
+                    IsPublished = sqliteReader.GetBoolean(5),
+                    ImageId = sqliteReader.GetInt32(6),
+                    PageId = sqliteReader.GetInt32(7)
+                };
+                articles.Add(article);
+            }
+        }
+        
+
+        return articles;
     }
 
     #endregion

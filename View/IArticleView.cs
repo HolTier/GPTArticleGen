@@ -24,6 +24,7 @@ namespace GPTArticleGen.View
         WebView2 WebView2 { get; set; }
         Control UiControl { get; }
         BindingList<ArticleModel> Titles { get; set; }
+        BindingList<ArticleDatabaseModel> ArticleDatabases { get; set; }
 
         int MaxRetries { get; set; }
         string DefaultPrompt { get; set; }

@@ -100,6 +100,8 @@ namespace GPTArticleGen.Presenter
             createTableCommand.CommandText = createTableQuery;
             createTableCommand.ExecuteNonQuery();
 
+            _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(_db.GetArticles().Result);
+
             // Close connection to database
             _db.CloseConnection();
 
@@ -762,6 +764,7 @@ namespace GPTArticleGen.Presenter
                         }
                         else if (values.Length >= 1)
                         {
+                            _db.OpenConnection();
                             string promptTitle = values[0].Trim();
                             // Create a new ArticleModel for each line and set the PromptTitle
                             ArticleModel article = new ArticleModel
@@ -769,9 +772,12 @@ namespace GPTArticleGen.Presenter
                                 PromptTitle = promptTitle,
                                 PromptFormat = _basicPrompt,
                                 Prompt = _basicPrompt.Replace("{title}", promptTitle),
-                                SiteId = _pageModel.Id
+                                SiteId = _pageModel.Id,
+                                IsPublished = false
                             };
                             _view.Titles.Add(article);
+                            await _db.InsertArticleAsync(article);
+                            _db.CloseConnection();
                         }
                     }
                 }

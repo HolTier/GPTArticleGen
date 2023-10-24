@@ -22,6 +22,7 @@ namespace GPTArticleGen.View
         private int _maxRetries;
         private string _defaultPrompt;
         private BindingList<ArticleModel> _titles = new BindingList<ArticleModel>();
+        private BindingList<ArticleDatabaseModel> _articleDatabases = new BindingList<ArticleDatabaseModel>();
         Control _uiControl;
 
 
@@ -170,6 +171,15 @@ namespace GPTArticleGen.View
         {
             get => defaultPromptTextBox.Text;
             set => defaultPromptTextBox.Text = value;
+        }
+        public BindingList<ArticleDatabaseModel> ArticleDatabases
+        {
+            get => _articleDatabases;
+            set
+            {
+                _articleDatabases = value;
+                databaseGridView.DataSource = _articleDatabases;
+            }
         }
 
         public event EventHandler GenerateArticle;

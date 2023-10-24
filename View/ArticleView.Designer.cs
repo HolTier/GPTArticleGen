@@ -50,6 +50,9 @@
             defaultLabel = new Label();
             maxRetriesNumeric = new NumericUpDown();
             maxRetriesLabel = new Label();
+            tabPage1 = new TabPage();
+            databaseComboBox = new ComboBox();
+            databaseGridView = new DataGridView();
             titlesListBox = new ListBox();
             generateButton = new Button();
             generateAllButton = new Button();
@@ -66,6 +69,8 @@
             ((System.ComponentModel.ISupportInitialize)webView2).BeginInit();
             tabSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)maxRetriesNumeric).BeginInit();
+            tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)databaseGridView).BeginInit();
             SuspendLayout();
             // 
             // textAndPromptControl
@@ -74,6 +79,7 @@
             textAndPromptControl.Controls.Add(tabPrompt);
             textAndPromptControl.Controls.Add(tabWebView2);
             textAndPromptControl.Controls.Add(tabSettings);
+            textAndPromptControl.Controls.Add(tabPage1);
             textAndPromptControl.Location = new Point(0, 0);
             textAndPromptControl.Name = "textAndPromptControl";
             textAndPromptControl.SelectedIndex = 0;
@@ -297,6 +303,40 @@
             maxRetriesLabel.TabIndex = 0;
             maxRetriesLabel.Text = "Max retries";
             // 
+            // tabPage1
+            // 
+            tabPage1.Controls.Add(databaseComboBox);
+            tabPage1.Controls.Add(databaseGridView);
+            tabPage1.Location = new Point(4, 29);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(804, 539);
+            tabPage1.TabIndex = 4;
+            tabPage1.Text = "tabPage1";
+            tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // databaseComboBox
+            // 
+            databaseComboBox.FormattingEnabled = true;
+            databaseComboBox.Items.AddRange(new object[] { "Articles", "Pages" });
+            databaseComboBox.Location = new Point(3, 3);
+            databaseComboBox.Name = "databaseComboBox";
+            databaseComboBox.Size = new Size(151, 28);
+            databaseComboBox.TabIndex = 1;
+            // 
+            // databaseGridView
+            // 
+            databaseGridView.AllowUserToAddRows = false;
+            databaseGridView.AllowUserToDeleteRows = false;
+            databaseGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            databaseGridView.Location = new Point(3, 34);
+            databaseGridView.Name = "databaseGridView";
+            databaseGridView.ReadOnly = true;
+            databaseGridView.RowHeadersWidth = 51;
+            databaseGridView.RowTemplate.Height = 29;
+            databaseGridView.Size = new Size(798, 502);
+            databaseGridView.TabIndex = 0;
+            // 
             // titlesListBox
             // 
             titlesListBox.FormattingEnabled = true;
@@ -405,6 +445,8 @@
             tabSettings.ResumeLayout(false);
             tabSettings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)maxRetriesNumeric).EndInit();
+            tabPage1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)databaseGridView).EndInit();
             ResumeLayout(false);
         }
 
@@ -441,5 +483,8 @@
         private Button saveSettingsButton;
         private Button addImagesButton;
         private Button runGenerationButton;
+        private TabPage tabPage1;
+        private DataGridView databaseGridView;
+        private ComboBox databaseComboBox;
     }
 }
