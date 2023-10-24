@@ -1,5 +1,6 @@
 ﻿using GPTArticleGen.Model;
 using GPTArticleGen.View;
+using GPTArticleGen.Presenter;
 using Microsoft.Web.WebView2.WinForms;
 using Newtonsoft.Json;
 using System;
@@ -29,6 +30,8 @@ namespace GPTArticleGen.Presenter
         private WordpressRepository _wordpressRepository;
         private PageModel _pageModel;
         private SQLiteDB _db;
+        private TaskCompletionSource<bool> _taskCompletionSource;
+        private ProgressDialogPresenter progressDialog;
 
         #region Initialize
         public ArticlePresenter(IArticleView view, ArticleModel model)
@@ -36,6 +39,7 @@ namespace GPTArticleGen.Presenter
             _view = view;
             _model = model;
             _wordpressRepository = new WordpressRepository();   
+            _taskCompletionSource = new TaskCompletionSource<bool>();
 
             _view.GenerateArticle += GenerateArticle;
             _view.GenerateForAll += GenerateForAll;
@@ -52,6 +56,7 @@ namespace GPTArticleGen.Presenter
             _view.SaveSettings += SaveSettings;
             _view.CancelSettings += CancelSettings;
             _view.AddImages += AddImages;
+            _view.RunGeneration += RunGeneration;
         }
 
         public void Initialize()
@@ -109,6 +114,9 @@ namespace GPTArticleGen.Presenter
             SQLiteDB db = new SQLiteDB();
             db.OpenConnection();
 
+            int i = 0;
+            if(progressDialog != null)
+                progressDialog.UpdateAddToPageProgress(i);
             foreach (ArticleModel article in _view.Titles)
             {
                 // Create an object to hold your article data
@@ -145,6 +153,9 @@ namespace GPTArticleGen.Presenter
                 {
                     Debug.WriteLine("Failed to add post to wordpress. Post title: " + article.Title );
                 }
+
+                if(progressDialog != null)
+                    progressDialog.UpdateAddToPageProgress(++i);
 
                 await db.InsertArticleAsync(article);
             }
@@ -187,16 +198,22 @@ namespace GPTArticleGen.Presenter
             throw new NotImplementedException();
         }
 
-        private void GenerateForAll(object? sender, EventArgs e)
+        private async void GenerateForAll(object? sender, EventArgs e)
         {
             bool isFirst = true;
-            Task.Run(async () =>
+
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+
+            await Task.Run(async () =>
             {
                 // Update the UI with the result on the UI thread
                 Program.SyncContext.Post(async _ =>
                 {
                     //_view.DisableUI();
 
+                    int i = 0;
+                    if(progressDialog != null)
+                        progressDialog.UpdateGenerateArticleProgress(i);
                     foreach (ArticleModel selected in _view.Titles)
                     {
                         while (selected.Retries <= _view.MaxRetries)
@@ -214,6 +231,10 @@ namespace GPTArticleGen.Presenter
                             selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
 
                             selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
+
+                            if(selected.Retries == 1 && progressDialog != null)
+                                progressDialog.UpdateGenerateArticleProgress(++i);
+
                             selected.Retries++;
 
                             SelectedTitleChanged(this, EventArgs.Empty);
@@ -226,9 +247,19 @@ namespace GPTArticleGen.Presenter
                             }
                         }
                     }
+
+                    // Signal that the work is done
+                    taskCompletionSource.SetResult(true);
+
                     //_view.EnableUI();
                 }, null);
             });
+
+            // Wait for the Task.Run to complete
+            await taskCompletionSource.Task;
+            _taskCompletionSource.SetResult(true);
+            // Wait for all tasks to complete
+            Debug.WriteLine("Generation for all finished");
         }
 
         private void RegenarateArticle(object? sender, EventArgs e)
@@ -367,6 +398,9 @@ namespace GPTArticleGen.Presenter
 
         private void AddImages(object? sender, EventArgs e)
         {
+            int i = 0;
+            if(progressDialog != null)
+                progressDialog.UpdateAddImagesProgress(i);
             foreach (ArticleModel article in _view.Titles)
             {
                 // Modify the article title to replace spaces with hyphens and make it lowercase.
@@ -402,8 +436,40 @@ namespace GPTArticleGen.Presenter
                         article.ImagePath = file;
                     }
                 }
+                if(progressDialog != null)
+                    progressDialog.UpdateAddImagesProgress(++i);
             }
         }
+
+        private async void RunGeneration(object? sender, EventArgs e)
+        {
+            try
+            {
+                ProgressDialogView progressDialogView = new ProgressDialogView();
+                progressDialogView.Show();  // Show the dialog non-modally
+
+                progressDialog = new ProgressDialogPresenter(progressDialogView, _view.Titles.Count, _view.Titles.Count, _view.Titles.Count);
+                progressDialog.Initialize();
+
+                await Task.Run(() =>
+                {
+                    // Run your time-consuming tasks here
+                    AddImages(sender, e);
+
+                    _taskCompletionSource = new TaskCompletionSource<bool>();
+                    GenerateForAll(sender, e);
+                    _taskCompletionSource.Task.Wait();  // Wait for task to complete
+
+                    AddToPageAsync(sender, e);
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                Debug.WriteLine(ex);
+            }
+        }
+
         #endregion
 
         #region Webview2 Methods

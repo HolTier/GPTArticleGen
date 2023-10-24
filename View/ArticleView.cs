@@ -41,6 +41,7 @@ namespace GPTArticleGen.View
             saveSettingsButton.Click += (sender, args) => SaveSettings?.Invoke(this, EventArgs.Empty);
             cancelSettingsButton.Click += (sender, args) => CancelSettings?.Invoke(this, EventArgs.Empty);
             addImagesButton.Click += (sender, args) => AddImages?.Invoke(this, EventArgs.Empty);
+            runGenerationButton.Click += (sender, args) => RunGeneration?.Invoke(this, EventArgs.Empty);
 
             promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
             promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
@@ -186,6 +187,7 @@ namespace GPTArticleGen.View
         public event EventHandler SaveSettings;
         public event EventHandler CancelSettings;
         public event EventHandler AddImages;
+        public event EventHandler RunGeneration;
 
         public void EnableUI()
         {

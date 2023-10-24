@@ -39,6 +39,7 @@ namespace GPTArticleGen.View
         event EventHandler SaveSettings;
         event EventHandler CancelSettings;
         event EventHandler AddImages;
+        event EventHandler RunGeneration;
 
         event EventHandler PromptFormatTextBoxChanged;
         event EventHandler PromptTextBoxChanged;

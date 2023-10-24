@@ -58,6 +58,7 @@
             addToPageButton = new Button();
             regenerateArticleButton = new Button();
             addImagesButton = new Button();
+            runGenerationButton = new Button();
             textAndPromptControl.SuspendLayout();
             tabContext.SuspendLayout();
             tabPrompt.SuspendLayout();
@@ -311,7 +312,7 @@
             generateButton.Name = "generateButton";
             generateButton.Size = new Size(149, 29);
             generateButton.TabIndex = 2;
-            generateButton.Text = "Generate";
+            generateButton.Text = "Generate for one";
             generateButton.UseVisualStyleBackColor = true;
             // 
             // generateAllButton
@@ -368,11 +369,21 @@
             addImagesButton.Text = "Add Images";
             addImagesButton.UseVisualStyleBackColor = true;
             // 
+            // runGenerationButton
+            // 
+            runGenerationButton.Location = new Point(1032, 533);
+            runGenerationButton.Name = "runGenerationButton";
+            runGenerationButton.Size = new Size(149, 29);
+            runGenerationButton.TabIndex = 10;
+            runGenerationButton.Text = "Run Generation";
+            runGenerationButton.UseVisualStyleBackColor = true;
+            // 
             // ArticleView
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1193, 572);
+            Controls.Add(runGenerationButton);
             Controls.Add(addImagesButton);
             Controls.Add(regenerateArticleButton);
             Controls.Add(addToPageButton);
@@ -429,5 +440,6 @@
         private Button cancelSettingsButton;
         private Button saveSettingsButton;
         private Button addImagesButton;
+        private Button runGenerationButton;
     }
 }
