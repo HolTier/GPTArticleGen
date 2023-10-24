@@ -23,6 +23,7 @@ namespace GPTArticleGen.View
         private string _defaultPrompt;
         private BindingList<ArticleModel> _titles = new BindingList<ArticleModel>();
         private BindingList<ArticleDatabaseModel> _articleDatabases = new BindingList<ArticleDatabaseModel>();
+        private BindingList<PageModel> _pageDatabases = new BindingList<PageModel>();
         Control _uiControl;
 
 
@@ -43,6 +44,7 @@ namespace GPTArticleGen.View
             cancelSettingsButton.Click += (sender, args) => CancelSettings?.Invoke(this, EventArgs.Empty);
             addImagesButton.Click += (sender, args) => AddImages?.Invoke(this, EventArgs.Empty);
             runGenerationButton.Click += (sender, args) => RunGeneration?.Invoke(this, EventArgs.Empty);
+            databaseComboBox.SelectedValueChanged += (sender, args) => DatabaseSelectionChanged?.Invoke(this, EventArgs.Empty);
 
             promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
             promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
@@ -172,16 +174,35 @@ namespace GPTArticleGen.View
             get => defaultPromptTextBox.Text;
             set => defaultPromptTextBox.Text = value;
         }
+
         public BindingList<ArticleDatabaseModel> ArticleDatabases
         {
             get => _articleDatabases;
             set
             {
                 _articleDatabases = value;
-                databaseGridView.DataSource = _articleDatabases;
+                if (databaseGridView.DataSource != _articleDatabases)
+                    databaseGridView.DataSource = _articleDatabases;
             }
         }
 
+        public BindingList<PageModel> PageDatabases
+        {
+            get => _pageDatabases;
+            set
+            {
+                _pageDatabases = value;
+                if (databaseGridView.DataSource != _pageDatabases)
+                    databaseGridView.DataSource = _pageDatabases;
+            }
+        }
+
+        public string DatabaseComboBoxSelectedItem 
+        { 
+            get => databaseComboBox.SelectedItem as string;
+            set => databaseComboBox.SelectedItem = value;
+        }
+        
         public event EventHandler GenerateArticle;
         public event EventHandler GenerateForAll;
         public event EventHandler ChangeDefaultPrompt;
@@ -198,6 +219,7 @@ namespace GPTArticleGen.View
         public event EventHandler CancelSettings;
         public event EventHandler AddImages;
         public event EventHandler RunGeneration;
+        public event EventHandler DatabaseSelectionChanged;
 
         public void EnableUI()
         {

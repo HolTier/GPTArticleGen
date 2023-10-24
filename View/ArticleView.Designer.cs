@@ -83,7 +83,7 @@
             textAndPromptControl.Location = new Point(0, 0);
             textAndPromptControl.Name = "textAndPromptControl";
             textAndPromptControl.SelectedIndex = 0;
-            textAndPromptControl.Size = new Size(812, 572);
+            textAndPromptControl.Size = new Size(854, 572);
             textAndPromptControl.TabIndex = 0;
             // 
             // tabContext
@@ -97,7 +97,7 @@
             tabContext.Location = new Point(4, 29);
             tabContext.Name = "tabContext";
             tabContext.Padding = new Padding(3);
-            tabContext.Size = new Size(804, 539);
+            tabContext.Size = new Size(846, 539);
             tabContext.TabIndex = 1;
             tabContext.Text = "Context";
             tabContext.UseVisualStyleBackColor = true;
@@ -106,7 +106,7 @@
             // 
             tagsTextBox.Location = new Point(8, 504);
             tagsTextBox.Name = "tagsTextBox";
-            tagsTextBox.Size = new Size(789, 27);
+            tagsTextBox.Size = new Size(832, 27);
             tagsTextBox.TabIndex = 5;
             // 
             // tagsLabel
@@ -125,7 +125,7 @@
             contentTextBox.Multiline = true;
             contentTextBox.Name = "contentTextBox";
             contentTextBox.ScrollBars = ScrollBars.Horizontal;
-            contentTextBox.Size = new Size(790, 366);
+            contentTextBox.Size = new Size(832, 366);
             contentTextBox.TabIndex = 3;
             // 
             // contentLabel
@@ -152,7 +152,7 @@
             // 
             titleTextBox.Location = new Point(8, 35);
             titleTextBox.Name = "titleTextBox";
-            titleTextBox.Size = new Size(790, 27);
+            titleTextBox.Size = new Size(832, 27);
             titleTextBox.TabIndex = 0;
             // 
             // tabPrompt
@@ -164,7 +164,7 @@
             tabPrompt.Location = new Point(4, 29);
             tabPrompt.Name = "tabPrompt";
             tabPrompt.Padding = new Padding(3);
-            tabPrompt.Size = new Size(804, 539);
+            tabPrompt.Size = new Size(846, 539);
             tabPrompt.TabIndex = 0;
             tabPrompt.Text = "Prompt";
             tabPrompt.UseVisualStyleBackColor = true;
@@ -174,7 +174,7 @@
             promptTextBox.Location = new Point(8, 239);
             promptTextBox.Multiline = true;
             promptTextBox.Name = "promptTextBox";
-            promptTextBox.Size = new Size(790, 292);
+            promptTextBox.Size = new Size(832, 292);
             promptTextBox.TabIndex = 3;
             // 
             // promptLabel
@@ -202,7 +202,7 @@
             promptFormatTextBox.Location = new Point(8, 34);
             promptFormatTextBox.Multiline = true;
             promptFormatTextBox.Name = "promptFormatTextBox";
-            promptFormatTextBox.Size = new Size(790, 169);
+            promptFormatTextBox.Size = new Size(835, 169);
             promptFormatTextBox.TabIndex = 0;
             // 
             // tabWebView2
@@ -211,7 +211,7 @@
             tabWebView2.Location = new Point(4, 29);
             tabWebView2.Name = "tabWebView2";
             tabWebView2.Padding = new Padding(3);
-            tabWebView2.Size = new Size(804, 539);
+            tabWebView2.Size = new Size(846, 539);
             tabWebView2.TabIndex = 2;
             tabWebView2.Text = "WebView";
             tabWebView2.UseVisualStyleBackColor = true;
@@ -223,7 +223,7 @@
             webView2.DefaultBackgroundColor = Color.White;
             webView2.Location = new Point(0, 0);
             webView2.Name = "webView2";
-            webView2.Size = new Size(808, 543);
+            webView2.Size = new Size(846, 543);
             webView2.TabIndex = 0;
             webView2.ZoomFactor = 1D;
             // 
@@ -238,7 +238,7 @@
             tabSettings.Location = new Point(4, 29);
             tabSettings.Name = "tabSettings";
             tabSettings.Padding = new Padding(3);
-            tabSettings.Size = new Size(804, 539);
+            tabSettings.Size = new Size(846, 539);
             tabSettings.TabIndex = 3;
             tabSettings.Text = "Settings";
             tabSettings.UseVisualStyleBackColor = true;
@@ -250,7 +250,7 @@
             cancelSettingsButton.FlatAppearance.BorderSize = 0;
             cancelSettingsButton.FlatAppearance.MouseDownBackColor = Color.Transparent;
             cancelSettingsButton.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            cancelSettingsButton.Location = new Point(679, 474);
+            cancelSettingsButton.Location = new Point(721, 474);
             cancelSettingsButton.Margin = new Padding(0);
             cancelSettingsButton.Name = "cancelSettingsButton";
             cancelSettingsButton.Size = new Size(119, 57);
@@ -261,7 +261,7 @@
             // saveSettingsButton
             // 
             saveSettingsButton.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            saveSettingsButton.Location = new Point(554, 474);
+            saveSettingsButton.Location = new Point(599, 474);
             saveSettingsButton.Name = "saveSettingsButton";
             saveSettingsButton.Size = new Size(119, 57);
             saveSettingsButton.TabIndex = 5;
@@ -273,7 +273,7 @@
             defaultPromptTextBox.Location = new Point(6, 98);
             defaultPromptTextBox.Multiline = true;
             defaultPromptTextBox.Name = "defaultPromptTextBox";
-            defaultPromptTextBox.Size = new Size(795, 370);
+            defaultPromptTextBox.Size = new Size(834, 370);
             defaultPromptTextBox.TabIndex = 4;
             // 
             // defaultLabel
@@ -310,7 +310,7 @@
             tabPage1.Location = new Point(4, 29);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(804, 539);
+            tabPage1.Size = new Size(846, 539);
             tabPage1.TabIndex = 4;
             tabPage1.Text = "tabPage1";
             tabPage1.UseVisualStyleBackColor = true;
@@ -334,16 +334,16 @@
             databaseGridView.ReadOnly = true;
             databaseGridView.RowHeadersWidth = 51;
             databaseGridView.RowTemplate.Height = 29;
-            databaseGridView.Size = new Size(798, 502);
+            databaseGridView.Size = new Size(840, 502);
             databaseGridView.TabIndex = 0;
             // 
             // titlesListBox
             // 
             titlesListBox.FormattingEnabled = true;
             titlesListBox.ItemHeight = 20;
-            titlesListBox.Location = new Point(818, 28);
+            titlesListBox.Location = new Point(860, 28);
             titlesListBox.Name = "titlesListBox";
-            titlesListBox.Size = new Size(208, 544);
+            titlesListBox.Size = new Size(166, 544);
             titlesListBox.TabIndex = 1;
             // 
             // generateButton

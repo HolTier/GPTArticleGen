@@ -25,6 +25,8 @@ namespace GPTArticleGen.View
         Control UiControl { get; }
         BindingList<ArticleModel> Titles { get; set; }
         BindingList<ArticleDatabaseModel> ArticleDatabases { get; set; }
+        BindingList<PageModel> PageDatabases { get; set; }
+        string DatabaseComboBoxSelectedItem { get; set; }
 
         int MaxRetries { get; set; }
         string DefaultPrompt { get; set; }
@@ -41,6 +43,7 @@ namespace GPTArticleGen.View
         event EventHandler CancelSettings;
         event EventHandler AddImages;
         event EventHandler RunGeneration;
+        event EventHandler DatabaseSelectionChanged;
 
         event EventHandler PromptFormatTextBoxChanged;
         event EventHandler PromptTextBoxChanged;

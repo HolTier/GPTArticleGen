@@ -37,6 +37,9 @@ namespace GPTArticleGen
             SyncContext = SynchronizationContext.Current;
             // Star the Application Loop with the main Form
             Application.Run(view);
+
         }
+
+        
     }
 }

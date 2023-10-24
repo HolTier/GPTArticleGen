@@ -57,6 +57,7 @@ namespace GPTArticleGen.Presenter
             _view.CancelSettings += CancelSettings;
             _view.AddImages += AddImages;
             _view.RunGeneration += RunGeneration;
+            _view.DatabaseSelectionChanged += DatabaseSelectionChanged;
         }
 
         public void Initialize()
@@ -71,43 +72,13 @@ namespace GPTArticleGen.Presenter
 
             // Initialize SQLiteDB
             _db = new SQLiteDB();
-            _db.OpenConnection();
-
-            // Create table of Pages if not exists
-            string createPagesTableQuery = @"CREATE TABLE IF NOT EXISTS Pages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                site TEXT,
-                username TEXT,
-                password TEXT
-            )";
-            SQLiteCommand createPagesTableCommand = _db.CreateCommand();
-            createPagesTableCommand.CommandText = createPagesTableQuery;
-            createPagesTableCommand.ExecuteNonQuery();
-
-            // Create table if not exists
-            string createTableQuery = @"CREATE TABLE IF NOT EXISTS Articles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT,
-                content TEXT,
-                tags TEXT,
-                prompt TEXT,
-                isPublished BOOLEAN,
-                image_id INTEGER,
-                page_id INTEGER REFERENCES Pages(id)
-                
-            )";
-            SQLiteCommand createTableCommand = _db.CreateCommand();
-            createTableCommand.CommandText = createTableQuery;
-            createTableCommand.ExecuteNonQuery();
 
             _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(_db.GetArticles().Result);
-
-            // Close connection to database
-            _db.CloseConnection();
 
             _basicPrompt = Properties.Settings.Default.BasicPrompt;
             _view.DefaultPrompt = _basicPrompt;
             _view.MaxRetries = Properties.Settings.Default.MaxRetries;
+            _view.DatabaseComboBoxSelectedItem = "Articles";
         }
         #endregion
 
@@ -116,7 +87,6 @@ namespace GPTArticleGen.Presenter
         {
             // Initialize SQLiteDB
             SQLiteDB db = new SQLiteDB();
-            db.OpenConnection();
 
             int i = 0;
             if(progressDialog != null)
@@ -151,7 +121,8 @@ namespace GPTArticleGen.Presenter
                 if(await _wordpressRepository.AddPostAsync(tags, article.PostData, article.Id,page.Username, page.Password, page.Site, article.ImagePath))
                 {
                     //Add to database
-                    await db.InsertArticleAsync(article);
+                    article.IsPublished = true;
+                    await db.UpdateArticleWithoutImageIdAsync(article);
                 }
                 else
                 {
@@ -161,10 +132,8 @@ namespace GPTArticleGen.Presenter
                 if(progressDialog != null)
                     progressDialog.UpdateAddToPageProgress(++i);
 
-                await db.InsertArticleAsync(article);
+                //await db.InsertArticleAsync(article);
             }
-
-            db.CloseConnection();
         }
 
         private async void ImportTitles(object? sender, EventArgs e)
@@ -247,6 +216,7 @@ namespace GPTArticleGen.Presenter
 
                             if(!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags))
                             {
+                                await _db.UpdateArticleTitleContentTags(selected);
                                 break;
                             }
                         }
@@ -466,11 +436,32 @@ namespace GPTArticleGen.Presenter
 
                     AddToPageAsync(sender, e);
                 });
+
+                if(_view.DatabaseComboBoxSelectedItem == "Articles")
+                {
+                    _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(await _db.GetArticles());
+                }
+                else if(_view.DatabaseComboBoxSelectedItem == "Pages")
+                {
+                    _view.PageDatabases = new BindingList<PageModel>(await _db.GetPages());
+                }
             }
             catch (Exception ex)
             {
                 // Handle exceptions
                 Debug.WriteLine(ex);
+            }
+        }
+
+        private async void DatabaseSelectionChanged(object? sender, EventArgs e)
+        {
+            if(_view.DatabaseComboBoxSelectedItem == "Articles")
+            {
+                _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(await _db.GetArticles());
+            }
+            else if(_view.DatabaseComboBoxSelectedItem == "Pages")
+            {
+                _view.PageDatabases = new BindingList<PageModel>(await _db.GetPages());
             }
         }
 
@@ -721,7 +712,7 @@ namespace GPTArticleGen.Presenter
                 int lastIndex = input.LastIndexOf('/');
                 if (lastIndex >= 0)
                 {
-                    input = input.Substring(0, lastIndex - retries.ToString().Length - 1);
+                    //input = input.Substring(0, lastIndex - retries.ToString().Length - 1);
                 }
             }
 
@@ -754,17 +745,17 @@ namespace GPTArticleGen.Presenter
                                 Password = string.Join(" ", pageValues.Skip(2))
                             };
 
-                            _db.OpenConnection();
+                            //_db.OpenConnection();
                             _pageModel.Id = await _db.GetPageIdByAttributes(_pageModel);
                             if(_pageModel.Id == -1)
                             {
                                 _pageModel.Id = await _db.AddPageAndReturnId(_pageModel);
                             }
-                            _db.CloseConnection();
+                            //_db.CloseConnection();
                         }
                         else if (values.Length >= 1)
                         {
-                            _db.OpenConnection();
+                            //_db.OpenConnection();
                             string promptTitle = values[0].Trim();
                             // Create a new ArticleModel for each line and set the PromptTitle
                             ArticleModel article = new ArticleModel
@@ -775,11 +766,32 @@ namespace GPTArticleGen.Presenter
                                 SiteId = _pageModel.Id,
                                 IsPublished = false
                             };
+                            
+                            int id = await _db.CheckIfArticleIsInDatabase(article);
+                            if(id == -1)
+                            {
+                                await _db.InsertArticleAsync(article);
+                                article.Id = await _db.GetLastArticleIdAsync();
+                            }
+                            else
+                            {
+                                article.Id = id;
+                            }
+                            
                             _view.Titles.Add(article);
-                            await _db.InsertArticleAsync(article);
-                            _db.CloseConnection();
+                            
+                            //_db.CloseConnection();
                         }
                     }
+                }
+
+                if (_view.DatabaseComboBoxSelectedItem == "Articles")
+                {
+                    _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(await _db.GetArticles());
+                }
+                else if (_view.DatabaseComboBoxSelectedItem == "Pages")
+                {
+                    _view.PageDatabases = new BindingList<PageModel>(await _db.GetPages());
                 }
             }
             else

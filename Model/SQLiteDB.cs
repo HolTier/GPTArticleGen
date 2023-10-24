@@ -13,11 +13,70 @@ public class SQLiteDB
     public SQLiteDB(string connectionString)
     {
         connection = new SQLiteConnection();
+
+        OpenConnection();
+        // Create table of Pages if not exists
+        string createPagesTableQuery = @"CREATE TABLE IF NOT EXISTS Pages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                site TEXT,
+                username TEXT,
+                password TEXT
+            )";
+        SQLiteCommand createPagesTableCommand = CreateCommand();
+        createPagesTableCommand.CommandText = createPagesTableQuery;
+        createPagesTableCommand.ExecuteNonQuery();
+
+        // Create table if not exists
+        string createTableQuery = @"CREATE TABLE IF NOT EXISTS Articles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                content TEXT,
+                tags TEXT,
+                promptTitle TEXT,
+                prompt TEXT,
+                isPublished BOOLEAN,
+                image_id INTEGER,
+                page_id INTEGER REFERENCES Pages(id)
+                
+            )";
+        SQLiteCommand createTableCommand = CreateCommand();
+        createTableCommand.CommandText = createTableQuery;
+        createTableCommand.ExecuteNonQuery();
+        CloseConnection();
     }
 
     public SQLiteDB()
     {
-        connection = new SQLiteConnection("Data Source=WordpressArticlesDatabase2.db;Version=3;");
+        connection = new SQLiteConnection("Data Source=WordpressArticlesDatabase.db;Version=3;");
+        OpenConnection();
+        // Create table of Pages if not exists
+        string createPagesTableQuery = @"CREATE TABLE IF NOT EXISTS Pages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                site TEXT,
+                username TEXT,
+                password TEXT
+            )";
+        SQLiteCommand createPagesTableCommand = CreateCommand();
+        createPagesTableCommand.CommandText = createPagesTableQuery;
+        createPagesTableCommand.ExecuteNonQuery();
+
+        // Create table if not exists
+        string createTableQuery = @"CREATE TABLE IF NOT EXISTS Articles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                content TEXT,
+                tags TEXT,
+                promptTitle TEXT,
+                prompt TEXT,
+                isPublished BOOLEAN,
+                image_id INTEGER,
+                page_id INTEGER REFERENCES Pages(id)
+                
+            )";
+        SQLiteCommand createTableCommand = CreateCommand();
+        createTableCommand.CommandText = createTableQuery;
+        createTableCommand.ExecuteNonQuery();
+        CloseConnection();
     }
 
     public void OpenConnection()
@@ -45,11 +104,13 @@ public class SQLiteDB
     #region CRUD Article
     public async Task InsertArticleAsync(ArticleModel articleModel)
     {
+        OpenConnection();
         SQLiteCommand command = CreateCommand();
-        command.CommandText = "INSERT INTO Articles (Title, Content, Tags, Prompt, isPublished, Image_id, Page_id) VALUES (@Title, @Content, @Tags, @Prompt, @IsPublished, @Image_id, @Page_id)";
+        command.CommandText = "INSERT INTO Articles (Title, Content, Tags, PromptTitle ,Prompt, isPublished, Image_id, Page_id) VALUES (@Title, @Content, @Tags, @PromptTitle ,@Prompt, @IsPublished, @Image_id, @Page_id)";
         command.Parameters.AddWithValue("@Title", articleModel.Title);
         command.Parameters.AddWithValue("@Content", articleModel.Content);
         command.Parameters.AddWithValue("@Tags", articleModel.Tags);
+        command.Parameters.AddWithValue("@PromptTitle", articleModel.PromptTitle);
         command.Parameters.AddWithValue("@Prompt", articleModel.Prompt);
         command.Parameters.AddWithValue("@IsPublished", articleModel.IsPublished);
         command.Parameters.AddWithValue("@Page_id", articleModel.SiteId);
@@ -62,27 +123,52 @@ public class SQLiteDB
         {
             throw e;
         }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public async Task<DataTable> GetAllArticleAsync()
     {
+        OpenConnection();
         SQLiteCommand selectCommand = CreateCommand();
         selectCommand.CommandText = "SELECT * FROM Articles";
         SQLiteDataAdapter adapter = new SQLiteDataAdapter(selectCommand);
-        DataTable dataTable = new DataTable();
-        await Task.Run(() => adapter.Fill(dataTable)); // Run the Fill operation asynchronously
-        return dataTable;
+
+        try
+        {
+            DataTable dataTable = new DataTable();
+            await Task.Run(() => adapter.Fill(dataTable)); // Run the Fill operation asynchronously
+            return dataTable;
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
-    public async Task UpdateArticleAsync(ArticleModel articleModel)
+    public async Task UpdateArticleWithoutImageIdAsync(ArticleModel articleModel)
     {
+        OpenConnection();
         SQLiteCommand command = CreateCommand();
-        command.CommandText = "UPDATE Articles SET Title = @Title, Content = @Content, Tags = @Tags, Prompt = @Prompt WHERE Id = @Id";
+        command.CommandText = "UPDATE Articles SET Title = @Title, Content = @Content, Tags = @Tags, PromptTitle = @PromptTitle ,Prompt = @Prompt, IsPublished = @IsPublished, Page_id = @Page_id WHERE Id = @Id";
         command.Parameters.AddWithValue("@Id", articleModel.Id);
         command.Parameters.AddWithValue("@Title", articleModel.Title);
         command.Parameters.AddWithValue("@Content", articleModel.Content);
         command.Parameters.AddWithValue("@Tags", articleModel.Tags);
+        command.Parameters.AddWithValue("@PromptTitle", articleModel.PromptTitle);
         command.Parameters.AddWithValue("@Prompt", articleModel.Prompt);
+        command.Parameters.AddWithValue("@IsPublished", articleModel.IsPublished);
+        //command.Parameters.AddWithValue("@Image_id", articleModel.ImageId);
+        command.Parameters.AddWithValue("@Page_id", articleModel.SiteId);
+        
+        Debug.WriteLine("UpdateArticleAsync: " + command.CommandText);
+
         try
         {
             await command.ExecuteNonQueryAsync();
@@ -91,10 +177,39 @@ public class SQLiteDB
         {
             throw e;
         }
+        finally
+        {
+            CloseConnection();
+        }
+    }
+
+    public async Task UpdateArticleTitleContentTags(ArticleModel articleModel)
+    {
+        OpenConnection();
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "UPDATE Articles SET Title = @Title, Content = @Content, Tags = @Tags WHERE Id = @Id";
+        command.Parameters.AddWithValue("@Id", articleModel.Id);
+        command.Parameters.AddWithValue("@Title", articleModel.Title);
+        command.Parameters.AddWithValue("@Content", articleModel.Content);
+        command.Parameters.AddWithValue("@Tags", articleModel.Tags);
+
+        try
+        {
+            await command.ExecuteNonQueryAsync();
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public async Task DeleteArticleAsync(ArticleModel articleModel)
     {
+        OpenConnection();
         SQLiteCommand command = CreateCommand();
         command.CommandText = "DELETE FROM Articles WHERE Id = @Id";
         command.Parameters.AddWithValue("@Id", articleModel.Id);
@@ -106,37 +221,54 @@ public class SQLiteDB
         {
             throw e;
         }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public async Task<int> GetLastArticleIdAsync()
     {
+        OpenConnection();
         SQLiteCommand command = CreateCommand();
         command.CommandText = "SELECT Id FROM Articles ORDER BY Id DESC LIMIT 1";
-        DbDataReader reader = await command.ExecuteReaderAsync();
-        int id = 0;
 
-        if (reader is SQLiteDataReader sqliteReader)
+        try
         {
-            while (await sqliteReader.ReadAsync())
+            DbDataReader reader = await command.ExecuteReaderAsync();
+            int id = 0;
+
+            if (reader is SQLiteDataReader sqliteReader)
             {
-                id = sqliteReader.GetInt32(0);
+                while (await sqliteReader.ReadAsync())
+                {
+                    id = sqliteReader.GetInt32(0);
+                }
             }
-        }
-        else
-        {
-            throw new InvalidOperationException("Unexpected database reader type.");
-        }
+            else
+            {
+                throw new InvalidOperationException("Unexpected database reader type.");
+            }
 
-        return id;
+            return id;
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public async Task UpdateArticleImageId(int articleId, int imageId)
     {
         OpenConnection();
         SQLiteCommand command = CreateCommand();
-        command.CommandText = "UPDATE Articles SET ImageId = @ImageId WHERE Id = @Id";
+        command.CommandText = "UPDATE Articles SET image_id = @Image_id WHERE Id = @Id";
         command.Parameters.AddWithValue("@Id", articleId);
-        command.Parameters.AddWithValue("@ImageId", imageId);
+        command.Parameters.AddWithValue("@Image_id", imageId);
         try
         {
             await command.ExecuteNonQueryAsync();
@@ -155,35 +287,87 @@ public class SQLiteDB
     {
         var articles = new BindingList<ArticleDatabaseModel>();
 
+        OpenConnection();
         SQLiteCommand command = CreateCommand();
         command.CommandText = "SELECT * FROM Articles";
-        DbDataReader reader = await command.ExecuteReaderAsync();
 
-        if (reader is SQLiteDataReader sqliteReader)
+        try
         {
-            while (await sqliteReader.ReadAsync())
+            DbDataReader reader = await command.ExecuteReaderAsync();
+
+            if (reader is SQLiteDataReader sqliteReader)
             {
-                if(sqliteReader.IsDBNull(5))
+                while (await sqliteReader.ReadAsync())
                 {
-                    continue;
+                    if (sqliteReader.IsDBNull(5))
+                    {
+                        continue;
+                    }
+                    ArticleDatabaseModel article = new ArticleDatabaseModel
+                    {
+                        Id = sqliteReader.GetInt32(0),
+                        Title = sqliteReader.IsDBNull(1) ? null : sqliteReader.GetString(1),
+                        Content = sqliteReader.IsDBNull(2) ? null : sqliteReader.GetString(2),
+                        Tags = sqliteReader.IsDBNull(3) ? null : sqliteReader.GetString(3),
+                        PromptTitle = sqliteReader.IsDBNull(4) ? null : sqliteReader.GetString(4),
+                        Prompt = sqliteReader.IsDBNull(5) ? null : sqliteReader.GetString(5),
+                        IsPublished = sqliteReader.GetBoolean(6),
+                        ImageId = sqliteReader.GetInt32(7),
+                        PageId = sqliteReader.GetInt32(8)
+                    };
+                    articles.Add(article);
                 }
-                ArticleDatabaseModel article = new ArticleDatabaseModel
+            }
+
+
+            return articles;
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            CloseConnection();
+        }
+    }
+
+    public async Task<int> CheckIfArticleIsInDatabase(ArticleModel article)
+    {
+        OpenConnection();
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "SELECT Id FROM Articles Where PromptTitle = @PromptTitle AND Page_id = @Site_id;";
+        command.Parameters.AddWithValue("@PromptTitle", article.PromptTitle);
+        command.Parameters.AddWithValue("@Site_id", article.SiteId);
+
+        try
+        {
+            DbDataReader reader = await command.ExecuteReaderAsync();
+            if(reader is SQLiteDataReader sqliteReader)
+            {
+                while (await sqliteReader.ReadAsync())
                 {
-                    Id = sqliteReader.GetInt32(0),
-                    Title = sqliteReader.IsDBNull(1) ? null :  sqliteReader.GetString(1),
-                    Content = sqliteReader.IsDBNull(2) ? null : sqliteReader.GetString(2),
-                    Tags = sqliteReader.IsDBNull(3) ? null : sqliteReader.GetString(3),
-                    Prompt = sqliteReader.IsDBNull(4) ? null : sqliteReader.GetString(4),
-                    IsPublished = sqliteReader.GetBoolean(5),
-                    ImageId = sqliteReader.GetInt32(6),
-                    PageId = sqliteReader.GetInt32(7)
-                };
-                articles.Add(article);
+                    if (!sqliteReader.IsDBNull(0) || sqliteReader.GetInt32(0) > 0)
+                    {
+                        return sqliteReader.GetInt32(0);
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
             }
         }
-        
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            CloseConnection();
+        }
 
-        return articles;
+        return -1;
     }
 
     #endregion
@@ -191,11 +375,13 @@ public class SQLiteDB
     #region CRUD Page
     public async Task InsertPageAsync(PageModel pageModel)
     {
+        OpenConnection();
         SQLiteCommand command = CreateCommand();
         command.CommandText = "INSERT INTO Pages (Site, Username, Password) VALUES (@Site, @Username, @Password)";
         command.Parameters.AddWithValue("@Site", pageModel.Site);
         command.Parameters.AddWithValue("@Username", pageModel.Username);
         command.Parameters.AddWithValue("@Password", pageModel.Password);
+
         try
         {
             await command.ExecuteNonQueryAsync();
@@ -204,26 +390,46 @@ public class SQLiteDB
         {
             throw e;
         }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public async Task<DataTable> GetAllPageAsync()
     {
+        OpenConnection();
         SQLiteCommand selectCommand = CreateCommand();
         selectCommand.CommandText = "SELECT * FROM Pages";
-        SQLiteDataAdapter adapter = new SQLiteDataAdapter(selectCommand);
-        DataTable dataTable = new DataTable();
-        await Task.Run(() => adapter.Fill(dataTable)); // Run the Fill operation asynchronously
-        return dataTable;
+
+        try
+        {
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(selectCommand);
+            DataTable dataTable = new DataTable();
+            await Task.Run(() => adapter.Fill(dataTable)); // Run the Fill operation asynchronously
+            return dataTable;
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            CloseConnection();
+        }
+
     }
 
     public async Task UpdatePageAsync(PageModel pageModel)
     {
+        OpenConnection();
         SQLiteCommand command = CreateCommand();
         command.CommandText = "UPDATE Pages SET Site = @Site, Username = @Username, Password = @Password WHERE Id = @Id";
         command.Parameters.AddWithValue("@Id", pageModel.Id);
         command.Parameters.AddWithValue("@Site", pageModel.Site);
         command.Parameters.AddWithValue("@Username", pageModel.Username);
         command.Parameters.AddWithValue("@Password", pageModel.Password);
+
         try
         {
             await command.ExecuteNonQueryAsync();
@@ -231,14 +437,20 @@ public class SQLiteDB
         catch (SQLiteException e)
         {
             throw e;
+        }
+        finally
+        {
+            CloseConnection();
         }
     }
 
     public async Task DeletePageAsync(PageModel pageModel)
     {
+        OpenConnection();
         SQLiteCommand command = CreateCommand();
         command.CommandText = "DELETE FROM Pages WHERE Id = @Id";
         command.Parameters.AddWithValue("@Id", pageModel.Id);
+
         try
         {
             await command.ExecuteNonQueryAsync();
@@ -247,32 +459,50 @@ public class SQLiteDB
         {
             throw e;
         }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public async Task<int> GetLastPageIdAsync()
     {
+        OpenConnection();
         SQLiteCommand command = CreateCommand();
         command.CommandText = "SELECT Id FROM Pages ORDER BY Id DESC LIMIT 1";
-        DbDataReader reader = await command.ExecuteReaderAsync();
-        int id = 0;
 
-        if (reader is SQLiteDataReader sqliteReader)
+        try
         {
-            while (await sqliteReader.ReadAsync())
+            DbDataReader reader = await command.ExecuteReaderAsync();
+            int id = 0;
+
+            if (reader is SQLiteDataReader sqliteReader)
             {
-                id = sqliteReader.GetInt32(0);
+                while (await sqliteReader.ReadAsync())
+                {
+                    id = sqliteReader.GetInt32(0);
+                }
             }
-        }
-        else
-        {
-            throw new InvalidOperationException("Unexpected database reader type.");
-        }
+            else
+            {
+                throw new InvalidOperationException("Unexpected database reader type.");
+            }
 
-        return id;
+            return id;
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public async Task<int> GetPageIdByAttributes(PageModel pageModel)
     {
+        OpenConnection();
         try
         {
             using (SQLiteCommand command = CreateCommand())
@@ -310,10 +540,15 @@ public class SQLiteDB
             // You can re-throw the exception or return an error code here.
             return -1;
         }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public async Task<int> AddPageAndReturnId(PageModel pageModel)
     {
+        OpenConnection();
         try
         {
             using (SQLiteCommand command = CreateCommand())
@@ -339,10 +574,15 @@ public class SQLiteDB
             // You can re-throw the exception or return an error code here.
             return -1;
         }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public async Task<PageModel> GetPageById(int pageId)
     {
+        OpenConnection();
         try
         {
             using (SQLiteCommand command = CreateCommand())
@@ -385,6 +625,50 @@ public class SQLiteDB
             // Example: Console.WriteLine("Error: " + ex.Message);
             // You can re-throw the exception or return null or handle it differently here.
             return null;
+        }
+        finally
+        {
+            CloseConnection();
+        }
+    }
+
+    public async Task<BindingList<PageModel>> GetPages()
+    {
+        var pages = new BindingList<PageModel>();
+
+        OpenConnection();
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "SELECT * FROM Pages";
+
+        try
+        {
+            DbDataReader reader = await command.ExecuteReaderAsync();
+
+            if (reader is SQLiteDataReader sqliteReader)
+            {
+                while (await sqliteReader.ReadAsync())
+                {
+                    PageModel page = new PageModel
+                    {
+                         Id =  sqliteReader.GetInt32(0),
+                         Site = sqliteReader.IsDBNull(1) ? null : sqliteReader.GetString(1),
+                         Username = sqliteReader.IsDBNull(2) ? null : sqliteReader.GetString(2),
+                         Password = sqliteReader.IsDBNull(3) ? null : sqliteReader.GetString(3)
+                    };
+                    pages.Add(page);
+                }
+            }
+
+
+            return pages;
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            CloseConnection();
         }
     }
 
