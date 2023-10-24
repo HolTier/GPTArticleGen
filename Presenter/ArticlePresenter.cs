@@ -199,24 +199,32 @@ namespace GPTArticleGen.Presenter
 
                     foreach (ArticleModel selected in _view.Titles)
                     {
-                        if (isFirst)
+                        while (selected.Retries <= _view.MaxRetries)
                         {
-                            await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
-                            isFirst = false;
+                            if (isFirst)
+                            {
+                                await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
+                                isFirst = false;
+                            }
+                            else
+                                await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
+
+                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
+                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", "Meta tags:");
+                            selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
+
+                            selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
+                            selected.Retries++;
+
+                            SelectedTitleChanged(this, EventArgs.Empty);
+
+                            await Task.Delay(TimeSpan.FromSeconds(2));
+
+                            if(!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags))
+                            {
+                                break;
+                            }
                         }
-                        else
-                            await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
-
-                        selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
-                        selected.Content = await ExtractValueBetweenAsync(selected.RawData , "Meta content:", "Meta tags:");
-                        selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
-
-                        selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
-                        selected.Retries++;
-
-                        SelectedTitleChanged(this, EventArgs.Empty);
-
-                        await Task.Delay(TimeSpan.FromSeconds(2));
                     }
                     //_view.EnableUI();
                 }, null);

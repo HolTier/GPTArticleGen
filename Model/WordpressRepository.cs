@@ -117,41 +117,46 @@ namespace GPTArticleGen.Model
             return postData;
         }
 
-        async Task<string> UploadFeaturedImageAsync(string featuredImageBase64, string siteUrl, string username, string password)
+        async Task<string> UploadFeaturedImageAsync(string imagePath, string siteUrl, string username, string password)
         {
             using (HttpClient client = new HttpClient())
             {
-
-
-                // Convert the base64 string back to a byte array
-                byte[] imageBytes = Convert.FromBase64String(featuredImageBase64);
-
-                // Set up the request to upload the image
-                client.BaseAddress = new Uri($"{siteUrl}/wp-json/wp/v2/media");
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("Authorization", "Basic " + Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}")));
-
-                var content = new MultipartFormDataContent();
-                content.Add(new ByteArrayContent(imageBytes), "file", "featured-image.png");
-
-                HttpResponseMessage imageResponse = await client.PostAsync("", content);
-                if (imageResponse.IsSuccessStatusCode)
+                // Check if the file exists
+                if (!File.Exists(imagePath))
                 {
-                    // Extract the newly uploaded image's ID from the response
-                    string imageResponseContent = await imageResponse.Content.ReadAsStringAsync();
-                    JObject image = JObject.Parse(imageResponseContent);
-                    string imageId = image["id"].ToString();
-                    return imageId;
-                }
-                else
-                {
-                    Console.WriteLine("Failed to upload featured image. Status Code: " + imageResponse.StatusCode);
-                    Console.WriteLine(await imageResponse.Content.ReadAsStringAsync());
+                    Console.WriteLine("Image file does not exist.");
                     return null;
+                }
+
+                // Open the image file as a stream
+                using (var imageStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read))
+                {
+                    // Set up the request to upload the image
+                    client.BaseAddress = new Uri($"{siteUrl}/wp-json/wp/v2/media");
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.Add("Authorization", "Basic " + Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}")));
+
+                    var content = new MultipartFormDataContent();
+                    content.Add(new StreamContent(imageStream), "file", "featured-image.png");
+
+                    HttpResponseMessage imageResponse = await client.PostAsync("", content);
+                    if (imageResponse.IsSuccessStatusCode)
+                    {
+                        // Extract the newly uploaded image's ID from the response
+                        string imageResponseContent = await imageResponse.Content.ReadAsStringAsync();
+                        JObject image = JObject.Parse(imageResponseContent);
+                        string imageId = image["id"].ToString();
+                        return imageId;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Failed to upload featured image. Status Code: " + imageResponse.StatusCode);
+                        Console.WriteLine(await imageResponse.Content.ReadAsStringAsync());
+                        return null;
+                    }
                 }
             }
         }
-
 
         string Slugify(string input)
         {
