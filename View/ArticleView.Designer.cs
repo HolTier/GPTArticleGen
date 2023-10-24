@@ -57,6 +57,7 @@
             importTitlesButton = new Button();
             addToPageButton = new Button();
             regenerateArticleButton = new Button();
+            addImagesButton = new Button();
             textAndPromptControl.SuspendLayout();
             tabContext.SuspendLayout();
             tabPrompt.SuspendLayout();
@@ -358,11 +359,21 @@
             regenerateArticleButton.Text = "Regenerate";
             regenerateArticleButton.UseVisualStyleBackColor = true;
             // 
+            // addImagesButton
+            // 
+            addImagesButton.Location = new Point(1032, 238);
+            addImagesButton.Name = "addImagesButton";
+            addImagesButton.Size = new Size(149, 29);
+            addImagesButton.TabIndex = 8;
+            addImagesButton.Text = "Add Images";
+            addImagesButton.UseVisualStyleBackColor = true;
+            // 
             // ArticleView
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1193, 572);
+            Controls.Add(addImagesButton);
             Controls.Add(regenerateArticleButton);
             Controls.Add(addToPageButton);
             Controls.Add(importTitlesButton);
@@ -417,5 +428,6 @@
         private Label defaultLabel;
         private Button cancelSettingsButton;
         private Button saveSettingsButton;
+        private Button addImagesButton;
     }
 }

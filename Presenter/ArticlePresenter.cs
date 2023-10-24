@@ -12,6 +12,7 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
@@ -50,6 +51,7 @@ namespace GPTArticleGen.Presenter
             _view.TagsTextBoxChanged += TagsTextBoxChanged;
             _view.SaveSettings += SaveSettings;
             _view.CancelSettings += CancelSettings;
+            _view.AddImages += AddImages;
         }
 
         public void Initialize()
@@ -115,7 +117,8 @@ namespace GPTArticleGen.Presenter
                     title = article.Title,
                     content = article.Content,
                     status = "publish",
-                    tags = new[] { "[tag]" }
+                    tags = new[] { "[tag]" },
+                    featured_media = "[featured_image]"
                 };
 
                 // Serialize the object to JSON
@@ -133,7 +136,7 @@ namespace GPTArticleGen.Presenter
                     tags = article.Tags.Split(", ").ToList();
 
                 //Add to wordpress
-                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, page.Username, page.Password, page.Site, ""))
+                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, page.Username, page.Password, page.Site, article.ImagePath))
                 {
                     //Add to database
                     await db.InsertArticleAsync(article);
@@ -352,6 +355,39 @@ namespace GPTArticleGen.Presenter
 
             // Save the changes
             Properties.Settings.Default.Save();
+        }
+
+        private void AddImages(object? sender, EventArgs e)
+        {
+            foreach (ArticleModel article in _view.Titles)
+            {
+                // Modify the article title to replace spaces with hyphens and make it lowercase.
+                string modifiedTitle = article.PromptTitle.Replace(" ", "-").ToLower();
+
+                // Directory path where your images are stored.
+                string imageDirectory = @"C:\Users\holcm\Desktop\images";
+
+                // Get a list of all files in the directory.
+                string[] files = Directory.GetFiles(imageDirectory);
+
+                // Define a regular expression to match image files with any extension.
+                Regex imageFileRegex = new Regex($"{modifiedTitle}\\.(\\w+)", RegexOptions.IgnoreCase);
+
+                // Iterate through files.
+                foreach (string file in files)
+                {
+                    string fileName = Path.GetFileName(file);
+                    // Check if the file name matches the modified article title and is an image file.
+                    Match match = imageFileRegex.Match(Path.GetFileName(fileName));
+                    if (match.Success)
+                    {
+                        // You found an image file. You can use it here.
+                        string fileExtension = match.Groups[1].Value;
+                        Debug.WriteLine($"Found image for article: {article.PromptTitle}. File: {file}. Extension: {fileExtension}");
+                        article.ImagePath = file;
+                    }
+                }
+            }
         }
         #endregion
 
