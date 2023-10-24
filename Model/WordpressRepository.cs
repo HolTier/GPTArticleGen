@@ -13,7 +13,7 @@ namespace GPTArticleGen.Model
 {
     public class WordpressRepository
     {
-        public async Task<bool> AddPostAsync(List<string> tags, string postData, string username, string password, string siteUrl, string featuredImageBase64)
+        public async Task<bool> AddPostAsync(List<string> tags, string postData, int articleId, string username, string password, string siteUrl, string featuredImageBase64)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -37,7 +37,7 @@ namespace GPTArticleGen.Model
                     if (!string.IsNullOrEmpty(featuredImageBase64))
                     {
                         // Upload and set the featured image
-                        string featuredImageId = await UploadFeaturedImageAsync(featuredImageBase64, siteUrl, username, password);
+                        string featuredImageId = await UploadFeaturedImageAsync(featuredImageBase64, siteUrl, username, password, articleId);
                         if (!string.IsNullOrEmpty(featuredImageId))
                         {
                             postData = postData.Replace("[featured_image]", featuredImageId);
@@ -117,7 +117,7 @@ namespace GPTArticleGen.Model
             return postData;
         }
 
-        async Task<string> UploadFeaturedImageAsync(string imagePath, string siteUrl, string username, string password)
+        async Task<string> UploadFeaturedImageAsync(string imagePath, string siteUrl, string username, string password, int articleId)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -145,6 +145,8 @@ namespace GPTArticleGen.Model
                         // Extract the newly uploaded image's ID from the response
                         string imageResponseContent = await imageResponse.Content.ReadAsStringAsync();
                         JObject image = JObject.Parse(imageResponseContent);
+                        SQLiteDB db = new SQLiteDB();
+                        db.UpdateArticleImageId(articleId, (int)image["id"]);
                         string imageId = image["id"].ToString();
                         return imageId;
                     }

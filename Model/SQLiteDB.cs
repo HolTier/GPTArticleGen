@@ -125,6 +125,27 @@ public class SQLiteDB
         return id;
     }
 
+    public async Task UpdateArticleImageId(int articleId, int imageId)
+    {
+        OpenConnection();
+        SQLiteCommand command = CreateCommand();
+        command.CommandText = "UPDATE Articles SET ImageId = @ImageId WHERE Id = @Id";
+        command.Parameters.AddWithValue("@Id", articleId);
+        command.Parameters.AddWithValue("@ImageId", imageId);
+        try
+        {
+            await command.ExecuteNonQueryAsync();
+        }
+        catch (SQLiteException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            CloseConnection();
+        }
+    }
+
     #endregion
 
     #region CRUD Page

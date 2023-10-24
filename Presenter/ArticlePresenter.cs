@@ -92,7 +92,9 @@ namespace GPTArticleGen.Presenter
                 tags TEXT,
                 prompt TEXT,
                 isPublished BOOLEAN,
+                image_id INTEGER,
                 page_id INTEGER REFERENCES Pages(id)
+                
             )";
             SQLiteCommand createTableCommand = _db.CreateCommand();
             createTableCommand.CommandText = createTableQuery;
@@ -144,7 +146,7 @@ namespace GPTArticleGen.Presenter
                     tags = article.Tags.Split(", ").ToList();
 
                 //Add to wordpress
-                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, page.Username, page.Password, page.Site, article.ImagePath))
+                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, article.Id,page.Username, page.Password, page.Site, article.ImagePath))
                 {
                     //Add to database
                     await db.InsertArticleAsync(article);

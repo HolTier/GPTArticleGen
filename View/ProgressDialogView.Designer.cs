@@ -33,11 +33,11 @@
             // 
             // progressLabel
             // 
-            progressLabel.Location = new Point(1, -3);
+            progressLabel.Location = new Point(0, 0);
             progressLabel.Name = "progressLabel";
             progressLabel.Size = new Size(329, 207);
             progressLabel.TabIndex = 0;
-            progressLabel.Text = "dssddsdsds";
+            progressLabel.Text = "";
             
             // 
             // ProgressDialogView
