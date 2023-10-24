@@ -118,7 +118,7 @@ namespace GPTArticleGen.Presenter
                     content = article.Content,
                     status = "publish",
                     tags = new[] { "[tag]" },
-                    featured_media = "[featured_image]"
+                    featured_media = !string.IsNullOrEmpty(article.ImagePath) ? "[featured_image]" : null
                 };
 
                 // Serialize the object to JSON
@@ -371,6 +371,13 @@ namespace GPTArticleGen.Presenter
             {
                 // Modify the article title to replace spaces with hyphens and make it lowercase.
                 string modifiedTitle = article.PromptTitle.Replace(" ", "-").ToLower();
+
+                // Comment if you want use this symbols as file name
+                modifiedTitle = modifiedTitle.Replace("?", "");
+                modifiedTitle = modifiedTitle.Replace("!", "");
+                modifiedTitle = modifiedTitle.Replace(".", "");
+                modifiedTitle = modifiedTitle.Replace(",", "");
+                modifiedTitle = modifiedTitle.Replace(":", "");
 
                 // Directory path where your images are stored.
                 string imageDirectory = @"C:\Users\holcm\Desktop\images";
