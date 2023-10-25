@@ -114,7 +114,11 @@ namespace GPTArticleGen.Presenter
                 List<string> tags = new List<string>();
 
                 // Find page by ID
-                PageModel page = await db.GetPageById(article.SiteId);
+                
+                _db.OpenConnection();
+                BindingList<PageModel> pages = new BindingList<PageModel>(_db.GetPages().Result);
+                PageModel page = pages.FirstOrDefault(item => item.Id == article.SiteId);
+                _db.CloseConnection();
 
                 // Get tags
                 if (!String.IsNullOrEmpty(article.Tags))
@@ -219,7 +223,9 @@ namespace GPTArticleGen.Presenter
 
                             if(!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags))
                             {
+                                _db.OpenConnection();
                                 await _db.UpdateArticleTitleContentTags(selected);
+                                _db.CloseConnection();
                                 break;
                             }
                         }
@@ -748,13 +754,13 @@ namespace GPTArticleGen.Presenter
                                 Password = string.Join(" ", pageValues.Skip(2))
                             };
 
-                            //_db.OpenConnection();
+                            _db.OpenConnection();
                             _pageModel.Id = await _db.GetPageIdByAttributes(_pageModel);
                             if(_pageModel.Id == -1)
                             {
                                 _pageModel.Id = await _db.AddPageAndReturnId(_pageModel);
                             }
-                            //_db.CloseConnection();
+                            _db.CloseConnection();
                         }
                         else if (values.Length >= 1)
                         {
@@ -770,6 +776,7 @@ namespace GPTArticleGen.Presenter
                                 IsPublished = false
                             };
                             
+                            _db.OpenConnection();
                             int id = await _db.CheckIfArticleIsInDatabase(article);
                             if(id == -1)
                             {
@@ -780,7 +787,7 @@ namespace GPTArticleGen.Presenter
                             {
                                 article.Id = id;
                             }
-                            
+                            _db.CloseConnection();
                             _view.Titles.Add(article);
                             
                             //_db.CloseConnection();

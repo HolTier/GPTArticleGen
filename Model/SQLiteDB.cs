@@ -175,8 +175,7 @@ public class SQLiteDB
 
     public async Task UpdateArticleWithoutImageIdAsync(ArticleModel articleModel)
     {
-        try
-        {
+        
             using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
             {
                 connection.Open();
@@ -209,11 +208,6 @@ public class SQLiteDB
                     }
                 }
             }
-        }
-        finally
-        {
-            DbMutex.ReleaseMutex();
-        }
     }
 
     public async Task UpdateArticleTitleContentTags(ArticleModel articleModel)
@@ -290,12 +284,15 @@ public class SQLiteDB
                         {
                             id = sqliteReader.GetInt32(0);
                         }
+
+                        sqliteReader.Close();
                     }
                     else
                     {
                         throw new InvalidOperationException("Unexpected database reader type.");
                     }
 
+                    await reader.DisposeAsync();
                     return id;
                 }
                 catch (SQLiteException e)
@@ -354,11 +351,6 @@ public class SQLiteDB
 
                     while (await reader.ReadAsync())
                     {
-                        if (reader.IsDBNull(5))
-                        {
-                            continue;
-                        }
-
                         ArticleDatabaseModel article = new ArticleDatabaseModel
                         {
                             Id = reader.GetInt32(0),
@@ -375,6 +367,7 @@ public class SQLiteDB
                         articles.Add(article);
                     }
 
+                    await reader.DisposeAsync();
                     return articles;
                 }
                 catch (SQLiteException e)
@@ -410,10 +403,20 @@ public class SQLiteDB
                         {
                             if (!sqliteReader.IsDBNull(0) || sqliteReader.GetInt32(0) > 0)
                             {
-                                return sqliteReader.GetInt32(0);
+                                try
+                                {
+                                    return sqliteReader.GetInt32(0);
+                                }
+                                finally
+                                {
+                                    sqliteReader.Close();
+                                    await reader.DisposeAsync();
+                                }
                             }
                             else
                             {
+                                sqliteReader.Close();
+                                await reader.DisposeAsync();
                                 return -1;
                             }
                         }
@@ -609,13 +612,25 @@ public class SQLiteDB
                         {
                             while (await sqliteReader.ReadAsync())
                             {
-                                return sqliteReader.GetInt32(0);
+                                try
+                                {
+                                    return sqliteReader.GetInt32(0);
+                                }
+                                finally
+                                {
+                                    sqliteReader.Close();
+                                    await reader.DisposeAsync();
+                                }
                             }
+
+                            sqliteReader.Close();
                         }
                         else
                         {
                             throw new InvalidOperationException("Unexpected database reader type.");
                         }
+
+                        await reader.DisposeAsync();
                     }
                 }
 
@@ -664,7 +679,7 @@ public class SQLiteDB
                 // Handle exceptions, log, and possibly re-throw or return an error code as needed.
                 // Example: Console.WriteLine("Error: " + ex.Message);
                 // You can re-throw the exception or return an error code here.
-                return -1;
+                throw ex;
             }
             finally
             {
@@ -673,20 +688,37 @@ public class SQLiteDB
         }
     }
 
+    public async Task<PageModel> GetPageByIdAsync(int pageId)
+    {
+        SQLiteCommand command = CreateCommand();    
+        command.CommandText = "SELECT * FROM Pages WHERE Id = @Id";
+        command.Parameters.Add(new SQLiteParameter("@Id", pageId));
+        SQLiteDataReader reader = (SQLiteDataReader)await command.ExecuteReaderAsync();
+        PageModel pageModel = new PageModel
+        {
+            Id = reader.GetInt32(0),
+            Site = reader.GetString(1),
+            Username = reader.GetString(2),
+            Password = reader.GetString(3)
+            // You may need to adapt these field indices based on your table structure
+        };
+
+        return pageModel;
+    }
+
     public async Task<PageModel> GetPageById(int pageId)
     {
         using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
         {
-            connection.Open();
+            //connection.Open();
             try
             {
                 using (SQLiteCommand command = CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM Pages WHERE Id = @Id";
                     command.Parameters.Add(new SQLiteParameter("@Id", pageId));
-
-                    using (DbDataReader reader = await command.ExecuteReaderAsync())
-                    {
+                    SQLiteDataReader reader = (SQLiteDataReader)await command.ExecuteReaderAsync();
+                    
                         if (reader is SQLiteDataReader sqliteReader)
                         {
                             if (await sqliteReader.ReadAsync())
@@ -701,6 +733,8 @@ public class SQLiteDB
                                     // You may need to adapt these field indices based on your table structure
                                 };
 
+                                sqliteReader.Close();
+                                await reader.DisposeAsync();
                                 return pageModel;
                             }
                         }
@@ -708,7 +742,7 @@ public class SQLiteDB
                         {
                             throw new InvalidOperationException("Unexpected database reader type.");
                         }
-                    }
+                    
                 }
 
                 // If no record with the specified ID is found, return null or handle it as needed.
@@ -756,9 +790,10 @@ public class SQLiteDB
                             };
                             pages.Add(page);
                         }
+                        sqliteReader.Close();
                     }
 
-
+                    await reader.DisposeAsync();
                     return pages;
                 }
                 catch (SQLiteException e)
