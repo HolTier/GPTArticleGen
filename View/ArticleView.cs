@@ -35,7 +35,7 @@ namespace GPTArticleGen.View
             InitializeComponent();
             generateButton.Click += (sender, args) => GenerateArticle?.Invoke(this, EventArgs.Empty);
             generateAllButton.Click += (sender, args) => GenerateForAll?.Invoke(this, EventArgs.Empty);
-            changePromptButton.Click += (sender, args) => ChangeDefaultPrompt?.Invoke(this, EventArgs.Empty);
+            //changePromptButton.Click += (sender, args) => ChangeDefaultPrompt?.Invoke(this, EventArgs.Empty);
             importTitlesButton.Click += (sender, args) => ImportTitles?.Invoke(this, EventArgs.Empty);
             addToPageButton.Click += (sender, args) => AddToPageAsync?.Invoke(this, EventArgs.Empty);
             regenerateArticleButton.Click += (sender, args) => RegenarateArticle?.Invoke(this, EventArgs.Empty);
@@ -45,6 +45,9 @@ namespace GPTArticleGen.View
             addImagesButton.Click += (sender, args) => AddImages?.Invoke(this, EventArgs.Empty);
             runGenerationButton.Click += (sender, args) => RunGeneration?.Invoke(this, EventArgs.Empty);
             databaseComboBox.SelectedValueChanged += (sender, args) => DatabaseSelectionChanged?.Invoke(this, EventArgs.Empty);
+            //generateFromDatabaseButton.Click += (sender, args) => GenerateFromDatabase?.Invoke(this, EventArgs.Empty);
+            browseImagesPathButton.Click += (sender, args) => BrowseImagePath?.Invoke(this, EventArgs.Empty);
+            browseExportFilePathButton.Click += (sender, args) => BrowseExportFilePath?.Invoke(this, EventArgs.Empty);
 
             promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
             promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
@@ -197,12 +200,33 @@ namespace GPTArticleGen.View
             }
         }
 
-        public string DatabaseComboBoxSelectedItem 
-        { 
+        public string DatabaseComboBoxSelectedItem
+        {
             get => databaseComboBox.SelectedItem as string;
             set => databaseComboBox.SelectedItem = value;
         }
-        
+        public string ImagesFilePath
+        {
+            get => imagesPathTextBox.Text;
+            set => imagesPathTextBox.Text = value;
+        }
+
+        public string ExportFilePath
+        {
+            get => exportFilePathTextBox.Text;
+            set => exportFilePathTextBox.Text = value;
+        }
+        public string ExportFileName
+        {
+            get => exportFileNameTextBox.Text;
+            set => exportFileNameTextBox.Text = value;
+        }
+        public bool CreateNewFile
+        {
+            get => createNewFileCheckBox.Checked;
+            set => createNewFileCheckBox.Checked = value;
+        }
+
         public event EventHandler GenerateArticle;
         public event EventHandler GenerateForAll;
         public event EventHandler ChangeDefaultPrompt;
@@ -220,6 +244,9 @@ namespace GPTArticleGen.View
         public event EventHandler AddImages;
         public event EventHandler RunGeneration;
         public event EventHandler DatabaseSelectionChanged;
+        public event EventHandler GenerateFromDatabase;
+        public event EventHandler BrowseImagePath;
+        public event EventHandler BrowseExportFilePath;
 
         public void EnableUI()
         {

@@ -25,7 +25,7 @@ namespace GPTArticleGen.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"Napisz artykuł na temat \""{title}\"" na 1500 do 2000 znaków, artykuł podziel na trzy części  Meta title:, Meta content:, Meta tags:. Gdzie w Meta content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!! Gdzie używasz nagłówka użyj <h2></h2>, gdzie podgrubienie <strong></strong>, a nowy paragraf (np. po nagłówku) itp.;")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"Napisz artykuł na temat \""{title}\"" na 1500 do 2000 znaków, artykuł podziel na części  Title:, Content:, Meta title, Meta description, Meta tags:. Gdzie w Content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!! Gdzie używasz nagłówka użyj <h2></h2>, gdzie podgrubienie <strong></strong>, a nowy paragraf (np. po nagłówku) itp.")]
         public string BasicPrompt {
             get {
                 return ((string)(this["BasicPrompt"]));
@@ -44,6 +44,72 @@ namespace GPTArticleGen.Properties {
             }
             set {
                 this["MaxRetries"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"Napisz artykuł na temat \""{title}\"" na 1500 do 2000 znaków, artykuł podziel na części  Title:, Content:, Meta title, Meta description, Meta tags:. Gdzie w Content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!! Gdzie używasz nagłówka użyj <h2></h2>, gdzie podgrubienie <strong></strong>, a nowy paragraf (np. po nagłówku) itp.")]
+        public string DefaultPrompt {
+            get {
+                return ((string)(this["DefaultPrompt"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int DefaultRetries {
+            get {
+                return ((int)(this["DefaultRetries"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ImagesPath {
+            get {
+                return ((string)(this["ImagesPath"]));
+            }
+            set {
+                this["ImagesPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ExportFilePath {
+            get {
+                return ((string)(this["ExportFilePath"]));
+            }
+            set {
+                this["ExportFilePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ExportFileName {
+            get {
+                return ((string)(this["ExportFileName"]));
+            }
+            set {
+                this["ExportFileName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CreateNewFile {
+            get {
+                return ((bool)(this["CreateNewFile"]));
+            }
+            set {
+                this["CreateNewFile"] = value;
             }
         }
     }

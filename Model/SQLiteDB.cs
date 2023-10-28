@@ -382,6 +382,54 @@ public class SQLiteDB
         }
     }
 
+    public async Task<List<ArticleModel>> GetArticlesAsArticleModelAsync()
+    {
+        var articles = new List<ArticleModel>();
+
+        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+        {
+            connection.Open(); // Open the SQLite connection
+
+            using (SQLiteCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT * FROM Articles";
+
+                try
+                {
+                    SQLiteDataReader reader = (SQLiteDataReader)await command.ExecuteReaderAsync();
+
+                    while (await reader.ReadAsync())
+                    {
+                        ArticleModel article = new ArticleModel
+                        {
+                            Id = reader.GetInt32(0),
+                            Title = reader.IsDBNull(1) ? null : reader.GetString(1),
+                            Content = reader.IsDBNull(2) ? null : reader.GetString(2),
+                            Tags = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            PromptTitle = reader.IsDBNull(4) ? null : reader.GetString(4),
+                            Prompt = reader.IsDBNull(5) ? null : reader.GetString(5),
+                            IsPublished = reader.GetBoolean(6),
+                            ImageId = reader.GetInt32(7),
+                            PageId = reader.GetInt32(8)
+                        };
+
+                        articles.Add(article);
+                    }
+
+                    await reader.DisposeAsync();
+                    return articles;
+                }
+                catch (SQLiteException e)
+                {
+                    throw e;
+                }
+                finally
+                {
+                    connection.Close(); // Close the SQLite connection in the finally block
+                }
+            }
+        }
+    }
 
     public async Task<int> CheckIfArticleIsInDatabase(ArticleModel article)
     {

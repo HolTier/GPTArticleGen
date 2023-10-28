@@ -58,6 +58,9 @@ namespace GPTArticleGen.Presenter
             _view.AddImages += AddImages;
             _view.RunGeneration += RunGeneration;
             _view.DatabaseSelectionChanged += DatabaseSelectionChanged;
+            _view.GenerateFromDatabase += GenerateFromDatabase;
+            _view.BrowseImagePath += BrowseImagePath;
+            _view.BrowseExportFilePath += BrowseExportFilePath;
         }
 
         public void Initialize()
@@ -82,6 +85,10 @@ namespace GPTArticleGen.Presenter
             _view.DefaultPrompt = _basicPrompt;
             _view.MaxRetries = Properties.Settings.Default.MaxRetries;
             _view.DatabaseComboBoxSelectedItem = "Articles";
+            _view.ImagesFilePath = Properties.Settings.Default.ImagesPath;
+            _view.ExportFilePath = Properties.Settings.Default.ExportFilePath;
+            _view.ExportFileName = Properties.Settings.Default.ExportFileName;
+            _view.CreateNewFile = Properties.Settings.Default.CreateNewFile;  
         }
         #endregion
 
@@ -367,6 +374,10 @@ namespace GPTArticleGen.Presenter
         {
             _view.DefaultPrompt = Properties.Settings.Default.BasicPrompt;
             _view.MaxRetries = Properties.Settings.Default.MaxRetries;
+            _view.ImagesFilePath = Properties.Settings.Default.ImagesPath;
+            _view.ExportFilePath = Properties.Settings.Default.ExportFilePath;
+            _view.ExportFileName = Properties.Settings.Default.ExportFileName;
+            _view.CreateNewFile = Properties.Settings.Default.CreateNewFile;
         }
 
         private void SaveSettings(object? sender, EventArgs e)
@@ -374,6 +385,10 @@ namespace GPTArticleGen.Presenter
             // Assign your new values
             Properties.Settings.Default.BasicPrompt = _view.DefaultPrompt;
             Properties.Settings.Default.MaxRetries = _view.MaxRetries;
+            Properties.Settings.Default.ImagesPath = _view.ImagesFilePath;
+            Properties.Settings.Default.ExportFilePath = _view.ExportFilePath;
+            Properties.Settings.Default.ExportFileName = _view.ExportFileName;
+            Properties.Settings.Default.CreateNewFile = _view.CreateNewFile;
 
             // Save the changes
             Properties.Settings.Default.Save();
@@ -471,6 +486,86 @@ namespace GPTArticleGen.Presenter
             else if(_view.DatabaseComboBoxSelectedItem == "Pages")
             {
                 _view.PageDatabases = new BindingList<PageModel>(await _db.GetPages());
+            }
+        }
+
+        private async void GenerateFromDatabase(object? sender, EventArgs e)
+        {
+            try
+            {
+                List<ArticleModel> articles = new List<ArticleModel>((await _db.GetArticlesAsArticleModelAsync()).Where(item => item.IsPublished == false).ToList());
+                
+                ProgressDialogView progressDialogView = new ProgressDialogView();
+                progressDialogView.Show();  // Show the dialog non-modally
+
+                progressDialog = new ProgressDialogPresenter(progressDialogView, articles.Count, articles.Count, articles.Count);
+                progressDialog.Initialize();
+
+                await Task.Run(async () =>
+                {
+                    // Run your time-consuming tasks here
+                    AddImagesFunctionAsync(articles);
+
+                    _taskCompletionSource = new TaskCompletionSource<bool>();
+                    GenerateForAllFunctionAsync(articles);
+                    _taskCompletionSource.Task.Wait();  // Wait for task to complete
+
+                    AddToPageFunctionAsync(articles);
+                });
+
+                if (_view.DatabaseComboBoxSelectedItem == "Articles")
+                {
+                    _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(await _db.GetArticles());
+                }
+                else if (_view.DatabaseComboBoxSelectedItem == "Pages")
+                {
+                    _view.PageDatabases = new BindingList<PageModel>(await _db.GetPages());
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                Debug.WriteLine(ex);
+            }
+        }
+
+        private void BrowseExportFilePath(object? sender, EventArgs e)
+        {
+            // Create and configure the FolderBrowserDialog
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog
+            {
+                Description = "Select a folder to export the data to",
+                UseDescriptionForTitle = true,
+                InitialDirectory = String.IsNullOrEmpty(Properties.Settings.Default.ExportFilePath) ? 
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop) : Properties.Settings.Default.ExportFilePath,
+                ShowNewFolderButton = true
+            };
+
+            // Show the dialog and get the selected folder path
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                string selectedFolderPath = folderBrowserDialog.SelectedPath;
+                   
+            } 
+        }
+
+        private void BrowseImagePath(object? sender, EventArgs e)
+        {
+            // Create and configure the FolderBrowserDialog
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog
+            {
+                Description = "Select a folder to import the images from",
+                UseDescriptionForTitle = true,
+                InitialDirectory = String.IsNullOrEmpty(Properties.Settings.Default.ImagesPath) ?
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop) : Properties.Settings.Default.ImagesPath,
+                ShowNewFolderButton = true
+            };
+
+            // Show the dialog and get the selected folder path
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                string selectedFolderPath = folderBrowserDialog.SelectedPath;
+                _view.ImagesFilePath = selectedFolderPath;
             }
         }
 
@@ -745,13 +840,13 @@ namespace GPTArticleGen.Presenter
                         if (line[0]=='#')
                         {
                             line = line.Replace("#", "");
-                            pageValues = line.Split(' ');
+                            pageValues = line.Split('|');
 
                             _pageModel = new PageModel
                             {
                                 Site = pageValues[0],
                                 Username = pageValues[1],
-                                Password = string.Join(" ", pageValues.Skip(2))
+                                Password = pageValues[2]
                             };
 
                             _db.OpenConnection();
@@ -809,6 +904,179 @@ namespace GPTArticleGen.Presenter
                 throw new FileNotFoundException("The CSV file does not exist.");
             }
         }
+        #endregion
+
+        #region Adding
+
+        public async Task AddToPageFunctionAsync(List<ArticleModel> articles)
+        {
+            // Initialize SQLiteDB
+            //SQLiteDB db = new SQLiteDB();
+
+            int i = 0;
+            if (progressDialog != null)
+                progressDialog.UpdateAddToPageProgress(i);
+            foreach (ArticleModel article in articles)
+            {
+                // Create an object to hold your article data
+                var articleData = new
+                {
+                    title = article.Title,
+                    content = article.Content,
+                    status = "publish",
+                    tags = new[] { "[tag]" },
+                    featured_media = !string.IsNullOrEmpty(article.ImagePath) ? "[featured_image]" : null
+                };
+
+                // Serialize the object to JSON
+                article.PostData = JsonConvert.SerializeObject(articleData);
+
+                article.PostData = article.PostData.Replace("\"[tag]\"", "[tag]");
+
+                List<string> tags = new List<string>();
+
+                // Find page by ID
+
+                _db.OpenConnection();
+                BindingList<PageModel> pages = new BindingList<PageModel>(_db.GetPages().Result);
+                PageModel page = pages.FirstOrDefault(item => item.Id == article.PageId);
+                _db.CloseConnection();
+
+                // Get tags
+                if (!String.IsNullOrEmpty(article.Tags))
+                    tags = article.Tags.Split(", ").ToList();
+
+                //Add to wordpress
+                if (await _wordpressRepository.AddPostAsync(tags, article.PostData, article.Id, page.Username, page.Password, page.Site, article.ImagePath))
+                {
+                    //Add to database
+                    article.IsPublished = true;
+                    await _db.UpdateArticleWithoutImageIdAsync(article);
+                }
+                else
+                {
+                    Debug.WriteLine("Failed to add post to wordpress. Post title: " + article.Title);
+                }
+
+                if (progressDialog != null)
+                    progressDialog.UpdateAddToPageProgress(++i);
+
+                //await db.InsertArticleAsync(article);
+            }
+        }
+
+        public async Task GenerateForAllFunctionAsync(List<ArticleModel> articles)
+        {
+            bool isFirst = true;
+
+            var taskCompletionSource = new TaskCompletionSource<bool>();
+
+            await Task.Run(async () =>
+            {
+                // Update the UI with the result on the UI thread
+                Program.SyncContext.Post(async _ =>
+                {
+                    //_view.DisableUI();
+
+                    int i = 0;
+                    if (progressDialog != null)
+                        progressDialog.UpdateGenerateArticleProgress(i);
+                    foreach (ArticleModel selected in articles)
+                    {
+                        while (selected.Retries <= _view.MaxRetries)
+                        {
+                            if (isFirst)
+                            {
+                                await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
+                                isFirst = false;
+                            }
+                            else
+                                await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
+
+                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
+                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", "Meta tags:");
+                            selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
+
+                            selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
+
+                            if (selected.Retries == 1 && progressDialog != null)
+                                progressDialog.UpdateGenerateArticleProgress(++i);
+
+                            selected.Retries++;
+
+                            SelectedTitleChanged(this, EventArgs.Empty);
+
+                            await Task.Delay(TimeSpan.FromSeconds(2));
+
+                            if (!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags))
+                            {
+                                _db.OpenConnection();
+                                await _db.UpdateArticleTitleContentTags(selected);
+                                _db.CloseConnection();
+                                break;
+                            }
+                        }
+                    }
+
+                    // Signal that the work is done
+                    taskCompletionSource.SetResult(true);
+
+                    //_view.EnableUI();
+                }, null);
+            });
+
+            // Wait for the Task.Run to complete
+            await taskCompletionSource.Task;
+            _taskCompletionSource.SetResult(true);
+            // Wait for all tasks to complete
+            Debug.WriteLine("Generation for all finished");
+        }
+
+        public async Task AddImagesFunctionAsync(List<ArticleModel> articles)
+        {
+            int i = 0;
+            if (progressDialog != null)
+                progressDialog.UpdateAddImagesProgress(i);
+            foreach (ArticleModel article in articles)
+            {
+                // Modify the article title to replace spaces with hyphens and make it lowercase.
+                string modifiedTitle = article.PromptTitle.Replace(" ", "-").ToLower();
+
+                // Comment if you want use this symbols as file name
+                modifiedTitle = modifiedTitle.Replace("?", "");
+                modifiedTitle = modifiedTitle.Replace("!", "");
+                modifiedTitle = modifiedTitle.Replace(".", "");
+                modifiedTitle = modifiedTitle.Replace(",", "");
+                modifiedTitle = modifiedTitle.Replace(":", "");
+
+                // Directory path where your images are stored.
+                string imageDirectory = @"C:\Users\holcm\Desktop\images";
+
+                // Get a list of all files in the directory.
+                string[] files = Directory.GetFiles(imageDirectory);
+
+                // Define a regular expression to match image files with any extension.
+                Regex imageFileRegex = new Regex($"{modifiedTitle}\\.(\\w+)", RegexOptions.IgnoreCase);
+
+                // Iterate through files.
+                foreach (string file in files)
+                {
+                    string fileName = Path.GetFileName(file);
+                    // Check if the file name matches the modified article title and is an image file.
+                    Match match = imageFileRegex.Match(Path.GetFileName(fileName));
+                    if (match.Success)
+                    {
+                        // You found an image file. You can use it here.
+                        string fileExtension = match.Groups[1].Value;
+                        Debug.WriteLine($"Found image for article: {article.PromptTitle}. File: {file}. Extension: {fileExtension}");
+                        article.ImagePath = file;
+                    }
+                }
+                if (progressDialog != null)
+                    progressDialog.UpdateAddImagesProgress(++i);
+            }
+        }
+
         #endregion
     }
 }

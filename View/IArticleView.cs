@@ -28,8 +28,13 @@ namespace GPTArticleGen.View
         BindingList<PageModel> PageDatabases { get; set; }
         string DatabaseComboBoxSelectedItem { get; set; }
 
+        // Settings
         int MaxRetries { get; set; }
         string DefaultPrompt { get; set; }
+        string ImagesFilePath { get; set; }
+        string ExportFilePath { get; set; }
+        string ExportFileName { get; set; }
+        bool CreateNewFile { get; set; }
 
         // Events
         event EventHandler GenerateArticle;
@@ -41,9 +46,12 @@ namespace GPTArticleGen.View
         event EventHandler SelectedTitleChanged;
         event EventHandler SaveSettings;
         event EventHandler CancelSettings;
+        event EventHandler BrowseImagePath;
+        event EventHandler BrowseExportFilePath;
         event EventHandler AddImages;
         event EventHandler RunGeneration;
         event EventHandler DatabaseSelectionChanged;
+        event EventHandler GenerateFromDatabase;
 
         event EventHandler PromptFormatTextBoxChanged;
         event EventHandler PromptTextBoxChanged;

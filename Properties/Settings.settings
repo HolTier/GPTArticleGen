@@ -3,10 +3,28 @@
   <Profiles />
   <Settings>
     <Setting Name="BasicPrompt" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Napisz artykuł na temat \"{title}\" na 1500 do 2000 znaków, artykuł podziel na trzy części  Meta title:, Meta content:, Meta tags:. Gdzie w Meta content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!! Gdzie używasz nagłówka użyj &lt;h2&gt;&lt;/h2&gt;, gdzie podgrubienie &lt;strong&gt;&lt;/strong&gt;, a nowy paragraf (np. po nagłówku) itp.;</Value>
+      <Value Profile="(Default)">Napisz artykuł na temat \"{title}\" na 1500 do 2000 znaków, artykuł podziel na części  Title:, Content:, Meta title, Meta description, Meta tags:. Gdzie w Content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!! Gdzie używasz nagłówka użyj &lt;h2&gt;&lt;/h2&gt;, gdzie podgrubienie &lt;strong&gt;&lt;/strong&gt;, a nowy paragraf (np. po nagłówku) itp.</Value>
     </Setting>
     <Setting Name="MaxRetries" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="DefaultPrompt" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Napisz artykuł na temat \"{title}\" na 1500 do 2000 znaków, artykuł podziel na części  Title:, Content:, Meta title, Meta description, Meta tags:. Gdzie w Content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!! Gdzie używasz nagłówka użyj &lt;h2&gt;&lt;/h2&gt;, gdzie podgrubienie &lt;strong&gt;&lt;/strong&gt;, a nowy paragraf (np. po nagłówku) itp.</Value>
+    </Setting>
+    <Setting Name="DefaultRetries" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="ImagesPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ExportFilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ExportFileName" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CreateNewFile" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

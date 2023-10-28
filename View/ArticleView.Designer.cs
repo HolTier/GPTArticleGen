@@ -44,6 +44,16 @@
             tabWebView2 = new TabPage();
             webView2 = new Microsoft.Web.WebView2.WinForms.WebView2();
             tabSettings = new TabPage();
+            browseExportFilePathButton = new Button();
+            browseImagesPathButton = new Button();
+            addTimeCheckBox = new CheckBox();
+            createNewFileCheckBox = new CheckBox();
+            exportFileNameTextBox = new TextBox();
+            exportFileNameLabel = new Label();
+            exportFilePathTextBox = new TextBox();
+            exportFilePathLabel = new Label();
+            imagesPathLabel = new Label();
+            imagesPathTextBox = new TextBox();
             cancelSettingsButton = new Button();
             saveSettingsButton = new Button();
             defaultPromptTextBox = new TextBox();
@@ -56,12 +66,14 @@
             titlesListBox = new ListBox();
             generateButton = new Button();
             generateAllButton = new Button();
-            changePromptButton = new Button();
             importTitlesButton = new Button();
             addToPageButton = new Button();
             regenerateArticleButton = new Button();
             addImagesButton = new Button();
             runGenerationButton = new Button();
+            addToPageSelectedButton = new Button();
+            addToPageLabel = new Label();
+            generateFromChatLabel = new Label();
             textAndPromptControl.SuspendLayout();
             tabContext.SuspendLayout();
             tabPrompt.SuspendLayout();
@@ -229,6 +241,16 @@
             // 
             // tabSettings
             // 
+            tabSettings.Controls.Add(browseExportFilePathButton);
+            tabSettings.Controls.Add(browseImagesPathButton);
+            tabSettings.Controls.Add(addTimeCheckBox);
+            tabSettings.Controls.Add(createNewFileCheckBox);
+            tabSettings.Controls.Add(exportFileNameTextBox);
+            tabSettings.Controls.Add(exportFileNameLabel);
+            tabSettings.Controls.Add(exportFilePathTextBox);
+            tabSettings.Controls.Add(exportFilePathLabel);
+            tabSettings.Controls.Add(imagesPathLabel);
+            tabSettings.Controls.Add(imagesPathTextBox);
             tabSettings.Controls.Add(cancelSettingsButton);
             tabSettings.Controls.Add(saveSettingsButton);
             tabSettings.Controls.Add(defaultPromptTextBox);
@@ -242,6 +264,97 @@
             tabSettings.TabIndex = 3;
             tabSettings.Text = "Settings";
             tabSettings.UseVisualStyleBackColor = true;
+            // 
+            // browseExportFilePathButton
+            // 
+            browseExportFilePathButton.Location = new Point(772, 74);
+            browseExportFilePathButton.Name = "browseExportFilePathButton";
+            browseExportFilePathButton.Size = new Size(68, 27);
+            browseExportFilePathButton.TabIndex = 16;
+            browseExportFilePathButton.Text = "Browse";
+            browseExportFilePathButton.UseVisualStyleBackColor = true;
+            // 
+            // browseImagesPathButton
+            // 
+            browseImagesPathButton.Location = new Point(772, 39);
+            browseImagesPathButton.Name = "browseImagesPathButton";
+            browseImagesPathButton.Size = new Size(68, 27);
+            browseImagesPathButton.TabIndex = 15;
+            browseImagesPathButton.Text = "Browse";
+            browseImagesPathButton.UseVisualStyleBackColor = true;
+            // 
+            // addTimeCheckBox
+            // 
+            addTimeCheckBox.AutoSize = true;
+            addTimeCheckBox.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            addTimeCheckBox.Location = new Point(195, 148);
+            addTimeCheckBox.Name = "addTimeCheckBox";
+            addTimeCheckBox.Size = new Size(130, 34);
+            addTimeCheckBox.TabIndex = 14;
+            addTimeCheckBox.Text = "Add time ";
+            addTimeCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // createNewFileCheckBox
+            // 
+            createNewFileCheckBox.AutoSize = true;
+            createNewFileCheckBox.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            createNewFileCheckBox.Location = new Point(9, 148);
+            createNewFileCheckBox.Name = "createNewFileCheckBox";
+            createNewFileCheckBox.Size = new Size(180, 34);
+            createNewFileCheckBox.TabIndex = 13;
+            createNewFileCheckBox.Text = "Create new file";
+            createNewFileCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // exportFileNameTextBox
+            // 
+            exportFileNameTextBox.Location = new Point(176, 107);
+            exportFileNameTextBox.Name = "exportFileNameTextBox";
+            exportFileNameTextBox.Size = new Size(596, 27);
+            exportFileNameTextBox.TabIndex = 12;
+            // 
+            // exportFileNameLabel
+            // 
+            exportFileNameLabel.AutoSize = true;
+            exportFileNameLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            exportFileNameLabel.Location = new Point(0, 107);
+            exportFileNameLabel.Name = "exportFileNameLabel";
+            exportFileNameLabel.Size = new Size(170, 30);
+            exportFileNameLabel.TabIndex = 11;
+            exportFileNameLabel.Text = "Export file name";
+            // 
+            // exportFilePathTextBox
+            // 
+            exportFilePathTextBox.Location = new Point(160, 74);
+            exportFilePathTextBox.Name = "exportFilePathTextBox";
+            exportFilePathTextBox.Size = new Size(612, 27);
+            exportFilePathTextBox.TabIndex = 10;
+            // 
+            // exportFilePathLabel
+            // 
+            exportFilePathLabel.AutoSize = true;
+            exportFilePathLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            exportFilePathLabel.Location = new Point(0, 74);
+            exportFilePathLabel.Name = "exportFilePathLabel";
+            exportFilePathLabel.Size = new Size(159, 30);
+            exportFilePathLabel.TabIndex = 9;
+            exportFilePathLabel.Text = "Export file path";
+            // 
+            // imagesPathLabel
+            // 
+            imagesPathLabel.AutoSize = true;
+            imagesPathLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            imagesPathLabel.Location = new Point(0, 36);
+            imagesPathLabel.Name = "imagesPathLabel";
+            imagesPathLabel.Size = new Size(132, 30);
+            imagesPathLabel.TabIndex = 8;
+            imagesPathLabel.Text = "Images path";
+            // 
+            // imagesPathTextBox
+            // 
+            imagesPathTextBox.Location = new Point(130, 39);
+            imagesPathTextBox.Name = "imagesPathTextBox";
+            imagesPathTextBox.Size = new Size(642, 27);
+            imagesPathTextBox.TabIndex = 7;
             // 
             // cancelSettingsButton
             // 
@@ -270,17 +383,17 @@
             // 
             // defaultPromptTextBox
             // 
-            defaultPromptTextBox.Location = new Point(6, 98);
+            defaultPromptTextBox.Location = new Point(9, 218);
             defaultPromptTextBox.Multiline = true;
             defaultPromptTextBox.Name = "defaultPromptTextBox";
-            defaultPromptTextBox.Size = new Size(834, 370);
+            defaultPromptTextBox.Size = new Size(834, 84);
             defaultPromptTextBox.TabIndex = 4;
             // 
             // defaultLabel
             // 
             defaultLabel.AutoSize = true;
             defaultLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            defaultLabel.Location = new Point(3, 65);
+            defaultLabel.Location = new Point(3, 185);
             defaultLabel.Name = "defaultLabel";
             defaultLabel.Size = new Size(161, 30);
             defaultLabel.TabIndex = 3;
@@ -297,7 +410,7 @@
             // 
             maxRetriesLabel.AutoSize = true;
             maxRetriesLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            maxRetriesLabel.Location = new Point(3, 3);
+            maxRetriesLabel.Location = new Point(0, -1);
             maxRetriesLabel.Name = "maxRetriesLabel";
             maxRetriesLabel.Size = new Size(121, 30);
             maxRetriesLabel.TabIndex = 0;
@@ -341,41 +454,32 @@
             // 
             titlesListBox.FormattingEnabled = true;
             titlesListBox.ItemHeight = 20;
-            titlesListBox.Location = new Point(860, 28);
+            titlesListBox.Location = new Point(853, 28);
             titlesListBox.Name = "titlesListBox";
             titlesListBox.Size = new Size(166, 544);
             titlesListBox.TabIndex = 1;
             // 
             // generateButton
             // 
-            generateButton.Location = new Point(1032, 28);
+            generateButton.Location = new Point(1032, 54);
             generateButton.Name = "generateButton";
             generateButton.Size = new Size(149, 29);
             generateButton.TabIndex = 2;
-            generateButton.Text = "Generate for one";
+            generateButton.Text = "Generate selected";
             generateButton.UseVisualStyleBackColor = true;
             // 
             // generateAllButton
             // 
-            generateAllButton.Location = new Point(1032, 63);
+            generateAllButton.Location = new Point(1032, 89);
             generateAllButton.Name = "generateAllButton";
             generateAllButton.Size = new Size(149, 29);
             generateAllButton.TabIndex = 3;
-            generateAllButton.Text = "Generate for all";
+            generateAllButton.Text = "Generate all";
             generateAllButton.UseVisualStyleBackColor = true;
-            // 
-            // changePromptButton
-            // 
-            changePromptButton.Location = new Point(1032, 98);
-            changePromptButton.Name = "changePromptButton";
-            changePromptButton.Size = new Size(149, 29);
-            changePromptButton.TabIndex = 4;
-            changePromptButton.Text = "Change Prompt";
-            changePromptButton.UseVisualStyleBackColor = true;
             // 
             // importTitlesButton
             // 
-            importTitlesButton.Location = new Point(1032, 133);
+            importTitlesButton.Location = new Point(1032, 398);
             importTitlesButton.Name = "importTitlesButton";
             importTitlesButton.Size = new Size(149, 29);
             importTitlesButton.TabIndex = 5;
@@ -384,16 +488,16 @@
             // 
             // addToPageButton
             // 
-            addToPageButton.Location = new Point(1032, 168);
+            addToPageButton.Location = new Point(1032, 182);
             addToPageButton.Name = "addToPageButton";
             addToPageButton.Size = new Size(149, 29);
             addToPageButton.TabIndex = 6;
-            addToPageButton.Text = "Add to page";
+            addToPageButton.Text = "Add all";
             addToPageButton.UseVisualStyleBackColor = true;
             // 
             // regenerateArticleButton
             // 
-            regenerateArticleButton.Location = new Point(1032, 203);
+            regenerateArticleButton.Location = new Point(1032, 468);
             regenerateArticleButton.Name = "regenerateArticleButton";
             regenerateArticleButton.Size = new Size(149, 29);
             regenerateArticleButton.TabIndex = 7;
@@ -402,7 +506,7 @@
             // 
             // addImagesButton
             // 
-            addImagesButton.Location = new Point(1032, 238);
+            addImagesButton.Location = new Point(1032, 433);
             addImagesButton.Name = "addImagesButton";
             addImagesButton.Size = new Size(149, 29);
             addImagesButton.TabIndex = 8;
@@ -411,24 +515,55 @@
             // 
             // runGenerationButton
             // 
-            runGenerationButton.Location = new Point(1032, 533);
+            runGenerationButton.Location = new Point(1032, 503);
             runGenerationButton.Name = "runGenerationButton";
-            runGenerationButton.Size = new Size(149, 29);
+            runGenerationButton.Size = new Size(149, 59);
             runGenerationButton.TabIndex = 10;
             runGenerationButton.Text = "Run Generation";
             runGenerationButton.UseVisualStyleBackColor = true;
+            // 
+            // addToPageSelectedButton
+            // 
+            addToPageSelectedButton.Location = new Point(1032, 147);
+            addToPageSelectedButton.Name = "addToPageSelectedButton";
+            addToPageSelectedButton.Size = new Size(149, 29);
+            addToPageSelectedButton.TabIndex = 11;
+            addToPageSelectedButton.Text = "Add selected";
+            addToPageSelectedButton.UseVisualStyleBackColor = true;
+            // 
+            // addToPageLabel
+            // 
+            addToPageLabel.AutoSize = true;
+            addToPageLabel.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            addToPageLabel.Location = new Point(1037, 121);
+            addToPageLabel.Name = "addToPageLabel";
+            addToPageLabel.Size = new Size(144, 23);
+            addToPageLabel.TabIndex = 12;
+            addToPageLabel.Text = "Add to wordpress";
+            // 
+            // generateFromChatLabel
+            // 
+            generateFromChatLabel.AutoSize = true;
+            generateFromChatLabel.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            generateFromChatLabel.Location = new Point(1032, 28);
+            generateFromChatLabel.Name = "generateFromChatLabel";
+            generateFromChatLabel.Size = new Size(159, 23);
+            generateFromChatLabel.TabIndex = 13;
+            generateFromChatLabel.Text = "Generate from chat";
             // 
             // ArticleView
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1193, 572);
+            Controls.Add(generateFromChatLabel);
+            Controls.Add(addToPageLabel);
+            Controls.Add(addToPageSelectedButton);
             Controls.Add(runGenerationButton);
             Controls.Add(addImagesButton);
             Controls.Add(regenerateArticleButton);
             Controls.Add(addToPageButton);
             Controls.Add(importTitlesButton);
-            Controls.Add(changePromptButton);
             Controls.Add(generateAllButton);
             Controls.Add(generateButton);
             Controls.Add(titlesListBox);
@@ -448,6 +583,7 @@
             tabPage1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)databaseGridView).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -460,7 +596,6 @@
         private ListBox titlesListBox;
         private Button generateButton;
         private Button generateAllButton;
-        private Button changePromptButton;
         private Button importTitlesButton;
         private Button addToPageButton;
         private TabPage tabWebView2;
@@ -486,5 +621,19 @@
         private TabPage tabPage1;
         private DataGridView databaseGridView;
         private ComboBox databaseComboBox;
+        private Button addToPageSelectedButton;
+        private Label addToPageLabel;
+        private Label generateFromChatLabel;
+        private Label imagesPathLabel;
+        private TextBox imagesPathTextBox;
+        private TextBox exportFileNameTextBox;
+        private Label exportFileNameLabel;
+        private TextBox exportFilePathTextBox;
+        private Label exportFilePathLabel;
+        private CheckBox addTimeCheckBox;
+        private CheckBox createNewFileCheckBox;
+        private Button browseImagesPathButton;
+        private Button button3;
+        private Button browseExportFilePathButton;
     }
 }
