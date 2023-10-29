@@ -49,7 +49,7 @@ namespace GPTArticleGen.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"Napisz artykuł na temat \""{title}\"" na 1500 do 2000 znaków, artykuł podziel na części  Title:, Content:, Meta title, Meta description, Meta tags:. Gdzie w Content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Nie zapomnij o Meta tags na końcu!!!! Gdzie używasz nagłówka użyj <h2></h2>, gdzie podgrubienie <strong></strong>, a nowy paragraf (np. po nagłówku) itp.")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"Napisz artykuł na temat \""{title}\"" na 1500 do 2000 znaków, artykuł podziel na części  Main Title:, Content:, Meta title, Meta description, Meta tags:. Gdzie w Content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Gdzie używasz nagłówka użyj <h2></h2>, gdzie podgrubienie <strong></strong>, a nowy paragraf (np. po nagłówku) itp.")]
         public string DefaultPrompt {
             get {
                 return ((string)(this["DefaultPrompt"]));
@@ -115,7 +115,7 @@ namespace GPTArticleGen.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Title:")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Main Title:")]
         public string TitleName {
             get {
                 return ((string)(this["TitleName"]));

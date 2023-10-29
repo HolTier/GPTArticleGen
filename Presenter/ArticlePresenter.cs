@@ -26,12 +26,13 @@ namespace GPTArticleGen.Presenter
     {
         private readonly IArticleView _view;
         private readonly ArticleModel _model;
-        private string _basicPrompt;
+        //private string _basicPrompt;
         private WordpressRepository _wordpressRepository;
         private PageModel _pageModel;
         private SQLiteDB _db;
         private TaskCompletionSource<bool> _taskCompletionSource;
         private ProgressDialogPresenter progressDialog;
+        private List<string> _endMarkersList;
 
         #region Initialize
         public ArticlePresenter(IArticleView view, ArticleModel model)
@@ -61,11 +62,12 @@ namespace GPTArticleGen.Presenter
             _view.GenerateFromDatabase += GenerateFromDatabase;
             _view.BrowseImagePath += BrowseImagePath;
             _view.BrowseExportFilePath += BrowseExportFilePath;
-            _view.GeneratrForSelected += GeneratrForSelected;
+            _view.GeneratrForSelected += GenerateForSelected;
         }
 
         public void Initialize()
         {
+            // Initialize your view with the data from the model
             _view.Title = _model.Title;
             _view.Content = _model.Content;
             //_view.Tags = _model.Tags;
@@ -82,8 +84,10 @@ namespace GPTArticleGen.Presenter
 
             _db.CloseConnection();
 
-            _basicPrompt = Properties.Settings.Default.BasicPrompt;
-            _view.DefaultPrompt = _basicPrompt;
+            //_basicPrompt = Properties.Settings.Default.BasicPrompt;
+            //Debug.WriteLine("Basic prompt: " + _basicPrompt);
+            //Debug.WriteLine("Propertise basic prompt:" + Properties.Settings.Default.BasicPrompt);
+            //_view.DefaultPrompt = _basicPrompt;
             _view.MaxRetries = Properties.Settings.Default.MaxRetries;
             _view.DatabaseComboBoxSelectedItem = "Articles";
             _view.ImagesFilePath = Properties.Settings.Default.ImagesPath;
@@ -97,6 +101,8 @@ namespace GPTArticleGen.Presenter
             _view.TagsName = Properties.Settings.Default.MetaTagsName;
             _view.MetaTitleName = Properties.Settings.Default.MetaTitleName;
             _view.MetaDescriptionName = Properties.Settings.Default.MetaDescriptionName;
+            _endMarkersList = new List<string>() { _view.TitleName, _view.ContentName, _view.TagsName, _view.MetaTitleName, _view.MetaDescriptionName };
+
         }
         #endregion
 
@@ -221,9 +227,9 @@ namespace GPTArticleGen.Presenter
                             else
                                 await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
 
-                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
-                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", "Meta tags:");
-                            selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
+                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, _view.TitleName,_endMarkersList);
+                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, _view.ContentName, _endMarkersList);
+                            selected.Tags = await ExtractTagsAsync(selected.RawData, _view.TagsName, _endMarkersList);
 
                             selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
 
@@ -272,9 +278,9 @@ namespace GPTArticleGen.Presenter
                     ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
                     await RegenarateByGPTAsync(_view.WebView2, _view, selected);
 
-                    selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
-                    selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", "Meta tags:");
-                    selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
+                    selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", _endMarkersList);
+                    selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", _endMarkersList);
+                    selected.Tags = await ExtractTagsAsync(selected.RawData, _view.TagsName, _endMarkersList);
 
                     selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
                     selected.Retries++;
@@ -299,9 +305,9 @@ namespace GPTArticleGen.Presenter
                     ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
                     await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
 
-                    selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
-                    selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", "Meta tags:");
-                    selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
+                    selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", _endMarkersList);
+                    selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", _endMarkersList);
+                    selected.Tags = await ExtractTagsAsync(selected.RawData, _view.TagsName, _endMarkersList);
 
                     selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
                     selected.Retries++;
@@ -581,17 +587,15 @@ namespace GPTArticleGen.Presenter
         {
             try
             {
-                List<ArticleModel> articles = new List<ArticleModel>() { _view.SelectedTitle};
+                ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+                List<ArticleModel> articles = new List<ArticleModel>() { selected};
                 await Task.Run(async () =>
                 {
                     // Run your time-consuming tasks here
-                    AddImagesFunctionAsync(articles);
-
+                    
                     _taskCompletionSource = new TaskCompletionSource<bool>();
                     GenerateForAllFunctionAsync(articles);
                     _taskCompletionSource.Task.Wait();  // Wait for task to complete
-
-                    AddToPageFunctionAsync(articles);
                 });
             }
             catch (Exception ex)
@@ -793,38 +797,82 @@ namespace GPTArticleGen.Presenter
         #endregion
 
         #region String Operations Methods
-        static async Task<string> ExtractValueBetweenAsync(string text, string startMarker, string endMarker)
+        static async Task<string> ExtractValueBetweenAsync(string text, string startMarker, List<string> endMarkers)
         {
             int startIndex = text.IndexOf(startMarker);
             if (startIndex >= 0)
             {
                 startIndex += startMarker.Length; // Move past the startMarker
-                int endIndex = text.IndexOf(endMarker, startIndex);
-                if (endIndex >= 0)
+                int minEndIndex = -1; // Initialize the minimum end index to a value that indicates none were found
+                foreach (string endMarker in endMarkers)
                 {
-                    return text.Substring(startIndex, endIndex - startIndex).Trim();
+                    if(endMarker == startMarker)
+                    {
+                        continue; // Skip the startMarker
+                    }
+                    int endIndex = text.IndexOf(endMarker, startIndex);
+                    if (endIndex >= 0)
+                    {
+                        if (minEndIndex == -1 || endIndex < minEndIndex)
+                        {
+                            minEndIndex = endIndex;
+                        }
+                    }
                 }
-                // If endMarker is not found, return from startIndex to the end of the text
+                if (minEndIndex >= 0)
+                {
+                    Debug.WriteLine("Start index: " + (minEndIndex - startIndex));
+                    Debug.WriteLine("Text: " + text.Substring(startIndex, minEndIndex - startIndex).Trim());
+                    return text.Substring(startIndex, minEndIndex - startIndex).Trim();
+                }
+                // If no endMarker is found, return from startIndex to the end of the text
                 return text.Substring(startIndex).Trim();
             }
             return null; // Handle error if startMarker is not found
         }
 
-        static async Task<string> ExtractTagsAsync(string text, string startMarker)
+
+        static async Task<string> ExtractTagsAsync(string text, string startMarker, List<string> endMarkers)
         {
             int startIndex = text.IndexOf(startMarker);
+            
             if (startIndex >= 0)
             {
+                string tagSection;
+                string[] tags;
                 startIndex += startMarker.Length;
-                string tagSection = text.Substring(startIndex).Trim();
-                string[] tags = tagSection.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                int minEndIndex = -1; // Initialize the minimum end index to a value that indicates none were found
+                foreach (string endMarker in endMarkers)
+                {
+                    int endIndex = text.IndexOf(endMarker, startIndex);
+                    if (endIndex >= 0)
+                    {
+                        if (minEndIndex == -1 || endIndex < minEndIndex)
+                        {
+                            minEndIndex = endIndex;
+                        }
+                    }
+                }
+                if (minEndIndex >= 0)
+                {
+                    tagSection = text.Substring(startIndex, minEndIndex - startIndex).Trim();
+                    tags = tagSection.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    for (int i = 0; i < tags.Length; i++)
+                    {
+                        tags[i] = tags[i].Trim();
+                    }
+                    return string.Join(", ", tags);
+                }
+                // If no end marker is found, return from startIndex to the end of the text
+                tagSection = text.Substring(startIndex).Trim();
+                tags = tagSection.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < tags.Length; i++)
                 {
                     tags[i] = tags[i].Trim();
                 }
                 return string.Join(", ", tags);
             }
-            return null; // Return null if marker is not found
+            return null; // Handle error if start marker is not found
         }
 
         public static string SubstreingFromString(string input, int retries)
@@ -897,8 +945,8 @@ namespace GPTArticleGen.Presenter
                             ArticleModel article = new ArticleModel
                             {
                                 PromptTitle = promptTitle,
-                                PromptFormat = _basicPrompt,
-                                Prompt = _basicPrompt.Replace("{title}", promptTitle),
+                                PromptFormat = Properties.Settings.Default.DefaultPrompt,
+                                Prompt = Properties.Settings.Default.DefaultPrompt,
                                 SiteId = _pageModel.Id,
                                 IsPublished = false
                             };
@@ -1019,15 +1067,17 @@ namespace GPTArticleGen.Presenter
                         {
                             if (isFirst)
                             {
-                                await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
+                                await GenerateByGPTAsync(_view.WebView2, _view, selected.PromptFormat.Replace("{title}", selected.PromptTitle), selected);
                                 isFirst = false;
                             }
                             else
-                                await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
+                                await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.PromptFormat.Replace("{title}", selected.PromptTitle), selected);
 
-                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", "Meta content:");
-                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", "Meta tags:");
-                            selected.Tags = await ExtractTagsAsync(selected.RawData, "Meta tags:");
+                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, _view.TitleName, _endMarkersList);
+                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, _view.ContentName, _endMarkersList);
+                            selected.Tags = await ExtractTagsAsync(selected.RawData, _view.TagsName, _endMarkersList);
+                            selected.MetaTitle = await ExtractValueBetweenAsync(selected.RawData, _view.MetaTitleName, _endMarkersList);
+                            selected.MetaDescription = await ExtractValueBetweenAsync(selected.RawData, _view.MetaDescriptionName, _endMarkersList);
 
                             selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
 
