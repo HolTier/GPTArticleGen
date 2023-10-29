@@ -37,8 +37,16 @@
             titleLabel = new Label();
             titleTextBox = new TextBox();
             tabPrompt = new TabPage();
-            promptTextBox = new TextBox();
-            promptLabel = new Label();
+            metaTitleNameTextBox = new TextBox();
+            metaDescriptionNameTextBox = new TextBox();
+            metaTagsNameTextBox = new TextBox();
+            metaDesciptionNameLabel = new Label();
+            metaTitleNameLabel = new Label();
+            metaTagsNameLabel = new Label();
+            contentNameTextBox = new TextBox();
+            contentNameLabel = new Label();
+            titleNameTextBox = new TextBox();
+            titleNameLabel = new Label();
             promptFormatLabel = new Label();
             promptFormatTextBox = new TextBox();
             tabWebView2 = new TabPage();
@@ -64,7 +72,7 @@
             databaseComboBox = new ComboBox();
             databaseGridView = new DataGridView();
             titlesListBox = new ListBox();
-            generateButton = new Button();
+            generateForSelectedButton = new Button();
             generateAllButton = new Button();
             importTitlesButton = new Button();
             addToPageButton = new Button();
@@ -169,8 +177,16 @@
             // 
             // tabPrompt
             // 
-            tabPrompt.Controls.Add(promptTextBox);
-            tabPrompt.Controls.Add(promptLabel);
+            tabPrompt.Controls.Add(metaTitleNameTextBox);
+            tabPrompt.Controls.Add(metaDescriptionNameTextBox);
+            tabPrompt.Controls.Add(metaTagsNameTextBox);
+            tabPrompt.Controls.Add(metaDesciptionNameLabel);
+            tabPrompt.Controls.Add(metaTitleNameLabel);
+            tabPrompt.Controls.Add(metaTagsNameLabel);
+            tabPrompt.Controls.Add(contentNameTextBox);
+            tabPrompt.Controls.Add(contentNameLabel);
+            tabPrompt.Controls.Add(titleNameTextBox);
+            tabPrompt.Controls.Add(titleNameLabel);
             tabPrompt.Controls.Add(promptFormatLabel);
             tabPrompt.Controls.Add(promptFormatTextBox);
             tabPrompt.Location = new Point(4, 29);
@@ -181,40 +197,107 @@
             tabPrompt.Text = "Prompt";
             tabPrompt.UseVisualStyleBackColor = true;
             // 
-            // promptTextBox
+            // metaTitleNameTextBox
             // 
-            promptTextBox.Location = new Point(8, 239);
-            promptTextBox.Multiline = true;
-            promptTextBox.Name = "promptTextBox";
-            promptTextBox.Size = new Size(832, 292);
-            promptTextBox.TabIndex = 3;
+            metaTitleNameTextBox.Location = new Point(8, 251);
+            metaTitleNameTextBox.Name = "metaTitleNameTextBox";
+            metaTitleNameTextBox.Size = new Size(283, 27);
+            metaTitleNameTextBox.TabIndex = 11;
             // 
-            // promptLabel
+            // metaDescriptionNameTextBox
             // 
-            promptLabel.AutoSize = true;
-            promptLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            promptLabel.Location = new Point(8, 206);
-            promptLabel.Name = "promptLabel";
-            promptLabel.Size = new Size(85, 30);
-            promptLabel.TabIndex = 2;
-            promptLabel.Text = "Prompt";
+            metaDescriptionNameTextBox.Location = new Point(8, 314);
+            metaDescriptionNameTextBox.Name = "metaDescriptionNameTextBox";
+            metaDescriptionNameTextBox.Size = new Size(283, 27);
+            metaDescriptionNameTextBox.TabIndex = 10;
+            // 
+            // metaTagsNameTextBox
+            // 
+            metaTagsNameTextBox.Location = new Point(8, 188);
+            metaTagsNameTextBox.Name = "metaTagsNameTextBox";
+            metaTagsNameTextBox.Size = new Size(283, 27);
+            metaTagsNameTextBox.TabIndex = 9;
+            // 
+            // metaDesciptionNameLabel
+            // 
+            metaDesciptionNameLabel.AutoSize = true;
+            metaDesciptionNameLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            metaDesciptionNameLabel.Location = new Point(3, 281);
+            metaDesciptionNameLabel.Name = "metaDesciptionNameLabel";
+            metaDesciptionNameLabel.Size = new Size(176, 30);
+            metaDesciptionNameLabel.TabIndex = 8;
+            metaDesciptionNameLabel.Text = "Meta description";
+            // 
+            // metaTitleNameLabel
+            // 
+            metaTitleNameLabel.AutoSize = true;
+            metaTitleNameLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            metaTitleNameLabel.Location = new Point(3, 218);
+            metaTitleNameLabel.Name = "metaTitleNameLabel";
+            metaTitleNameLabel.Size = new Size(105, 30);
+            metaTitleNameLabel.TabIndex = 7;
+            metaTitleNameLabel.Text = "Meta title";
+            // 
+            // metaTagsNameLabel
+            // 
+            metaTagsNameLabel.AutoSize = true;
+            metaTagsNameLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            metaTagsNameLabel.Location = new Point(3, 155);
+            metaTagsNameLabel.Name = "metaTagsNameLabel";
+            metaTagsNameLabel.Size = new Size(109, 30);
+            metaTagsNameLabel.TabIndex = 6;
+            metaTagsNameLabel.Text = "Meta tags";
+            // 
+            // contentNameTextBox
+            // 
+            contentNameTextBox.Location = new Point(8, 125);
+            contentNameTextBox.Name = "contentNameTextBox";
+            contentNameTextBox.Size = new Size(283, 27);
+            contentNameTextBox.TabIndex = 5;
+            // 
+            // contentNameLabel
+            // 
+            contentNameLabel.AutoSize = true;
+            contentNameLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            contentNameLabel.Location = new Point(3, 92);
+            contentNameLabel.Name = "contentNameLabel";
+            contentNameLabel.Size = new Size(90, 30);
+            contentNameLabel.TabIndex = 4;
+            contentNameLabel.Text = "Content";
+            // 
+            // titleNameTextBox
+            // 
+            titleNameTextBox.Location = new Point(8, 62);
+            titleNameTextBox.Name = "titleNameTextBox";
+            titleNameTextBox.Size = new Size(283, 27);
+            titleNameTextBox.TabIndex = 3;
+            // 
+            // titleNameLabel
+            // 
+            titleNameLabel.AutoSize = true;
+            titleNameLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            titleNameLabel.Location = new Point(3, 34);
+            titleNameLabel.Name = "titleNameLabel";
+            titleNameLabel.Size = new Size(54, 30);
+            titleNameLabel.TabIndex = 2;
+            titleNameLabel.Text = "Title";
             // 
             // promptFormatLabel
             // 
             promptFormatLabel.AutoSize = true;
             promptFormatLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            promptFormatLabel.Location = new Point(8, 3);
+            promptFormatLabel.Location = new Point(297, -1);
             promptFormatLabel.Name = "promptFormatLabel";
-            promptFormatLabel.Size = new Size(160, 30);
+            promptFormatLabel.Size = new Size(168, 30);
             promptFormatLabel.TabIndex = 1;
-            promptFormatLabel.Text = "Prompt Format";
+            promptFormatLabel.Text = "Prompt preview";
             // 
             // promptFormatTextBox
             // 
-            promptFormatTextBox.Location = new Point(8, 34);
+            promptFormatTextBox.Location = new Point(297, 34);
             promptFormatTextBox.Multiline = true;
             promptFormatTextBox.Name = "promptFormatTextBox";
-            promptFormatTextBox.Size = new Size(835, 169);
+            promptFormatTextBox.Size = new Size(546, 497);
             promptFormatTextBox.TabIndex = 0;
             // 
             // tabWebView2
@@ -459,14 +542,14 @@
             titlesListBox.Size = new Size(166, 544);
             titlesListBox.TabIndex = 1;
             // 
-            // generateButton
+            // generateForSelectedButton
             // 
-            generateButton.Location = new Point(1032, 54);
-            generateButton.Name = "generateButton";
-            generateButton.Size = new Size(149, 29);
-            generateButton.TabIndex = 2;
-            generateButton.Text = "Generate selected";
-            generateButton.UseVisualStyleBackColor = true;
+            generateForSelectedButton.Location = new Point(1032, 54);
+            generateForSelectedButton.Name = "generateForSelectedButton";
+            generateForSelectedButton.Size = new Size(149, 29);
+            generateForSelectedButton.TabIndex = 2;
+            generateForSelectedButton.Text = "Generate selected";
+            generateForSelectedButton.UseVisualStyleBackColor = true;
             // 
             // generateAllButton
             // 
@@ -565,7 +648,7 @@
             Controls.Add(addToPageButton);
             Controls.Add(importTitlesButton);
             Controls.Add(generateAllButton);
-            Controls.Add(generateButton);
+            Controls.Add(generateForSelectedButton);
             Controls.Add(titlesListBox);
             Controls.Add(textAndPromptControl);
             Name = "ArticleView";
@@ -594,7 +677,7 @@
         private TabPage tabContext;
         private TextBox titleTextBox;
         private ListBox titlesListBox;
-        private Button generateButton;
+        private Button generateForSelectedButton;
         private Button generateAllButton;
         private Button importTitlesButton;
         private Button addToPageButton;
@@ -607,8 +690,6 @@
         private Label tagsLabel;
         private TextBox tagsTextBox;
         private Label promptFormatLabel;
-        private Label promptLabel;
-        private TextBox promptTextBox;
         private TabPage tabSettings;
         private NumericUpDown maxRetriesNumeric;
         private Label maxRetriesLabel;
@@ -635,5 +716,15 @@
         private Button browseImagesPathButton;
         private Button button3;
         private Button browseExportFilePathButton;
+        private Label titleNameLabel;
+        private TextBox metaTitleNameTextBox;
+        private TextBox metaDescriptionNameTextBox;
+        private TextBox metaTagsNameTextBox;
+        private Label metaDesciptionNameLabel;
+        private Label metaTitleNameLabel;
+        private Label metaTagsNameLabel;
+        private TextBox contentNameTextBox;
+        private Label contentNameLabel;
+        private TextBox titleNameTextBox;
     }
 }

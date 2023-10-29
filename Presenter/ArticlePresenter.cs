@@ -61,6 +61,7 @@ namespace GPTArticleGen.Presenter
             _view.GenerateFromDatabase += GenerateFromDatabase;
             _view.BrowseImagePath += BrowseImagePath;
             _view.BrowseExportFilePath += BrowseExportFilePath;
+            _view.GeneratrForSelected += GeneratrForSelected;
         }
 
         public void Initialize()
@@ -68,7 +69,7 @@ namespace GPTArticleGen.Presenter
             _view.Title = _model.Title;
             _view.Content = _model.Content;
             //_view.Tags = _model.Tags;
-            _view.Prompt = _model.Prompt;
+            //_view.Prompt = _model.Prompt;
             // _view.Description = _model.Description;
             _view.WebView2.Source = new Uri("https://chat.openai.com");
             //_view.Tags = new ObservableCollection<string>();
@@ -89,6 +90,13 @@ namespace GPTArticleGen.Presenter
             _view.ExportFilePath = Properties.Settings.Default.ExportFilePath;
             _view.ExportFileName = Properties.Settings.Default.ExportFileName;
             _view.CreateNewFile = Properties.Settings.Default.CreateNewFile;  
+
+            // Configuration
+            _view.TitleName = Properties.Settings.Default.TitleName;
+            _view.ContentName = Properties.Settings.Default.ContentName;
+            _view.TagsName = Properties.Settings.Default.MetaTagsName;
+            _view.MetaTitleName = Properties.Settings.Default.MetaTitleName;
+            _view.MetaDescriptionName = Properties.Settings.Default.MetaDescriptionName;
         }
         #endregion
 
@@ -319,7 +327,7 @@ namespace GPTArticleGen.Presenter
                 _view.Content = selectedArticle.Content;
                 _view.Tags = selectedArticle.Tags;
                 _view.PromptFormat = selectedArticle.PromptFormat;
-                _view.Prompt = selectedArticle.Prompt;
+                //_view.Prompt = selectedArticle.Prompt;
                 
 
             }
@@ -566,6 +574,30 @@ namespace GPTArticleGen.Presenter
             {
                 string selectedFolderPath = folderBrowserDialog.SelectedPath;
                 _view.ImagesFilePath = selectedFolderPath;
+            }
+        }
+
+        private async void GenerateForSelected(object? sender, EventArgs e)
+        {
+            try
+            {
+                List<ArticleModel> articles = new List<ArticleModel>() { _view.SelectedTitle};
+                await Task.Run(async () =>
+                {
+                    // Run your time-consuming tasks here
+                    AddImagesFunctionAsync(articles);
+
+                    _taskCompletionSource = new TaskCompletionSource<bool>();
+                    GenerateForAllFunctionAsync(articles);
+                    _taskCompletionSource.Task.Wait();  // Wait for task to complete
+
+                    AddToPageFunctionAsync(articles);
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                Debug.WriteLine(ex);
             }
         }
 

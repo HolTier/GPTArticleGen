@@ -28,6 +28,13 @@ namespace GPTArticleGen.View
         BindingList<PageModel> PageDatabases { get; set; }
         string DatabaseComboBoxSelectedItem { get; set; }
 
+        // Configurations
+        string TitleName { get; set; }
+        string ContentName { get; set; }
+        string TagsName { get; set; }
+        string MetaTitleName { get; set; }
+        string MetaDescriptionName { get; set; }
+
         // Settings
         int MaxRetries { get; set; }
         string DefaultPrompt { get; set; }
@@ -52,6 +59,7 @@ namespace GPTArticleGen.View
         event EventHandler RunGeneration;
         event EventHandler DatabaseSelectionChanged;
         event EventHandler GenerateFromDatabase;
+        event EventHandler GeneratrForSelected;
 
         event EventHandler PromptFormatTextBoxChanged;
         event EventHandler PromptTextBoxChanged;

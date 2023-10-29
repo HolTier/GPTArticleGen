@@ -26,5 +26,20 @@
     <Setting Name="CreateNewFile" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="TitleName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Title:</Value>
+    </Setting>
+    <Setting Name="ContentName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Content:</Value>
+    </Setting>
+    <Setting Name="MetaTagsName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Meta Tags:</Value>
+    </Setting>
+    <Setting Name="MetaTitleName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Meta Title:</Value>
+    </Setting>
+    <Setting Name="MetaDescriptionName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Meta Description:</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

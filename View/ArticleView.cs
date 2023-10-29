@@ -33,7 +33,7 @@ namespace GPTArticleGen.View
             webView2.Source = new Uri("https://chat.openai.com");
 
             InitializeComponent();
-            generateButton.Click += (sender, args) => GenerateArticle?.Invoke(this, EventArgs.Empty);
+            generateForSelectedButton.Click += (sender, args) => GenerateArticle?.Invoke(this, EventArgs.Empty);
             generateAllButton.Click += (sender, args) => GenerateForAll?.Invoke(this, EventArgs.Empty);
             //changePromptButton.Click += (sender, args) => ChangeDefaultPrompt?.Invoke(this, EventArgs.Empty);
             importTitlesButton.Click += (sender, args) => ImportTitles?.Invoke(this, EventArgs.Empty);
@@ -48,9 +48,10 @@ namespace GPTArticleGen.View
             //generateFromDatabaseButton.Click += (sender, args) => GenerateFromDatabase?.Invoke(this, EventArgs.Empty);
             browseImagesPathButton.Click += (sender, args) => BrowseImagePath?.Invoke(this, EventArgs.Empty);
             browseExportFilePathButton.Click += (sender, args) => BrowseExportFilePath?.Invoke(this, EventArgs.Empty);
+            generateForSelectedButton.Click += (sender, args) => GeneratrForSelected?.Invoke(this, EventArgs.Empty);
 
             promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
-            promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            //promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
             titleTextBox.TextChanged += (sender, args) => TitleTextBoxChanged?.Invoke(this, EventArgs.Empty);
             contentTextBox.TextChanged += (sender, args) => ContentTextBoxChanged?.Invoke(this, EventArgs.Empty);
             tagsTextBox.TextChanged += (sender, args) => TagsTextBoxChanged?.Invoke(this, EventArgs.Empty);
@@ -115,8 +116,8 @@ namespace GPTArticleGen.View
 
         public string Prompt
         {
-            get => promptTextBox.Text;
-            set => promptTextBox.Text = value;
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
         }
 
         public WebView2 WebView2
@@ -226,6 +227,31 @@ namespace GPTArticleGen.View
             get => createNewFileCheckBox.Checked;
             set => createNewFileCheckBox.Checked = value;
         }
+        public string TitleName
+        {
+            get => titleNameTextBox.Text;
+            set => titleNameTextBox.Text = value;
+        }
+        public string ContentName
+        {
+            get => contentNameTextBox.Text;
+            set => contentNameTextBox.Text = value;
+        }
+        public string TagsName
+        {
+            get => metaTagsNameTextBox.Text;
+            set => metaTagsNameTextBox.Text = value;
+        }
+        public string MetaTitleName
+        {
+            get => metaTitleNameTextBox.Text;
+            set => metaTitleNameTextBox.Text = value;
+        }
+        public string MetaDescriptionName
+        {
+            get => metaDescriptionNameTextBox.Text;
+            set => metaDescriptionNameTextBox.Text = value;
+        }
 
         public event EventHandler GenerateArticle;
         public event EventHandler GenerateForAll;
@@ -247,6 +273,7 @@ namespace GPTArticleGen.View
         public event EventHandler GenerateFromDatabase;
         public event EventHandler BrowseImagePath;
         public event EventHandler BrowseExportFilePath;
+        public event EventHandler GeneratrForSelected;
 
         public void EnableUI()
         {

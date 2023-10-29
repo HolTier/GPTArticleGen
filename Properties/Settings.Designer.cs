@@ -112,5 +112,65 @@ namespace GPTArticleGen.Properties {
                 this["CreateNewFile"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Title:")]
+        public string TitleName {
+            get {
+                return ((string)(this["TitleName"]));
+            }
+            set {
+                this["TitleName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Content:")]
+        public string ContentName {
+            get {
+                return ((string)(this["ContentName"]));
+            }
+            set {
+                this["ContentName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Meta Tags:")]
+        public string MetaTagsName {
+            get {
+                return ((string)(this["MetaTagsName"]));
+            }
+            set {
+                this["MetaTagsName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Meta Title:")]
+        public string MetaTitleName {
+            get {
+                return ((string)(this["MetaTitleName"]));
+            }
+            set {
+                this["MetaTitleName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Meta Description:")]
+        public string MetaDescriptionName {
+            get {
+                return ((string)(this["MetaDescriptionName"]));
+            }
+            set {
+                this["MetaDescriptionName"] = value;
+            }
+        }
     }
 }
