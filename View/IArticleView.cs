@@ -16,6 +16,8 @@ namespace GPTArticleGen.View
         string Title { get; set; }
         string Content { get; set; }
         string Tags { get; set; }
+        string MetaTitle { get; set; }
+        string MetaDescription { get; set; }
         string Prompt { get; set; }
 
         string Description { get; set; }
@@ -28,12 +30,19 @@ namespace GPTArticleGen.View
         BindingList<PageModel> PageDatabases { get; set; }
         string DatabaseComboBoxSelectedItem { get; set; }
 
-        // Configurations
+        // Configurations Local
         string TitleName { get; set; }
         string ContentName { get; set; }
         string TagsName { get; set; }
         string MetaTitleName { get; set; }
         string MetaDescriptionName { get; set; }
+
+        // Configurations Default
+        string TitleConfiguration { get; set; }
+        string ContentConfiguration { get; set; }
+        string TagsConfiguration { get; set; }
+        string MetaTitleConfiguration { get; set; }
+        string MetaDescriptionConfiguration { get; set; }
 
         // Settings
         int MaxRetries { get; set; }
@@ -66,6 +75,17 @@ namespace GPTArticleGen.View
         event EventHandler TagsNameTextBoxChanged;
         event EventHandler MetaTitleNameTextBoxChanged;
         event EventHandler MetaDescriptionNameTextBoxChanged;
+
+        event EventHandler SaveConfigurationClick;
+        event EventHandler CancelConfigurationClick;
+
+        /*
+        event EventHandler TitleConfigurationTextBoxChanged;
+        event EventHandler ContentConfigurationTextBoxChanged;
+        event EventHandler TagsConfigurationTextBoxChanged;
+        event EventHandler MetaTitleConfigurationTextBoxChanged;
+        event EventHandler MetaDescriptionConfigurationTextBoxChanged;
+        */
 
         event EventHandler PromptFormatTextBoxChanged;
         event EventHandler PromptTextBoxChanged;

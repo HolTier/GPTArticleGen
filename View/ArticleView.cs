@@ -62,6 +62,17 @@ namespace GPTArticleGen.View
             metaTitleNameTextBox.TextChanged += (sender, args) => MetaTitleNameTextBoxChanged?.Invoke(this, EventArgs.Empty);
             metaDescriptionNameTextBox.TextChanged += (sender, args) => MetaDescriptionNameTextBoxChanged?.Invoke(this, EventArgs.Empty);
 
+            saveConfigurationButton.Click += (sender, args) => SaveConfigurationClick?.Invoke(this, EventArgs.Empty);
+            cancelConfigurationButton.Click += (sender, args) => CancelConfigurationClick?.Invoke(this, EventArgs.Empty);
+
+            /*
+            titleConfigurationTextBox.TextChanged += (sender, args) => TitleConfigurationTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            contentConfigurationTextBox.TextChanged += (sender, args) => ContentConfigurationTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            tagsConfigurationTextBox.TextChanged += (sender, args) => TagsConfigurationTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            metaTitleConfigurationTextBox.TextChanged += (sender, args) => MetaTitleConfigurationTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            metaDescriptionConfigurationTextBox.TextChanged += (sender, args) => MetaDescriptionConfigurationTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            */
+
             titlesListBox.DataSource = _titles;
             titlesListBox.DisplayMember = "PromptTitle";
 
@@ -258,6 +269,41 @@ namespace GPTArticleGen.View
             get => metaDescriptionNameTextBox.Text;
             set => metaDescriptionNameTextBox.Text = value;
         }
+        public string TitleConfiguration
+        {
+            get => titleConfigurationTextBox.Text;
+            set => titleConfigurationTextBox.Text = value;
+        }
+        public string ContentConfiguration
+        {
+            get => contentConfigurationTextBox.Text;
+            set => contentConfigurationTextBox.Text = value;
+        }
+        public string TagsConfiguration
+        {
+            get => tagsConfigurationTextBox.Text;
+            set => tagsConfigurationTextBox.Text = value;
+        }
+        public string MetaTitleConfiguration
+        {
+            get => metaTitleConfigurationTextBox.Text;
+            set => metaTitleConfigurationTextBox.Text = value;
+        }
+        public string MetaDescriptionConfiguration
+        {
+            get => metaDescriptionConfigurationTextBox.Text;
+            set => metaDescriptionConfigurationTextBox.Text = value;
+        }
+        public string MetaTitle
+        {
+            get => metaTitleTextBox.Text;
+            set => metaTitleTextBox.Text = value; 
+        }
+        public string MetaDescription
+        {
+            get => metaDescriptionTextBox.Text;
+            set => metaDescriptionTextBox.Text = value;
+        }
 
         public event EventHandler GenerateArticle;
         public event EventHandler GenerateForAll;
@@ -285,6 +331,16 @@ namespace GPTArticleGen.View
         public event EventHandler TagsNameTextBoxChanged;
         public event EventHandler MetaTitleNameTextBoxChanged;
         public event EventHandler MetaDescriptionNameTextBoxChanged;
+        public event EventHandler SaveConfigurationClick;
+        public event EventHandler CancelConfigurationClick;
+
+        /*
+public event EventHandler TitleConfigurationTextBoxChanged;
+public event EventHandler ContentConfigurationTextBoxChanged;
+public event EventHandler TagsConfigurationTextBoxChanged;
+public event EventHandler MetaTitleConfigurationTextBoxChanged;
+public event EventHandler MetaDescriptionConfigurationTextBoxChanged;
+*/
 
         public void EnableUI()
         {

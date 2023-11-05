@@ -8,7 +8,7 @@
     <Setting Name="MaxRetries" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">5</Value>
     </Setting>
-    <Setting Name="DefaultPrompt" Type="System.String" Scope="Application">
+    <Setting Name="DefaultPrompt" Type="System.String" Scope="User">
       <Value Profile="(Default)">Napisz artykuł na temat \"{title}\" na 1500 do 2000 znaków, artykuł podziel na części  Main Title:, Content:, Meta title, Meta description, Meta tags:. Gdzie w Content znajduje się cała treść. Nie dodawaj nic poza tym, wszystko musi znajdować się w jednej z tych części. Gdzie używasz nagłówka użyj &lt;h2&gt;&lt;/h2&gt;, gdzie podgrubienie &lt;strong&gt;&lt;/strong&gt;, a nowy paragraf (np. po nagłówku) itp.</Value>
     </Setting>
     <Setting Name="DefaultRetries" Type="System.Int32" Scope="Application">

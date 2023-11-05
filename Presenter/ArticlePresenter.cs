@@ -68,6 +68,15 @@ namespace GPTArticleGen.Presenter
             _view.TagsNameTextBoxChanged += TagsNameTextBoxChanged;
             _view.MetaTitleNameTextBoxChanged += MetaTitleNameTextBoxChanged;
             _view.MetaDescriptionNameTextBoxChanged += MetaDescriptionNameTextBoxChanged;
+            _view.SaveConfigurationClick += SaveConfigurationClick;
+            _view.CancelConfigurationClick += CancelConfigurationClick;
+            /*
+            _view.TitleConfigurationTextBoxChanged += TitleConfigurationTextBoxChanged;
+            _view.ContentConfigurationTextBoxChanged += ContentConfigurationTextBoxChanged;
+            _view.TagsConfigurationTextBoxChanged += TagsConfigurationTextBoxChanged;
+            _view.MetaTitleConfigurationTextBoxChanged += MetaTitleConfigurationTextBoxChanged;
+            _view.MetaDescriptionConfigurationTextBoxChanged += MetaDescriptionConfigurationTextBoxChanged;
+            */
         }
 
         public void Initialize()
@@ -100,13 +109,13 @@ namespace GPTArticleGen.Presenter
             _view.ExportFileName = Properties.Settings.Default.ExportFileName;
             _view.CreateNewFile = Properties.Settings.Default.CreateNewFile;  
 
-            // Configuration
-            _view.TitleName = Properties.Settings.Default.TitleName;
-            _view.ContentName = Properties.Settings.Default.ContentName;
-            _view.TagsName = Properties.Settings.Default.MetaTagsName;
-            _view.MetaTitleName = Properties.Settings.Default.MetaTitleName;
-            _view.MetaDescriptionName = Properties.Settings.Default.MetaDescriptionName;
-            _endMarkersList = new List<string>() { _view.TitleName, _view.ContentName, _view.TagsName, _view.MetaTitleName, _view.MetaDescriptionName };
+            // Configuration default
+            _view.DefaultPrompt = Properties.Settings.Default.DefaultPrompt;
+            _view.TitleConfiguration = Properties.Settings.Default.TitleName;
+            _view.ContentConfiguration = Properties.Settings.Default.ContentName;
+            _view.TagsConfiguration = Properties.Settings.Default.MetaTagsName;
+            _view.MetaTitleConfiguration = Properties.Settings.Default.MetaTitleName;
+            _view.MetaDescriptionConfiguration = Properties.Settings.Default.MetaDescriptionName;
 
         }
         #endregion
@@ -332,6 +341,8 @@ namespace GPTArticleGen.Presenter
                     _view.Title = selectedArticle.Title;
                 _view.Content = selectedArticle.Content;
                 _view.Tags = selectedArticle.Tags;
+                _view.MetaTitle = selectedArticle.MetaTitle;
+                _view.MetaDescription = selectedArticle.MetaDescription;
                 _view.PromptFormat = selectedArticle.PromptFormat;
                 _view.TitleName = selectedArticle.TitleName;
                 _view.ContentName = selectedArticle.ContentName;
@@ -657,6 +668,39 @@ namespace GPTArticleGen.Presenter
             {
                 selectedArticle.TitleName = _view.TitleName;
             }
+        }
+
+        private void CancelConfigurationClick(object? sender, EventArgs e)
+        {
+            _view.DefaultPrompt = Properties.Settings.Default.DefaultPrompt;
+            _view.TitleConfiguration = Properties.Settings.Default.TitleName;
+            _view.ContentConfiguration = Properties.Settings.Default.ContentName;
+            _view.TagsConfiguration = Properties.Settings.Default.MetaTagsName;
+            _view.MetaTitleConfiguration = Properties.Settings.Default.MetaTitleName;
+            _view.MetaDescriptionConfiguration = Properties.Settings.Default.MetaDescriptionName;
+        }
+
+        private void SaveConfigurationClick(object? sender, EventArgs e)
+        {
+            Properties.Settings.Default.DefaultPrompt = _view.DefaultPrompt;
+            Properties.Settings.Default.TitleName = _view.TitleConfiguration;
+            Properties.Settings.Default.ContentName = _view.ContentConfiguration;
+            Properties.Settings.Default.MetaTagsName = _view.TagsConfiguration;
+            Properties.Settings.Default.MetaTitleName = _view.MetaTitleConfiguration;
+            Properties.Settings.Default.MetaDescriptionName = _view.MetaDescriptionConfiguration;
+
+            Properties.Settings.Default.Save();
+
+            foreach(ArticleModel article in _view.Titles)
+            {
+                article.TitleName = Properties.Settings.Default.TitleName;
+                article.ContentName = Properties.Settings.Default.ContentName;
+                article.TagsName = Properties.Settings.Default.MetaTagsName;
+                article.MetaTitleName = Properties.Settings.Default.MetaTitleName;
+                article.MetaDescriptionName = Properties.Settings.Default.MetaDescriptionName;
+            }
+
+            SelectedTitleChanged(this, EventArgs.Empty);
         }
 
         #endregion
@@ -1010,11 +1054,11 @@ namespace GPTArticleGen.Presenter
                                 Prompt = Properties.Settings.Default.DefaultPrompt,
                                 SiteId = _pageModel.Id,
                                 IsPublished = false,
-                                TitleName = _view.TitleName,
-                                ContentName = _view.ContentName,
-                                TagsName = _view.TagsName,
-                                MetaTitleName = _view.MetaTitleName,
-                                MetaDescriptionName = _view.MetaDescriptionName
+                                TitleName = Properties.Settings.Default.TitleName,
+                                ContentName = Properties.Settings.Default.ContentName,
+                                TagsName = Properties.Settings.Default.MetaTagsName,
+                                MetaTitleName = Properties.Settings.Default.MetaTitleName,
+                                MetaDescriptionName = Properties.Settings.Default.MetaDescriptionName
                             };
                             
                             _db.OpenConnection();

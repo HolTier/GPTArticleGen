@@ -64,11 +64,24 @@
             imagesPathTextBox = new TextBox();
             cancelSettingsButton = new Button();
             saveSettingsButton = new Button();
-            defaultPromptTextBox = new TextBox();
-            defaultLabel = new Label();
             maxRetriesNumeric = new NumericUpDown();
             maxRetriesLabel = new Label();
-            tabPage1 = new TabPage();
+            tabConfiguration = new TabPage();
+            cancelConfigurationButton = new Button();
+            saveConfigurationButton = new Button();
+            metaTitleConfigurationTextBox = new TextBox();
+            metaDescriptionConfigurationTextBox = new TextBox();
+            tagsConfigurationTextBox = new TextBox();
+            metaDescriptionConfigurationLabel = new Label();
+            metaTitleConfigurationLabel = new Label();
+            tagsConfigurationLabel = new Label();
+            contentConfigurationTextBox = new TextBox();
+            contentConfigurationLabel = new Label();
+            titleConfigurationTextBox = new TextBox();
+            titleConfigurationLabel = new Label();
+            defaultPromptTextBox = new TextBox();
+            defaultLabel = new Label();
+            tabDatabase = new TabPage();
             databaseComboBox = new ComboBox();
             databaseGridView = new DataGridView();
             titlesListBox = new ListBox();
@@ -82,6 +95,11 @@
             addToPageSelectedButton = new Button();
             addToPageLabel = new Label();
             generateFromChatLabel = new Label();
+            panel1 = new Panel();
+            metaTitleLabel = new Label();
+            metaTitleTextBox = new TextBox();
+            metaDescriptionTextBox = new TextBox();
+            metaDescriptionLabel = new Label();
             textAndPromptControl.SuspendLayout();
             tabContext.SuspendLayout();
             tabPrompt.SuspendLayout();
@@ -89,8 +107,10 @@
             ((System.ComponentModel.ISupportInitialize)webView2).BeginInit();
             tabSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)maxRetriesNumeric).BeginInit();
-            tabPage1.SuspendLayout();
+            tabConfiguration.SuspendLayout();
+            tabDatabase.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)databaseGridView).BeginInit();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // textAndPromptControl
@@ -99,21 +119,18 @@
             textAndPromptControl.Controls.Add(tabPrompt);
             textAndPromptControl.Controls.Add(tabWebView2);
             textAndPromptControl.Controls.Add(tabSettings);
-            textAndPromptControl.Controls.Add(tabPage1);
+            textAndPromptControl.Controls.Add(tabConfiguration);
+            textAndPromptControl.Controls.Add(tabDatabase);
             textAndPromptControl.Location = new Point(0, 0);
             textAndPromptControl.Name = "textAndPromptControl";
+            textAndPromptControl.RightToLeft = RightToLeft.No;
             textAndPromptControl.SelectedIndex = 0;
             textAndPromptControl.Size = new Size(854, 572);
             textAndPromptControl.TabIndex = 0;
             // 
             // tabContext
             // 
-            tabContext.Controls.Add(tagsTextBox);
-            tabContext.Controls.Add(tagsLabel);
-            tabContext.Controls.Add(contentTextBox);
-            tabContext.Controls.Add(contentLabel);
-            tabContext.Controls.Add(titleLabel);
-            tabContext.Controls.Add(titleTextBox);
+            tabContext.Controls.Add(panel1);
             tabContext.Location = new Point(4, 29);
             tabContext.Name = "tabContext";
             tabContext.Padding = new Padding(3);
@@ -124,16 +141,16 @@
             // 
             // tagsTextBox
             // 
-            tagsTextBox.Location = new Point(8, 504);
+            tagsTextBox.Location = new Point(8, 440);
             tagsTextBox.Name = "tagsTextBox";
-            tagsTextBox.Size = new Size(832, 27);
+            tagsTextBox.Size = new Size(806, 27);
             tagsTextBox.TabIndex = 5;
             // 
             // tagsLabel
             // 
             tagsLabel.AutoSize = true;
             tagsLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            tagsLabel.Location = new Point(8, 471);
+            tagsLabel.Location = new Point(3, 407);
             tagsLabel.Name = "tagsLabel";
             tagsLabel.Size = new Size(56, 30);
             tagsLabel.TabIndex = 4;
@@ -141,18 +158,18 @@
             // 
             // contentTextBox
             // 
-            contentTextBox.Location = new Point(8, 102);
+            contentTextBox.Location = new Point(8, 92);
             contentTextBox.Multiline = true;
             contentTextBox.Name = "contentTextBox";
             contentTextBox.ScrollBars = ScrollBars.Horizontal;
-            contentTextBox.Size = new Size(832, 366);
+            contentTextBox.Size = new Size(806, 312);
             contentTextBox.TabIndex = 3;
             // 
             // contentLabel
             // 
             contentLabel.AutoSize = true;
             contentLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            contentLabel.Location = new Point(8, 69);
+            contentLabel.Location = new Point(3, 59);
             contentLabel.Name = "contentLabel";
             contentLabel.Size = new Size(90, 30);
             contentLabel.TabIndex = 2;
@@ -162,7 +179,7 @@
             // 
             titleLabel.AutoSize = true;
             titleLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            titleLabel.Location = new Point(3, 3);
+            titleLabel.Location = new Point(0, -7);
             titleLabel.Name = "titleLabel";
             titleLabel.Size = new Size(54, 30);
             titleLabel.TabIndex = 1;
@@ -170,9 +187,9 @@
             // 
             // titleTextBox
             // 
-            titleTextBox.Location = new Point(8, 35);
+            titleTextBox.Location = new Point(8, 29);
             titleTextBox.Name = "titleTextBox";
-            titleTextBox.Size = new Size(832, 27);
+            titleTextBox.Size = new Size(806, 27);
             titleTextBox.TabIndex = 0;
             // 
             // tabPrompt
@@ -336,8 +353,6 @@
             tabSettings.Controls.Add(imagesPathTextBox);
             tabSettings.Controls.Add(cancelSettingsButton);
             tabSettings.Controls.Add(saveSettingsButton);
-            tabSettings.Controls.Add(defaultPromptTextBox);
-            tabSettings.Controls.Add(defaultLabel);
             tabSettings.Controls.Add(maxRetriesNumeric);
             tabSettings.Controls.Add(maxRetriesLabel);
             tabSettings.Location = new Point(4, 29);
@@ -464,24 +479,6 @@
             saveSettingsButton.Text = "SAVE";
             saveSettingsButton.UseVisualStyleBackColor = true;
             // 
-            // defaultPromptTextBox
-            // 
-            defaultPromptTextBox.Location = new Point(9, 218);
-            defaultPromptTextBox.Multiline = true;
-            defaultPromptTextBox.Name = "defaultPromptTextBox";
-            defaultPromptTextBox.Size = new Size(834, 84);
-            defaultPromptTextBox.TabIndex = 4;
-            // 
-            // defaultLabel
-            // 
-            defaultLabel.AutoSize = true;
-            defaultLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            defaultLabel.Location = new Point(3, 185);
-            defaultLabel.Name = "defaultLabel";
-            defaultLabel.Size = new Size(161, 30);
-            defaultLabel.TabIndex = 3;
-            defaultLabel.Text = "Default prompt";
-            // 
             // maxRetriesNumeric
             // 
             maxRetriesNumeric.Location = new Point(130, 6);
@@ -499,17 +496,169 @@
             maxRetriesLabel.TabIndex = 0;
             maxRetriesLabel.Text = "Max retries";
             // 
-            // tabPage1
+            // tabConfiguration
             // 
-            tabPage1.Controls.Add(databaseComboBox);
-            tabPage1.Controls.Add(databaseGridView);
-            tabPage1.Location = new Point(4, 29);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(846, 539);
-            tabPage1.TabIndex = 4;
-            tabPage1.Text = "tabPage1";
-            tabPage1.UseVisualStyleBackColor = true;
+            tabConfiguration.Controls.Add(cancelConfigurationButton);
+            tabConfiguration.Controls.Add(saveConfigurationButton);
+            tabConfiguration.Controls.Add(metaTitleConfigurationTextBox);
+            tabConfiguration.Controls.Add(metaDescriptionConfigurationTextBox);
+            tabConfiguration.Controls.Add(tagsConfigurationTextBox);
+            tabConfiguration.Controls.Add(metaDescriptionConfigurationLabel);
+            tabConfiguration.Controls.Add(metaTitleConfigurationLabel);
+            tabConfiguration.Controls.Add(tagsConfigurationLabel);
+            tabConfiguration.Controls.Add(contentConfigurationTextBox);
+            tabConfiguration.Controls.Add(contentConfigurationLabel);
+            tabConfiguration.Controls.Add(titleConfigurationTextBox);
+            tabConfiguration.Controls.Add(titleConfigurationLabel);
+            tabConfiguration.Controls.Add(defaultPromptTextBox);
+            tabConfiguration.Controls.Add(defaultLabel);
+            tabConfiguration.Location = new Point(4, 29);
+            tabConfiguration.Name = "tabConfiguration";
+            tabConfiguration.Padding = new Padding(3);
+            tabConfiguration.Size = new Size(846, 539);
+            tabConfiguration.TabIndex = 5;
+            tabConfiguration.Text = "Configuration";
+            tabConfiguration.UseVisualStyleBackColor = true;
+            // 
+            // cancelConfigurationButton
+            // 
+            cancelConfigurationButton.BackColor = Color.Transparent;
+            cancelConfigurationButton.FlatAppearance.BorderColor = Color.Gray;
+            cancelConfigurationButton.FlatAppearance.BorderSize = 0;
+            cancelConfigurationButton.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            cancelConfigurationButton.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            cancelConfigurationButton.Location = new Point(721, 476);
+            cancelConfigurationButton.Margin = new Padding(0);
+            cancelConfigurationButton.Name = "cancelConfigurationButton";
+            cancelConfigurationButton.Size = new Size(119, 57);
+            cancelConfigurationButton.TabIndex = 23;
+            cancelConfigurationButton.Text = "CANCEL";
+            cancelConfigurationButton.UseVisualStyleBackColor = false;
+            // 
+            // saveConfigurationButton
+            // 
+            saveConfigurationButton.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            saveConfigurationButton.Location = new Point(599, 476);
+            saveConfigurationButton.Name = "saveConfigurationButton";
+            saveConfigurationButton.Size = new Size(119, 57);
+            saveConfigurationButton.TabIndex = 22;
+            saveConfigurationButton.Text = "SAVE";
+            saveConfigurationButton.UseVisualStyleBackColor = true;
+            // 
+            // metaTitleConfigurationTextBox
+            // 
+            metaTitleConfigurationTextBox.Location = new Point(8, 344);
+            metaTitleConfigurationTextBox.Name = "metaTitleConfigurationTextBox";
+            metaTitleConfigurationTextBox.Size = new Size(283, 27);
+            metaTitleConfigurationTextBox.TabIndex = 21;
+            // 
+            // metaDescriptionConfigurationTextBox
+            // 
+            metaDescriptionConfigurationTextBox.Location = new Point(8, 407);
+            metaDescriptionConfigurationTextBox.Name = "metaDescriptionConfigurationTextBox";
+            metaDescriptionConfigurationTextBox.Size = new Size(283, 27);
+            metaDescriptionConfigurationTextBox.TabIndex = 20;
+            // 
+            // tagsConfigurationTextBox
+            // 
+            tagsConfigurationTextBox.Location = new Point(8, 281);
+            tagsConfigurationTextBox.Name = "tagsConfigurationTextBox";
+            tagsConfigurationTextBox.Size = new Size(283, 27);
+            tagsConfigurationTextBox.TabIndex = 19;
+            // 
+            // metaDescriptionConfigurationLabel
+            // 
+            metaDescriptionConfigurationLabel.AutoSize = true;
+            metaDescriptionConfigurationLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            metaDescriptionConfigurationLabel.Location = new Point(3, 374);
+            metaDescriptionConfigurationLabel.Name = "metaDescriptionConfigurationLabel";
+            metaDescriptionConfigurationLabel.Size = new Size(176, 30);
+            metaDescriptionConfigurationLabel.TabIndex = 18;
+            metaDescriptionConfigurationLabel.Text = "Meta description";
+            // 
+            // metaTitleConfigurationLabel
+            // 
+            metaTitleConfigurationLabel.AutoSize = true;
+            metaTitleConfigurationLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            metaTitleConfigurationLabel.Location = new Point(3, 311);
+            metaTitleConfigurationLabel.Name = "metaTitleConfigurationLabel";
+            metaTitleConfigurationLabel.Size = new Size(105, 30);
+            metaTitleConfigurationLabel.TabIndex = 17;
+            metaTitleConfigurationLabel.Text = "Meta title";
+            // 
+            // tagsConfigurationLabel
+            // 
+            tagsConfigurationLabel.AutoSize = true;
+            tagsConfigurationLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            tagsConfigurationLabel.Location = new Point(3, 248);
+            tagsConfigurationLabel.Name = "tagsConfigurationLabel";
+            tagsConfigurationLabel.Size = new Size(109, 30);
+            tagsConfigurationLabel.TabIndex = 16;
+            tagsConfigurationLabel.Text = "Meta tags";
+            // 
+            // contentConfigurationTextBox
+            // 
+            contentConfigurationTextBox.Location = new Point(8, 218);
+            contentConfigurationTextBox.Name = "contentConfigurationTextBox";
+            contentConfigurationTextBox.Size = new Size(283, 27);
+            contentConfigurationTextBox.TabIndex = 15;
+            // 
+            // contentConfigurationLabel
+            // 
+            contentConfigurationLabel.AutoSize = true;
+            contentConfigurationLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            contentConfigurationLabel.Location = new Point(3, 185);
+            contentConfigurationLabel.Name = "contentConfigurationLabel";
+            contentConfigurationLabel.Size = new Size(90, 30);
+            contentConfigurationLabel.TabIndex = 14;
+            contentConfigurationLabel.Text = "Content";
+            // 
+            // titleConfigurationTextBox
+            // 
+            titleConfigurationTextBox.Location = new Point(8, 155);
+            titleConfigurationTextBox.Name = "titleConfigurationTextBox";
+            titleConfigurationTextBox.Size = new Size(283, 27);
+            titleConfigurationTextBox.TabIndex = 13;
+            // 
+            // titleConfigurationLabel
+            // 
+            titleConfigurationLabel.AutoSize = true;
+            titleConfigurationLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            titleConfigurationLabel.Location = new Point(3, 127);
+            titleConfigurationLabel.Name = "titleConfigurationLabel";
+            titleConfigurationLabel.Size = new Size(54, 30);
+            titleConfigurationLabel.TabIndex = 12;
+            titleConfigurationLabel.Text = "Title";
+            // 
+            // defaultPromptTextBox
+            // 
+            defaultPromptTextBox.Location = new Point(6, 36);
+            defaultPromptTextBox.Multiline = true;
+            defaultPromptTextBox.Name = "defaultPromptTextBox";
+            defaultPromptTextBox.Size = new Size(834, 84);
+            defaultPromptTextBox.TabIndex = 4;
+            // 
+            // defaultLabel
+            // 
+            defaultLabel.AutoSize = true;
+            defaultLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            defaultLabel.Location = new Point(6, 3);
+            defaultLabel.Name = "defaultLabel";
+            defaultLabel.Size = new Size(161, 30);
+            defaultLabel.TabIndex = 3;
+            defaultLabel.Text = "Default prompt";
+            // 
+            // tabDatabase
+            // 
+            tabDatabase.Controls.Add(databaseComboBox);
+            tabDatabase.Controls.Add(databaseGridView);
+            tabDatabase.Location = new Point(4, 29);
+            tabDatabase.Name = "tabDatabase";
+            tabDatabase.Padding = new Padding(3);
+            tabDatabase.Size = new Size(846, 539);
+            tabDatabase.TabIndex = 4;
+            tabDatabase.Text = "Database";
+            tabDatabase.UseVisualStyleBackColor = true;
             // 
             // databaseComboBox
             // 
@@ -634,6 +783,59 @@
             generateFromChatLabel.TabIndex = 13;
             generateFromChatLabel.Text = "Generate from chat";
             // 
+            // panel1
+            // 
+            panel1.AutoScroll = true;
+            panel1.Controls.Add(metaDescriptionTextBox);
+            panel1.Controls.Add(metaDescriptionLabel);
+            panel1.Controls.Add(metaTitleTextBox);
+            panel1.Controls.Add(metaTitleLabel);
+            panel1.Controls.Add(titleLabel);
+            panel1.Controls.Add(titleTextBox);
+            panel1.Controls.Add(tagsTextBox);
+            panel1.Controls.Add(contentLabel);
+            panel1.Controls.Add(tagsLabel);
+            panel1.Controls.Add(contentTextBox);
+            panel1.Location = new Point(0, 1);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(840, 530);
+            panel1.TabIndex = 7;
+            // 
+            // metaTitleLabel
+            // 
+            metaTitleLabel.AutoSize = true;
+            metaTitleLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            metaTitleLabel.Location = new Point(3, 470);
+            metaTitleLabel.Name = "metaTitleLabel";
+            metaTitleLabel.Size = new Size(110, 30);
+            metaTitleLabel.TabIndex = 6;
+            metaTitleLabel.Text = "Meta Title";
+            // 
+            // metaTitleTextBox
+            // 
+            metaTitleTextBox.Location = new Point(8, 503);
+            metaTitleTextBox.Name = "metaTitleTextBox";
+            metaTitleTextBox.Size = new Size(806, 27);
+            metaTitleTextBox.TabIndex = 7;
+            // 
+            // metaDescriptionTextBox
+            // 
+            metaDescriptionTextBox.Location = new Point(8, 569);
+            metaDescriptionTextBox.Multiline = true;
+            metaDescriptionTextBox.Name = "metaDescriptionTextBox";
+            metaDescriptionTextBox.Size = new Size(806, 84);
+            metaDescriptionTextBox.TabIndex = 9;
+            // 
+            // metaDescriptionLabel
+            // 
+            metaDescriptionLabel.AutoSize = true;
+            metaDescriptionLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
+            metaDescriptionLabel.Location = new Point(3, 536);
+            metaDescriptionLabel.Name = "metaDescriptionLabel";
+            metaDescriptionLabel.Size = new Size(178, 30);
+            metaDescriptionLabel.TabIndex = 8;
+            metaDescriptionLabel.Text = "Meta Description";
+            // 
             // ArticleView
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -655,7 +857,6 @@
             Text = "ArticleForm";
             textAndPromptControl.ResumeLayout(false);
             tabContext.ResumeLayout(false);
-            tabContext.PerformLayout();
             tabPrompt.ResumeLayout(false);
             tabPrompt.PerformLayout();
             tabWebView2.ResumeLayout(false);
@@ -663,8 +864,12 @@
             tabSettings.ResumeLayout(false);
             tabSettings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)maxRetriesNumeric).EndInit();
-            tabPage1.ResumeLayout(false);
+            tabConfiguration.ResumeLayout(false);
+            tabConfiguration.PerformLayout();
+            tabDatabase.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)databaseGridView).EndInit();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -699,7 +904,7 @@
         private Button saveSettingsButton;
         private Button addImagesButton;
         private Button runGenerationButton;
-        private TabPage tabPage1;
+        private TabPage tabDatabase;
         private DataGridView databaseGridView;
         private ComboBox databaseComboBox;
         private Button addToPageSelectedButton;
@@ -726,5 +931,23 @@
         private TextBox contentNameTextBox;
         private Label contentNameLabel;
         private TextBox titleNameTextBox;
+        private TabPage tabConfiguration;
+        private Button cancelConfigurationButton;
+        private Button saveConfigurationButton;
+        private TextBox metaTitleConfigurationTextBox;
+        private TextBox metaDescriptionConfigurationTextBox;
+        private TextBox tagsConfigurationTextBox;
+        private Label metaDescriptionConfigurationLabel;
+        private Label metaTitleConfigurationLabel;
+        private Label tagsConfigurationLabel;
+        private TextBox contentConfigurationTextBox;
+        private Label contentConfigurationLabel;
+        private TextBox titleConfigurationTextBox;
+        private Label titleConfigurationLabel;
+        private Panel panel1;
+        private TextBox metaDescriptionTextBox;
+        private Label metaDescriptionLabel;
+        private TextBox metaTitleTextBox;
+        private Label metaTitleLabel;
     }
 }
