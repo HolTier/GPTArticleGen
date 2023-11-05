@@ -42,7 +42,7 @@ namespace GPTArticleGen.Presenter
             _wordpressRepository = new WordpressRepository();   
             _taskCompletionSource = new TaskCompletionSource<bool>();
 
-            _view.GenerateArticle += GenerateArticle;
+            //_view.GenerateArticle += GenerateArticle;
             _view.GenerateForAll += GenerateForAll;
             _view.ChangeDefaultPrompt += ChangeDefaultPrompt;
             _view.ImportTitles += ImportTitles;
@@ -63,6 +63,11 @@ namespace GPTArticleGen.Presenter
             _view.BrowseImagePath += BrowseImagePath;
             _view.BrowseExportFilePath += BrowseExportFilePath;
             _view.GeneratrForSelected += GenerateForSelected;
+            _view.TitleNameTextBoxChanged += TitleNameTextBoxChanged;
+            _view.ContentNameTextBoxChanged += ContentNameTextBoxChanged;
+            _view.TagsNameTextBoxChanged += TagsNameTextBoxChanged;
+            _view.MetaTitleNameTextBoxChanged += MetaTitleNameTextBoxChanged;
+            _view.MetaDescriptionNameTextBoxChanged += MetaDescriptionNameTextBoxChanged;
         }
 
         public void Initialize()
@@ -305,11 +310,6 @@ namespace GPTArticleGen.Presenter
                     ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
                     await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
 
-                    selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", _endMarkersList);
-                    selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", _endMarkersList);
-                    selected.Tags = await ExtractTagsAsync(selected.RawData, _view.TagsName, _endMarkersList);
-
-                    selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
                     selected.Retries++;
 
                     SelectedTitleChanged(this, EventArgs.Empty);
@@ -333,9 +333,13 @@ namespace GPTArticleGen.Presenter
                 _view.Content = selectedArticle.Content;
                 _view.Tags = selectedArticle.Tags;
                 _view.PromptFormat = selectedArticle.PromptFormat;
+                _view.TitleName = selectedArticle.TitleName;
+                _view.ContentName = selectedArticle.ContentName;
+                _view.TagsName = selectedArticle.TagsName;
+                _view.MetaTitleName = selectedArticle.MetaTitleName;
+                _view.MetaDescriptionName = selectedArticle.MetaDescriptionName;
                 //_view.Prompt = selectedArticle.Prompt;
-                
-
+               
             }
         }
 
@@ -605,6 +609,56 @@ namespace GPTArticleGen.Presenter
             }
         }
 
+        private void MetaDescriptionNameTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if(selectedArticle != null)
+            {
+                selectedArticle.MetaDescriptionName = _view.MetaDescriptionName;
+            }
+        }
+
+        private void MetaTitleNameTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if(selectedArticle != null)
+            {
+                selectedArticle.MetaTitleName = _view.MetaTitleName;
+            }
+        }
+
+        private void TagsNameTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if(selectedArticle != null)
+            {
+                selectedArticle.TagsName = _view.TagsName;
+            }
+        }
+
+        private void ContentNameTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if(selectedArticle != null)
+            {
+                selectedArticle.ContentName = _view.ContentName;
+            }
+        }
+
+        private void TitleNameTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel selectedArticle = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if(selectedArticle != null)
+            {
+                selectedArticle.TitleName = _view.TitleName;
+            }
+        }
+
         #endregion
 
         #region Webview2 Methods
@@ -799,18 +853,22 @@ namespace GPTArticleGen.Presenter
         #region String Operations Methods
         static async Task<string> ExtractValueBetweenAsync(string text, string startMarker, List<string> endMarkers)
         {
-            int startIndex = text.IndexOf(startMarker);
+            int startIndex = text.IndexOf(startMarker, StringComparison.CurrentCultureIgnoreCase); // Case-insensitive search for startMarker
             if (startIndex >= 0)
             {
-                startIndex += startMarker.Length; // Move past the startMarker
+                string originalStartMarker = text.Substring(startIndex, startMarker.Length); // Get the original case startMarker
+
+                startIndex += originalStartMarker.Length; // Move past the original case startMarker
                 int minEndIndex = -1; // Initialize the minimum end index to a value that indicates none were found
+
                 foreach (string endMarker in endMarkers)
                 {
-                    if(endMarker == startMarker)
+                    if (string.Equals(endMarker, originalStartMarker, StringComparison.CurrentCultureIgnoreCase))
                     {
                         continue; // Skip the startMarker
                     }
-                    int endIndex = text.IndexOf(endMarker, startIndex);
+
+                    int endIndex = text.IndexOf(endMarker, startIndex, StringComparison.CurrentCultureIgnoreCase); // Case-insensitive search for endMarker
                     if (endIndex >= 0)
                     {
                         if (minEndIndex == -1 || endIndex < minEndIndex)
@@ -819,15 +877,18 @@ namespace GPTArticleGen.Presenter
                         }
                     }
                 }
+
                 if (minEndIndex >= 0)
                 {
                     Debug.WriteLine("Start index: " + (minEndIndex - startIndex));
                     Debug.WriteLine("Text: " + text.Substring(startIndex, minEndIndex - startIndex).Trim());
                     return text.Substring(startIndex, minEndIndex - startIndex).Trim();
                 }
+
                 // If no endMarker is found, return from startIndex to the end of the text
                 return text.Substring(startIndex).Trim();
             }
+
             return null; // Handle error if startMarker is not found
         }
 
@@ -948,7 +1009,12 @@ namespace GPTArticleGen.Presenter
                                 PromptFormat = Properties.Settings.Default.DefaultPrompt,
                                 Prompt = Properties.Settings.Default.DefaultPrompt,
                                 SiteId = _pageModel.Id,
-                                IsPublished = false
+                                IsPublished = false,
+                                TitleName = _view.TitleName,
+                                ContentName = _view.ContentName,
+                                TagsName = _view.TagsName,
+                                MetaTitleName = _view.MetaTitleName,
+                                MetaDescriptionName = _view.MetaDescriptionName
                             };
                             
                             _db.OpenConnection();
@@ -1063,6 +1129,9 @@ namespace GPTArticleGen.Presenter
                         progressDialog.UpdateGenerateArticleProgress(i);
                     foreach (ArticleModel selected in articles)
                     {
+                        List<string> endMarkers = new List<string>() 
+                            { selected.TitleName, selected.ContentName, selected.TagsName, selected.MetaTitleName, selected.MetaDescriptionName };
+
                         while (selected.Retries <= _view.MaxRetries)
                         {
                             if (isFirst)
@@ -1073,11 +1142,11 @@ namespace GPTArticleGen.Presenter
                             else
                                 await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.PromptFormat.Replace("{title}", selected.PromptTitle), selected);
 
-                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, _view.TitleName, _endMarkersList);
-                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, _view.ContentName, _endMarkersList);
-                            selected.Tags = await ExtractTagsAsync(selected.RawData, _view.TagsName, _endMarkersList);
-                            selected.MetaTitle = await ExtractValueBetweenAsync(selected.RawData, _view.MetaTitleName, _endMarkersList);
-                            selected.MetaDescription = await ExtractValueBetweenAsync(selected.RawData, _view.MetaDescriptionName, _endMarkersList);
+                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, selected.TitleName, endMarkers);
+                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, selected.ContentName, endMarkers);
+                            selected.Tags = await ExtractValueBetweenAsync(selected.RawData, selected.TagsName, endMarkers);
+                            selected.MetaTitle = await ExtractValueBetweenAsync(selected.RawData, selected.MetaTitleName, endMarkers);
+                            selected.MetaDescription = await ExtractValueBetweenAsync(selected.RawData, selected.MetaDescriptionName, endMarkers);
 
                             selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
 

@@ -56,6 +56,12 @@ namespace GPTArticleGen.View
             contentTextBox.TextChanged += (sender, args) => ContentTextBoxChanged?.Invoke(this, EventArgs.Empty);
             tagsTextBox.TextChanged += (sender, args) => TagsTextBoxChanged?.Invoke(this, EventArgs.Empty);
 
+            titleNameTextBox.TextChanged += (sender, args) => TitleNameTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            contentNameTextBox.TextChanged += (sender, args) => ContentNameTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            metaTagsNameTextBox.TextChanged += (sender, args) => TagsNameTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            metaTitleNameTextBox.TextChanged += (sender, args) => MetaTitleNameTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            metaDescriptionNameTextBox.TextChanged += (sender, args) => MetaDescriptionNameTextBoxChanged?.Invoke(this, EventArgs.Empty);
+
             titlesListBox.DataSource = _titles;
             titlesListBox.DisplayMember = "PromptTitle";
 
@@ -274,6 +280,11 @@ namespace GPTArticleGen.View
         public event EventHandler BrowseImagePath;
         public event EventHandler BrowseExportFilePath;
         public event EventHandler GeneratrForSelected;
+        public event EventHandler TitleNameTextBoxChanged;
+        public event EventHandler ContentNameTextBoxChanged;
+        public event EventHandler TagsNameTextBoxChanged;
+        public event EventHandler MetaTitleNameTextBoxChanged;
+        public event EventHandler MetaDescriptionNameTextBoxChanged;
 
         public void EnableUI()
         {
