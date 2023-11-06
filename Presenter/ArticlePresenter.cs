@@ -72,6 +72,7 @@ namespace GPTArticleGen.Presenter
             _view.CancelConfigurationClick += CancelConfigurationClick;
             _view.MetaTitleTextBoxChanged += MetaTitleTextBoxChanged;
             _view.MetaDescriptionTextBoxChanged += MetaDescriptionTextBoxChanged;
+            _view.AddToPageSelected += AddToPageSelected;
             /*
             _view.TitleConfigurationTextBoxChanged += TitleConfigurationTextBoxChanged;
             _view.ContentConfigurationTextBoxChanged += ContentConfigurationTextBoxChanged;
@@ -725,6 +726,11 @@ namespace GPTArticleGen.Presenter
             }
         }
 
+        private async void AddToPageSelected(object? sender, EventArgs e)
+        {
+            await AddToPageFunctionAsync(new List<ArticleModel>() { _view.SelectedTitle });
+        }
+
         #endregion
 
         #region Webview2 Methods
@@ -1080,7 +1086,10 @@ namespace GPTArticleGen.Presenter
                                 ContentName = Properties.Settings.Default.ContentName,
                                 TagsName = Properties.Settings.Default.MetaTagsName,
                                 MetaTitleName = Properties.Settings.Default.MetaTitleName,
-                                MetaDescriptionName = Properties.Settings.Default.MetaDescriptionName
+                                MetaDescriptionName = Properties.Settings.Default.MetaDescriptionName,
+                                Site = _pageModel.Site,
+                                Username = _pageModel.Username,
+                                Password = _pageModel.Password
                             };
                             
                             _db.OpenConnection();
@@ -1137,7 +1146,12 @@ namespace GPTArticleGen.Presenter
                     content = article.Content,
                     status = "publish",
                     tags = new[] { "[tag]" },
-                    featured_media = !string.IsNullOrEmpty(article.ImagePath) ? "[featured_image]" : null
+                    featured_media = !string.IsNullOrEmpty(article.ImagePath) ? "[featured_image]" : null,
+                    yoast_meta = new
+                    {
+                        yoast_wpseo_title = article.MetaTitle,
+                        yoast_wpseo_metadesc = article.MetaDescription
+                    }
                 };
 
                 // Serialize the object to JSON
@@ -1159,7 +1173,7 @@ namespace GPTArticleGen.Presenter
                     tags = article.Tags.Split(", ").ToList();
 
                 //Add to wordpress
-                if (await _wordpressRepository.AddPostAsync(tags, article.PostData, article.Id, page.Username, page.Password, page.Site, article.ImagePath))
+                if (await _wordpressRepository.AddPostAsync(tags, article.PostData, article.Id, article.Username, article.Password, article.Site, article.ImagePath))
                 {
                     //Add to database
                     article.IsPublished = true;

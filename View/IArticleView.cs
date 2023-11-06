@@ -69,6 +69,7 @@ namespace GPTArticleGen.View
         event EventHandler DatabaseSelectionChanged;
         event EventHandler GenerateFromDatabase;
         event EventHandler GeneratrForSelected;
+        event EventHandler AddToPageSelected;
 
         event EventHandler TitleNameTextBoxChanged;
         event EventHandler ContentNameTextBoxChanged;

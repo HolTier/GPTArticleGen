@@ -70,6 +70,13 @@ namespace GPTArticleGen.Model
 
         async Task<string> GetTagsAsync(string tagName, HttpClient tagClient, string postData, string siteUrl)
         {
+            // Remove any special characters from the tag name
+            // Comment if you want to allow special characters
+            tagName = tagName.Replace(".", "");
+            tagName = tagName.Replace(",", "");
+            tagName = tagName.Replace(":", "");
+            tagName = tagName.Replace(";", "");
+
             // Generate the slug from the tag name
             string tagSlug = Slugify(tagName);
 

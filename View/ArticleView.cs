@@ -49,6 +49,7 @@ namespace GPTArticleGen.View
             browseImagesPathButton.Click += (sender, args) => BrowseImagePath?.Invoke(this, EventArgs.Empty);
             browseExportFilePathButton.Click += (sender, args) => BrowseExportFilePath?.Invoke(this, EventArgs.Empty);
             generateForSelectedButton.Click += (sender, args) => GeneratrForSelected?.Invoke(this, EventArgs.Empty);
+            addToPageSelectedButton.Click += (sender, args) => AddToPageSelected?.Invoke(this, EventArgs.Empty);
 
             promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
             //promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
@@ -337,6 +338,7 @@ namespace GPTArticleGen.View
         public event EventHandler CancelConfigurationClick;
         public event EventHandler MetaTitleTextBoxChanged;
         public event EventHandler MetaDescriptionTextBoxChanged;
+        public event EventHandler AddToPageSelected;
 
         /*
 public event EventHandler TitleConfigurationTextBoxChanged;

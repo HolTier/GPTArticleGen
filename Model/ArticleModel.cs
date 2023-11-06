@@ -28,6 +28,11 @@ namespace GPTArticleGen.Model
         public int Retries { get; set; } = 1;
         public int PageId { get; set; }
 
+        // Page
+        public string Site { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+
         public string TitleName { get; set; }
         public string ContentName { get; set; }
         public string TagsName { get; set; }
