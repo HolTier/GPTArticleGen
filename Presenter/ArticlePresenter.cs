@@ -70,6 +70,8 @@ namespace GPTArticleGen.Presenter
             _view.MetaDescriptionNameTextBoxChanged += MetaDescriptionNameTextBoxChanged;
             _view.SaveConfigurationClick += SaveConfigurationClick;
             _view.CancelConfigurationClick += CancelConfigurationClick;
+            _view.MetaTitleTextBoxChanged += MetaTitleTextBoxChanged;
+            _view.MetaDescriptionTextBoxChanged += MetaDescriptionTextBoxChanged;
             /*
             _view.TitleConfigurationTextBoxChanged += TitleConfigurationTextBoxChanged;
             _view.ContentConfigurationTextBoxChanged += ContentConfigurationTextBoxChanged;
@@ -701,6 +703,26 @@ namespace GPTArticleGen.Presenter
             }
 
             SelectedTitleChanged(this, EventArgs.Empty);
+        }
+
+        private void MetaDescriptionTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel article = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if(article != null)
+            {
+                article.MetaDescription = _view.MetaDescription;
+            }
+        }
+
+        private void MetaTitleTextBoxChanged(object? sender, EventArgs e)
+        {
+            ArticleModel article = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if(article != null)
+            {
+                article.MetaTitle = _view.MetaTitle;
+            }
         }
 
         #endregion

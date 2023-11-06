@@ -55,6 +55,8 @@ namespace GPTArticleGen.View
             titleTextBox.TextChanged += (sender, args) => TitleTextBoxChanged?.Invoke(this, EventArgs.Empty);
             contentTextBox.TextChanged += (sender, args) => ContentTextBoxChanged?.Invoke(this, EventArgs.Empty);
             tagsTextBox.TextChanged += (sender, args) => TagsTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            metaTitleTextBox.TextChanged += (sender, args) => MetaTitleTextBoxChanged?.Invoke(this, EventArgs.Empty);
+            metaDescriptionTextBox.TextChanged += (sender, args) => MetaDescriptionTextBoxChanged?.Invoke(this, EventArgs.Empty);
 
             titleNameTextBox.TextChanged += (sender, args) => TitleNameTextBoxChanged?.Invoke(this, EventArgs.Empty);
             contentNameTextBox.TextChanged += (sender, args) => ContentNameTextBoxChanged?.Invoke(this, EventArgs.Empty);
@@ -333,6 +335,8 @@ namespace GPTArticleGen.View
         public event EventHandler MetaDescriptionNameTextBoxChanged;
         public event EventHandler SaveConfigurationClick;
         public event EventHandler CancelConfigurationClick;
+        public event EventHandler MetaTitleTextBoxChanged;
+        public event EventHandler MetaDescriptionTextBoxChanged;
 
         /*
 public event EventHandler TitleConfigurationTextBoxChanged;

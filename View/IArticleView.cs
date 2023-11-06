@@ -92,6 +92,8 @@ namespace GPTArticleGen.View
         event EventHandler TitleTextBoxChanged;
         event EventHandler ContentTextBoxChanged;
         event EventHandler TagsTextBoxChanged;
+        event EventHandler MetaTitleTextBoxChanged;
+        event EventHandler MetaDescriptionTextBoxChanged;
 
         // Methods
         void EnableUI();
