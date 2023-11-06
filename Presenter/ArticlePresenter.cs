@@ -1037,7 +1037,7 @@ namespace GPTArticleGen.Presenter
         }
         #endregion
 
-        #region Read from file
+        #region File Operations Methods
         public async Task LoadDataAsync(string csvFilePath)
         {
             if (File.Exists(csvFilePath))
@@ -1125,6 +1125,41 @@ namespace GPTArticleGen.Presenter
                 throw new FileNotFoundException("The CSV file does not exist.");
             }
         }
+
+        public async Task SaveDataAsync()
+        {
+            if (!string.IsNullOrEmpty(_view.ExportFilePath) && !string.IsNullOrEmpty(_view.ExportFileName))
+            {
+                string fullFilePath = Path.Combine(_view.ExportFilePath, _view.ExportFileName);
+
+                if (File.Exists(fullFilePath))
+                {
+                    using (StreamWriter writer = File.AppendText(fullFilePath))
+                    {
+                        foreach (ArticleModel article in _view.Titles)
+                        {
+                            if (article.IsPublished)
+                                await writer.WriteLineAsync(article.PromptTitle);
+                        }
+                    }
+                }
+                else
+                {
+                    using (StreamWriter writer = new StreamWriter(fullFilePath))
+                    {
+                        foreach (ArticleModel article in _view.Titles)
+                        {
+                            if (article.IsPublished)
+                                await writer.WriteLineAsync(article.PromptTitle);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException("The ExportFilePath or ExportFileName is not set.");
+            }
+        }
         #endregion
 
         #region Adding
@@ -1178,6 +1213,7 @@ namespace GPTArticleGen.Presenter
                     //Add to database
                     article.IsPublished = true;
                     await _db.UpdateArticleWithoutImageIdAsync(article);
+                    await SaveDataAsync();
                 }
                 else
                 {
