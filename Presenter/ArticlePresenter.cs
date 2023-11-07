@@ -56,7 +56,7 @@ namespace GPTArticleGen.Presenter
             _view.TagsTextBoxChanged += TagsTextBoxChanged;
             _view.SaveSettings += SaveSettings;
             _view.CancelSettings += CancelSettings;
-            _view.AddImages += AddImages;
+            _view.AddImages += ImportAllImages;
             _view.RunGeneration += RunGeneration;
             _view.DatabaseSelectionChanged += DatabaseSelectionChanged;
             _view.GenerateFromDatabase += GenerateFromDatabase;
@@ -330,49 +330,13 @@ namespace GPTArticleGen.Presenter
             Properties.Settings.Default.Save();
         }
 
-        private void AddImages(object? sender, EventArgs e)
+        private async void ImportAllImages(object? sender, EventArgs e)
         {
-            int i = 0;
-            if(progressDialog != null)
-                progressDialog.UpdateAddImagesProgress(i);
-            foreach (ArticleModel article in _view.Titles)
-            {
-                // Modify the article title to replace spaces with hyphens and make it lowercase.
-                string modifiedTitle = article.PromptTitle.Replace(" ", "-").ToLower();
+            List<ArticleModel> articles = new List<ArticleModel>(_view.Titles);
 
-                // Comment if you want use this symbols as file name
-                modifiedTitle = modifiedTitle.Replace("?", "");
-                modifiedTitle = modifiedTitle.Replace("!", "");
-                modifiedTitle = modifiedTitle.Replace(".", "");
-                modifiedTitle = modifiedTitle.Replace(",", "");
-                modifiedTitle = modifiedTitle.Replace(":", "");
+            await AddImagesFunctionAsync(articles);
 
-                // Directory path where your images are stored.
-                string imageDirectory = @"C:\Users\holcm\Desktop\images";
-
-                // Get a list of all files in the directory.
-                string[] files = Directory.GetFiles(imageDirectory);
-
-                // Define a regular expression to match image files with any extension.
-                Regex imageFileRegex = new Regex($"{modifiedTitle}\\.(\\w+)", RegexOptions.IgnoreCase);
-
-                // Iterate through files.
-                foreach (string file in files)
-                {
-                    string fileName = Path.GetFileName(file);
-                    // Check if the file name matches the modified article title and is an image file.
-                    Match match = imageFileRegex.Match(Path.GetFileName(fileName));
-                    if (match.Success)
-                    {
-                        // You found an image file. You can use it here.
-                        string fileExtension = match.Groups[1].Value;
-                        Debug.WriteLine($"Found image for article: {article.PromptTitle}. File: {file}. Extension: {fileExtension}");
-                        article.ImagePath = file;
-                    }
-                }
-                if(progressDialog != null)
-                    progressDialog.UpdateAddImagesProgress(++i);
-            }
+            SelectedTitleChanged(this, EventArgs.Empty);
         }
 
         private async void RunGeneration(object? sender, EventArgs e)
@@ -388,7 +352,7 @@ namespace GPTArticleGen.Presenter
                 await Task.Run(() =>
                 {
                     // Run your time-consuming tasks here
-                    AddImages(sender, e);
+                    ImportAllImages(sender, e);
 
                     _taskCompletionSource = new TaskCompletionSource<bool>();
                     GenerateForAll(sender, e);
