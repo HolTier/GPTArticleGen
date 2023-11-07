@@ -33,6 +33,7 @@ namespace GPTArticleGen.Presenter
         private TaskCompletionSource<bool> _taskCompletionSource;
         private ProgressDialogPresenter progressDialog;
         private List<string> _endMarkersList;
+        private bool _isOnceGenerated;
 
         #region Initialize
         public ArticlePresenter(IArticleView view, ArticleModel model)
@@ -41,6 +42,7 @@ namespace GPTArticleGen.Presenter
             _model = model;
             _wordpressRepository = new WordpressRepository();   
             _taskCompletionSource = new TaskCompletionSource<bool>();
+            _isOnceGenerated = false;
 
             //_view.GenerateArticle += GenerateArticle;
             _view.GenerateForAll += GenerateForAll;
@@ -121,6 +123,7 @@ namespace GPTArticleGen.Presenter
                 {
                     // Add to page
                     await AddToPageFunctionAsync(articles);
+                    MessageBox.Show("Done", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
@@ -150,6 +153,7 @@ namespace GPTArticleGen.Presenter
                     await LoadDataAsync(selectedFilePath);
                     _view.SelectedTitle = _view.Titles.FirstOrDefault();
                     SelectedTitleChanged(this, EventArgs.Empty);
+                    MessageBox.Show("Done", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
@@ -170,6 +174,7 @@ namespace GPTArticleGen.Presenter
                     _taskCompletionSource = new TaskCompletionSource<bool>();
                     await GenerateForAllFunctionAsync(articles);
                     _taskCompletionSource.Task.Wait();  // Wait for task to complete
+                    MessageBox.Show("Done", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 });
             }
             catch (Exception ex)
@@ -312,6 +317,7 @@ namespace GPTArticleGen.Presenter
             try
             {
                 await AddImagesFunctionAsync(articles);
+                MessageBox.Show("Done", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch(Exception ex)
             {
@@ -403,6 +409,7 @@ namespace GPTArticleGen.Presenter
                     _taskCompletionSource = new TaskCompletionSource<bool>();
                     await GenerateForAllFunctionAsync(articles);
                     _taskCompletionSource.Task.Wait();  // Wait for task to complete
+                    MessageBox.Show("Done", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 });
             }
             catch (Exception ex)
@@ -522,6 +529,7 @@ namespace GPTArticleGen.Presenter
                 try
                 {
                     await AddToPageFunctionAsync(new List<ArticleModel>() { _view.SelectedTitle });
+                    MessageBox.Show("Done", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch(Exception ex)
                 {
@@ -538,6 +546,7 @@ namespace GPTArticleGen.Presenter
                 await AddImagesFunctionAsync(new List<ArticleModel>() { article });
 
             SelectedTitleChanged(this, EventArgs.Empty);
+            MessageBox.Show("Done", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void CreateNewFileChanged(object? sender, EventArgs e)
@@ -860,16 +869,16 @@ namespace GPTArticleGen.Presenter
                 return input;
             }
 
-            // Remove the last character
-            input = input.Substring(0, input.Length - 1);
+            // Remove HTML tags
+            input = Regex.Replace(input, "<.*?>", string.Empty);
 
-            if (retries > 1)
+            // Remove the last character
+            if (input.Length > 0)
             {
-                // Find the last "/" character and remove everything after it
-                int lastIndex = input.LastIndexOf('/');
-                if (lastIndex >= 0)
+                char lastChar = input[input.Length - 1];
+                if (char.IsPunctuation(lastChar) || char.IsSeparator(lastChar))
                 {
-                    //input = input.Substring(0, lastIndex - retries.ToString().Length - 1);
+                    input = input.Substring(0, input.Length - 1);
                 }
             }
 
@@ -1092,10 +1101,11 @@ namespace GPTArticleGen.Presenter
 
                             while (selected.Retries <= _view.MaxRetries)
                             {
-                                if (isFirst)
+                                if (isFirst && !_isOnceGenerated)
                                 {
                                     await GenerateByGPTAsync(_view.WebView2, _view, selected.PromptFormat.Replace("{title}", selected.PromptTitle), selected);
                                     isFirst = false;
+                                    _isOnceGenerated = true;
                                 }
                                 else
                                     await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.PromptFormat.Replace("{title}", selected.PromptTitle), selected);
@@ -1105,6 +1115,10 @@ namespace GPTArticleGen.Presenter
                                 selected.Tags = await ExtractValueBetweenAsync(selected.RawData, selected.TagsName, endMarkers);
                                 selected.MetaTitle = await ExtractValueBetweenAsync(selected.RawData, selected.MetaTitleName, endMarkers);
                                 selected.MetaDescription = await ExtractValueBetweenAsync(selected.RawData, selected.MetaDescriptionName, endMarkers);
+
+                                selected.Title = Regex.Replace(selected.Title, "<.*?>", string.Empty);
+                                selected.MetaTitle = Regex.Replace(selected.Title, "<.*?>", string.Empty);
+                                selected.MetaDescription = Regex.Replace(selected.Title, "<.*?>", string.Empty);
 
                                 selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
 
