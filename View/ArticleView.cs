@@ -50,6 +50,7 @@ namespace GPTArticleGen.View
             browseExportFilePathButton.Click += (sender, args) => BrowseExportFilePath?.Invoke(this, EventArgs.Empty);
             generateForSelectedButton.Click += (sender, args) => GeneratrForSelected?.Invoke(this, EventArgs.Empty);
             addToPageSelectedButton.Click += (sender, args) => AddToPageSelected?.Invoke(this, EventArgs.Empty);
+            importSelectedImagesButton.Click += (sender, args) => ImportSelectedImages?.Invoke(this, EventArgs.Empty);
 
             promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
             //promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
@@ -300,12 +301,17 @@ namespace GPTArticleGen.View
         public string MetaTitle
         {
             get => metaTitleTextBox.Text;
-            set => metaTitleTextBox.Text = value; 
+            set => metaTitleTextBox.Text = value;
         }
         public string MetaDescription
         {
             get => metaDescriptionTextBox.Text;
             set => metaDescriptionTextBox.Text = value;
+        }
+        public string ImagePath
+        {
+            get => imagePictureBox.ImageLocation;
+            set => imagePictureBox.ImageLocation = value;
         }
 
         public event EventHandler GenerateArticle;
@@ -339,6 +345,7 @@ namespace GPTArticleGen.View
         public event EventHandler MetaTitleTextBoxChanged;
         public event EventHandler MetaDescriptionTextBoxChanged;
         public event EventHandler AddToPageSelected;
+        public event EventHandler ImportSelectedImages;
 
         /*
 public event EventHandler TitleConfigurationTextBoxChanged;

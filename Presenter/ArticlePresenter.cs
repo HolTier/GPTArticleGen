@@ -73,6 +73,7 @@ namespace GPTArticleGen.Presenter
             _view.MetaTitleTextBoxChanged += MetaTitleTextBoxChanged;
             _view.MetaDescriptionTextBoxChanged += MetaDescriptionTextBoxChanged;
             _view.AddToPageSelected += AddToPageSelected;
+            _view.ImportSelectedImages += ImportSelectedImages;
             /*
             _view.TitleConfigurationTextBoxChanged += TitleConfigurationTextBoxChanged;
             _view.ContentConfigurationTextBoxChanged += ContentConfigurationTextBoxChanged;
@@ -352,6 +353,7 @@ namespace GPTArticleGen.Presenter
                 _view.TagsName = selectedArticle.TagsName;
                 _view.MetaTitleName = selectedArticle.MetaTitleName;
                 _view.MetaDescriptionName = selectedArticle.MetaDescriptionName;
+                _view.ImagePath = selectedArticle.ImagePath;
                 //_view.Prompt = selectedArticle.Prompt;
                
             }
@@ -729,6 +731,16 @@ namespace GPTArticleGen.Presenter
         private async void AddToPageSelected(object? sender, EventArgs e)
         {
             await AddToPageFunctionAsync(new List<ArticleModel>() { _view.SelectedTitle });
+        }
+
+        private async void ImportSelectedImages(object? sender, EventArgs e)
+        {
+            ArticleModel article = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+
+            if(article != null)
+                await AddImagesFunctionAsync(new List<ArticleModel>() { article });
+
+            SelectedTitleChanged(this, EventArgs.Empty);
         }
 
         #endregion
@@ -1213,7 +1225,10 @@ namespace GPTArticleGen.Presenter
                     //Add to database
                     article.IsPublished = true;
                     await _db.UpdateArticleWithoutImageIdAsync(article);
-                    await SaveDataAsync();
+
+                    // Save to file
+                    if(Properties.Settings.Default.CreateNewFile == true)
+                        await SaveDataAsync();
                 }
                 else
                 {

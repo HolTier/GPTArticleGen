@@ -19,6 +19,7 @@ namespace GPTArticleGen.View
         string MetaTitle { get; set; }
         string MetaDescription { get; set; }
         string Prompt { get; set; }
+        string ImagePath { get; set; }
 
         string Description { get; set; }
         string PromptFormat { get; set; }
@@ -70,6 +71,7 @@ namespace GPTArticleGen.View
         event EventHandler GenerateFromDatabase;
         event EventHandler GeneratrForSelected;
         event EventHandler AddToPageSelected;
+        event EventHandler ImportSelectedImages;
 
         event EventHandler TitleNameTextBoxChanged;
         event EventHandler ContentNameTextBoxChanged;
