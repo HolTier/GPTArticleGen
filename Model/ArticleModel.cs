@@ -41,5 +41,6 @@ namespace GPTArticleGen.Model
         public string MetaTitleName { get; set; }
         public string MetaDescriptionName { get; set; }
         public DateTime Date { get; set; }
+        public bool isCompleted { get; set; } = false;
     }
 }

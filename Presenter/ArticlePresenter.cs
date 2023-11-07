@@ -529,7 +529,8 @@ namespace GPTArticleGen.Presenter
                 try
                 {
                     await AddToPageFunctionAsync(new List<ArticleModel>() { _view.SelectedTitle });
-                    MessageBox.Show("Done", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if(_view.SelectedTitle.isCompleted)
+                        MessageBox.Show("Done", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch(Exception ex)
                 {
@@ -1012,60 +1013,67 @@ namespace GPTArticleGen.Presenter
                     progressDialog.UpdateAddToPageProgress(i);
                 foreach (ArticleModel article in articles)
                 {
-                    // Create an object to hold your article data
-                    var articleData = new
+                    if (article.isCompleted)
                     {
-                        title = article.Title,
-                        content = article.Content,
-                        status = "publish",
-                        tags = new[] { "[tag]" },
-                        featured_media = !string.IsNullOrEmpty(article.ImagePath) ? "[featured_image]" : null,
-                        yoast_meta = new
+                        // Create an object to hold your article data
+                        var articleData = new
                         {
-                            yoast_wpseo_title = article.MetaTitle,
-                            yoast_wpseo_metadesc = article.MetaDescription
-                        }
-                    };
-
-                    // Serialize the object to JSON
-                    article.PostData = JsonConvert.SerializeObject(articleData);
-
-                    article.PostData = article.PostData.Replace("\"[tag]\"", "[tag]");
-
-                    List<string> tags = new List<string>();
-
-                    // Get tags
-                    if (!String.IsNullOrEmpty(article.Tags))
-                        tags = article.Tags.Split(", ").ToList();
-
-                    //Add to wordpress
-                    if (await _wordpressRepository.AddPostAsync(tags, article))
-                    {
-                        //Add to database
-                        article.IsPublished = true;
-                        LogsModel logs = new LogsModel()
-                        {
-                            PromptTitle = article.PromptTitle,
-                            Site = article.Site,
-                            Username = article.Username,
-                            PostUrl = article.PostUrl,
-                            PostId = article.Id,
-                            Date = article.Date
+                            title = article.Title,
+                            content = article.Content,
+                            status = "publish",
+                            tags = new[] { "[tag]" },
+                            featured_media = !string.IsNullOrEmpty(article.ImagePath) ? "[featured_image]" : null,
+                            yoast_meta = new
+                            {
+                                yoast_wpseo_title = article.MetaTitle,
+                                yoast_wpseo_metadesc = article.MetaDescription
+                            }
                         };
-                        await _db.InsertLogAsync(logs);
-                        //await _db.UpdateArticleWithoutImageIdAsync(article);
-                        _view.Logs = await _db.GetAllLogs();
 
-                        // Save to file
-                        await SaveDataAsync();
+                        // Serialize the object to JSON
+                        article.PostData = JsonConvert.SerializeObject(articleData);
+
+                        article.PostData = article.PostData.Replace("\"[tag]\"", "[tag]");
+
+                        List<string> tags = new List<string>();
+
+                        // Get tags
+                        if (!String.IsNullOrEmpty(article.Tags))
+                            tags = article.Tags.Split(", ").ToList();
+
+                        //Add to wordpress
+                        if (await _wordpressRepository.AddPostAsync(tags, article))
+                        {
+                            //Add to database
+                            article.IsPublished = true;
+                            LogsModel logs = new LogsModel()
+                            {
+                                PromptTitle = article.PromptTitle,
+                                Site = article.Site,
+                                Username = article.Username,
+                                PostUrl = article.PostUrl,
+                                PostId = article.Id,
+                                Date = article.Date
+                            };
+                            await _db.InsertLogAsync(logs);
+                            //await _db.UpdateArticleWithoutImageIdAsync(article);
+                            _view.Logs = await _db.GetAllLogs();
+
+                            // Save to file
+                            await SaveDataAsync();
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Failed to add post to wordpress. Post title: " + article.Title);
+                        }
                     }
                     else
                     {
-                        Debug.WriteLine("Failed to add post to wordpress. Post title: " + article.Title);
+                       MessageBox.Show($"Article {article.PromptTitle} is not completed", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
 
                     if (progressDialog != null)
-                        progressDialog.UpdateAddToPageProgress(++i);
+                            progressDialog.UpdateAddToPageProgress(++i);
                 }
 
             }
@@ -1117,8 +1125,8 @@ namespace GPTArticleGen.Presenter
                                 selected.MetaDescription = await ExtractValueBetweenAsync(selected.RawData, selected.MetaDescriptionName, endMarkers);
 
                                 selected.Title = Regex.Replace(selected.Title, "<.*?>", string.Empty);
-                                selected.MetaTitle = Regex.Replace(selected.Title, "<.*?>", string.Empty);
-                                selected.MetaDescription = Regex.Replace(selected.Title, "<.*?>", string.Empty);
+                                selected.MetaTitle = Regex.Replace(selected.MetaTitle, "<.*?>", string.Empty);
+                                selected.MetaDescription = Regex.Replace(selected.MetaDescription, "<.*?>", string.Empty);
 
                                 selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
 
@@ -1131,8 +1139,10 @@ namespace GPTArticleGen.Presenter
 
                                 await Task.Delay(TimeSpan.FromSeconds(2));
 
-                                if (!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags))
+                                if (!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags) &&
+                                    !String.IsNullOrEmpty(selected.MetaTitle) && !String.IsNullOrEmpty(selected.MetaDescription))
                                 {
+                                    selected.isCompleted = true;
                                     break;
                                 }
                             }
