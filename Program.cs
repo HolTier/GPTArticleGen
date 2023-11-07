@@ -39,7 +39,5 @@ namespace GPTArticleGen
             Application.Run(view);
 
         }
-
-        
     }
 }

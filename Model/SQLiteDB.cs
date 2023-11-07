@@ -63,21 +63,23 @@ public class SQLiteDB
 
     public SQLiteDB()
     {
-        _connection = new SQLiteConnection(_connectionString);
-        OpenConnection();
-        // Create table of Pages if not exists
-        string createPagesTableQuery = @"CREATE TABLE IF NOT EXISTS Pages (
+        try
+        {
+            _connection = new SQLiteConnection(_connectionString);
+            OpenConnection();
+            // Create table of Pages if not exists
+            string createPagesTableQuery = @"CREATE TABLE IF NOT EXISTS Pages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 site TEXT,
                 username TEXT,
                 password TEXT
             )";
-        SQLiteCommand createPagesTableCommand = CreateCommand();
-        createPagesTableCommand.CommandText = createPagesTableQuery;
-        createPagesTableCommand.ExecuteNonQuery();
+            SQLiteCommand createPagesTableCommand = CreateCommand();
+            createPagesTableCommand.CommandText = createPagesTableQuery;
+            createPagesTableCommand.ExecuteNonQuery();
 
-        // Create table if not exists
-        string createTableQuery = @"CREATE TABLE IF NOT EXISTS Articles (
+            // Create table if not exists
+            string createTableQuery = @"CREATE TABLE IF NOT EXISTS Articles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT,
                 content TEXT,
@@ -89,10 +91,10 @@ public class SQLiteDB
                 page_id INTEGER REFERENCES Pages(id)
                 
             )";
-        SQLiteCommand createTableCommand = CreateCommand();
-        createTableCommand.CommandText = createTableQuery;
-        createTableCommand.ExecuteNonQuery();
-        string createLogsTableQuery = @"CREATE TABLE IF NOT EXISTS Logs (
+            SQLiteCommand createTableCommand = CreateCommand();
+            createTableCommand.CommandText = createTableQuery;
+            createTableCommand.ExecuteNonQuery();
+            string createLogsTableQuery = @"CREATE TABLE IF NOT EXISTS Logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 promptTitle TEXT,
                 site TEXT,
@@ -101,10 +103,19 @@ public class SQLiteDB
                 username TEXT,
                 date TEXT
             )";
-        SQLiteCommand createLogsTableCommand = CreateCommand();
-        createLogsTableCommand.CommandText = createLogsTableQuery;
-        createLogsTableCommand.ExecuteNonQuery();
-        CloseConnection();
+            SQLiteCommand createLogsTableCommand = CreateCommand();
+            createLogsTableCommand.CommandText = createLogsTableQuery;
+            createLogsTableCommand.ExecuteNonQuery();
+            CloseConnection();
+        } 
+        catch (Exception e) 
+        { 
+            throw new Exception("Error creating database", e);
+        }
+        finally
+        {
+            CloseConnection();
+        }
     }
 
     public void OpenConnection()
@@ -151,7 +162,7 @@ public class SQLiteDB
                 }
                 catch (SQLiteException e)
                 {
-                    throw e;
+                    throw new Exception("Error inserting log", e);
                 }
                 finally
                 {
@@ -199,7 +210,7 @@ public class SQLiteDB
                 }
                 catch (SQLiteException e)
                 {
-                    throw e;
+                    throw new Exception("Error getting logs", e);
                 }
                 finally
                 {

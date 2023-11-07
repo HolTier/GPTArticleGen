@@ -94,7 +94,6 @@
             generateAllButton = new Button();
             importTitlesButton = new Button();
             addToPageButton = new Button();
-            regenerateArticleButton = new Button();
             addImagesButton = new Button();
             runGenerationButton = new Button();
             addToPageSelectedButton = new Button();
@@ -163,7 +162,7 @@
             // 
             // imagePictureBox
             // 
-            imagePictureBox.Location = new Point(8, 671);
+            imagePictureBox.Location = new Point(8, 680);
             imagePictureBox.Name = "imagePictureBox";
             imagePictureBox.Size = new Size(806, 406);
             imagePictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -172,7 +171,7 @@
             // 
             // metaDescriptionTextBox
             // 
-            metaDescriptionTextBox.Location = new Point(8, 569);
+            metaDescriptionTextBox.Location = new Point(8, 578);
             metaDescriptionTextBox.Multiline = true;
             metaDescriptionTextBox.Name = "metaDescriptionTextBox";
             metaDescriptionTextBox.Size = new Size(806, 84);
@@ -182,7 +181,7 @@
             // 
             metaDescriptionLabel.AutoSize = true;
             metaDescriptionLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            metaDescriptionLabel.Location = new Point(3, 536);
+            metaDescriptionLabel.Location = new Point(3, 545);
             metaDescriptionLabel.Name = "metaDescriptionLabel";
             metaDescriptionLabel.Size = new Size(178, 30);
             metaDescriptionLabel.TabIndex = 8;
@@ -190,7 +189,7 @@
             // 
             // metaTitleTextBox
             // 
-            metaTitleTextBox.Location = new Point(8, 503);
+            metaTitleTextBox.Location = new Point(8, 512);
             metaTitleTextBox.Name = "metaTitleTextBox";
             metaTitleTextBox.Size = new Size(806, 27);
             metaTitleTextBox.TabIndex = 7;
@@ -199,7 +198,7 @@
             // 
             metaTitleLabel.AutoSize = true;
             metaTitleLabel.Font = new Font("Segoe UI", 13F, FontStyle.Regular, GraphicsUnit.Point);
-            metaTitleLabel.Location = new Point(3, 470);
+            metaTitleLabel.Location = new Point(3, 479);
             metaTitleLabel.Name = "metaTitleLabel";
             metaTitleLabel.Size = new Size(110, 30);
             metaTitleLabel.TabIndex = 6;
@@ -767,9 +766,9 @@
             // 
             // importTitlesButton
             // 
-            importTitlesButton.Location = new Point(1032, 398);
+            importTitlesButton.Location = new Point(1032, 437);
             importTitlesButton.Name = "importTitlesButton";
-            importTitlesButton.Size = new Size(149, 29);
+            importTitlesButton.Size = new Size(149, 60);
             importTitlesButton.TabIndex = 5;
             importTitlesButton.Text = "Import Titles";
             importTitlesButton.UseVisualStyleBackColor = true;
@@ -782,15 +781,6 @@
             addToPageButton.TabIndex = 6;
             addToPageButton.Text = "Add all";
             addToPageButton.UseVisualStyleBackColor = true;
-            // 
-            // regenerateArticleButton
-            // 
-            regenerateArticleButton.Location = new Point(1032, 468);
-            regenerateArticleButton.Name = "regenerateArticleButton";
-            regenerateArticleButton.Size = new Size(149, 29);
-            regenerateArticleButton.TabIndex = 7;
-            regenerateArticleButton.Text = "Regenerate";
-            regenerateArticleButton.UseVisualStyleBackColor = true;
             // 
             // addImagesButton
             // 
@@ -870,7 +860,6 @@
             Controls.Add(addToPageSelectedButton);
             Controls.Add(runGenerationButton);
             Controls.Add(addImagesButton);
-            Controls.Add(regenerateArticleButton);
             Controls.Add(addToPageButton);
             Controls.Add(importTitlesButton);
             Controls.Add(generateAllButton);
@@ -913,7 +902,6 @@
         private Button addToPageButton;
         private TabPage tabWebView2;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView2;
-        private Button regenerateArticleButton;
         private Label titleLabel;
         private TextBox contentTextBox;
         private Label contentLabel;

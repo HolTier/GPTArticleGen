@@ -44,10 +44,8 @@ namespace GPTArticleGen.Presenter
 
             //_view.GenerateArticle += GenerateArticle;
             _view.GenerateForAll += GenerateForAll;
-            _view.ChangeDefaultPrompt += ChangeDefaultPrompt;
             _view.ImportTitles += ImportTitles;
             _view.AddToPageAsync += AddToPageAsync;
-            _view.RegenarateArticle += RegenarateArticle;
             _view.SelectedTitleChanged += SelectedTitleChanged;
             _view.PromptFormatTextBoxChanged += PromptFormatTextBoxChanged;
             _view.PromptTextBoxChanged += PromptTextBoxChanged;
@@ -58,8 +56,6 @@ namespace GPTArticleGen.Presenter
             _view.CancelSettings += CancelSettings;
             _view.AddImages += ImportAllImages;
             _view.RunGeneration += RunGeneration;
-            _view.DatabaseSelectionChanged += DatabaseSelectionChanged;
-            _view.GenerateFromDatabase += GenerateFromDatabase;
             _view.BrowseImagePath += BrowseImagePath;
             _view.BrowseExportFilePath += BrowseExportFilePath;
             _view.GeneratrForSelected += GenerateForSelected;
@@ -75,13 +71,6 @@ namespace GPTArticleGen.Presenter
             _view.AddToPageSelected += AddToPageSelected;
             _view.ImportSelectedImages += ImportSelectedImages;
             _view.CreateNewFileChanged += CreateNewFileChanged;
-            /*
-            _view.TitleConfigurationTextBoxChanged += TitleConfigurationTextBoxChanged;
-            _view.ContentConfigurationTextBoxChanged += ContentConfigurationTextBoxChanged;
-            _view.TagsConfigurationTextBoxChanged += TagsConfigurationTextBoxChanged;
-            _view.MetaTitleConfigurationTextBoxChanged += MetaTitleConfigurationTextBoxChanged;
-            _view.MetaDescriptionConfigurationTextBoxChanged += MetaDescriptionConfigurationTextBoxChanged;
-            */
         }
 
         public async void Initialize()
@@ -89,20 +78,20 @@ namespace GPTArticleGen.Presenter
             // Initialize your view with the data from the model
             _view.Title = _model.Title;
             _view.Content = _model.Content;
-            //_view.Tags = _model.Tags;
-            //_view.Prompt = _model.Prompt;
-            // _view.Description = _model.Description;
             _view.WebView2.Source = new Uri("https://chat.openai.com");
-            //_view.Tags = new ObservableCollection<string>();
 
             // Initialize SQLiteDB
-            _db = new SQLiteDB();
-            _view.Logs = await _db.GetAllLogs();
+            try
+            {
+                _db = new SQLiteDB();
+                _view.Logs = await _db.GetAllLogs();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show($"Error from database: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
-            //_basicPrompt = Properties.Settings.Default.BasicPrompt;
-            //Debug.WriteLine("Basic prompt: " + _basicPrompt);
-            //Debug.WriteLine("Propertise basic prompt:" + Properties.Settings.Default.BasicPrompt);
-            //_view.DefaultPrompt = _basicPrompt;
+            // Configuration local
             _view.MaxRetries = Properties.Settings.Default.MaxRetries;
             _view.ImagesFilePath = Properties.Settings.Default.ImagesPath;
             _view.ExportFilePath = Properties.Settings.Default.ExportFilePath;
@@ -126,8 +115,18 @@ namespace GPTArticleGen.Presenter
         {
             List<ArticleModel> articles = new List<ArticleModel>(_view.Titles);
 
-            if(articles.Count > 0)
-                await AddToPageFunctionAsync(articles);
+            if (articles.Count > 0)
+            {
+                try
+                {
+                    // Add to page
+                    await AddToPageFunctionAsync(articles);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error while adding to page: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private async void ImportTitles(object? sender, EventArgs e)
@@ -155,14 +154,9 @@ namespace GPTArticleGen.Presenter
                 catch (Exception ex)
                 {
                     // Handle any exceptions that may occur during data loading
-                    MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Error while loading data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-        }
-
-        private void ChangeDefaultPrompt(object? sender, EventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         private async void GenerateForAll(object? sender, EventArgs e)
@@ -180,57 +174,37 @@ namespace GPTArticleGen.Presenter
             }
             catch (Exception ex)
             {
-                // Handle exceptions
-                Debug.WriteLine(ex);
+                MessageBox.Show($"Error while generating articles: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void RegenarateArticle(object? sender, EventArgs e)
-        {
-            Task.Run(async () =>
-            {
-                // Update the UI with the result on the UI thread
-                Program.SyncContext.Post(async _ =>
-                {
-                    //_view.DisableUI();
-
-                    ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
-                    await RegenarateByGPTAsync(_view.WebView2, _view, selected);
-
-                    selected.Title = await ExtractValueBetweenAsync(selected.RawData, "Meta title:", _endMarkersList);
-                    selected.Content = await ExtractValueBetweenAsync(selected.RawData, "Meta content:", _endMarkersList);
-                    selected.Tags = await ExtractTagsAsync(selected.RawData, _view.TagsName, _endMarkersList);
-
-                    selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
-                    selected.Retries++;
-
-                    SelectedTitleChanged(this, EventArgs.Empty);
-
-                    //_view.EnableUI();
-
-                }, null);
-            });
         }
 
         private void GenerateArticle(object? sender, EventArgs e)
         {
-            Task.Run(async () =>
+            try
             {
-                // Update the UI with the result on the UI thread
-                Program.SyncContext.Post(async _ =>
+                Task.Run(async () =>
                 {
-                    //_view.DisableUI();
+                    // Update the UI with the result on the UI thread
+                    Program.SyncContext.Post(async _ =>
+                    {
+                        //_view.DisableUI();
 
-                    ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
-                    await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
+                        ArticleModel selected = _view.Titles.FirstOrDefault(item => item == _view.SelectedTitle);
+                        await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
 
-                    selected.Retries++;
+                        selected.Retries++;
 
-                    SelectedTitleChanged(this, EventArgs.Empty);
+                        SelectedTitleChanged(this, EventArgs.Empty);
 
-                    //_view.EnableUI();
-                }, null);
-            });
+                        //_view.EnableUI();
+                    }, null);
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                MessageBox.Show($"Error while generating article: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void SelectedTitleChanged(object? sender, EventArgs e)
@@ -335,7 +309,14 @@ namespace GPTArticleGen.Presenter
         {
             List<ArticleModel> articles = new List<ArticleModel>(_view.Titles);
 
-            await AddImagesFunctionAsync(articles);
+            try
+            {
+                await AddImagesFunctionAsync(articles);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show($"Error while importing images: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             SelectedTitleChanged(this, EventArgs.Empty);
         }
@@ -365,18 +346,8 @@ namespace GPTArticleGen.Presenter
             catch (Exception ex)
             {
                 // Handle exceptions
-                Debug.WriteLine(ex);
+                MessageBox.Show($"Error while generating articles: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private async void DatabaseSelectionChanged(object? sender, EventArgs e)
-        {
-            
-        }
-
-        private async void GenerateFromDatabase(object? sender, EventArgs e)
-        {
-            
         }
 
         private void BrowseExportFilePath(object? sender, EventArgs e)
@@ -437,7 +408,7 @@ namespace GPTArticleGen.Presenter
             catch (Exception ex)
             {
                 // Handle exceptions
-                Debug.WriteLine(ex);
+                MessageBox.Show($"Error while generating articles: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -547,7 +518,16 @@ namespace GPTArticleGen.Presenter
         private async void AddToPageSelected(object? sender, EventArgs e)
         {
             if(_view.SelectedTitle != null)
-                await AddToPageFunctionAsync(new List<ArticleModel>() { _view.SelectedTitle });
+            {
+                try
+                {
+                    await AddToPageFunctionAsync(new List<ArticleModel>() { _view.SelectedTitle });
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show($"Error while adding to page: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }      
         }
 
         private async void ImportSelectedImages(object? sender, EventArgs e)
@@ -612,7 +592,7 @@ namespace GPTArticleGen.Presenter
                 catch (Exception ex)
                 {
                     // Handle exceptions
-                    Debug.WriteLine(ex);
+                    throw new Exception("Error while executing JavaScript", ex);
                 }
             }
 
@@ -621,62 +601,76 @@ namespace GPTArticleGen.Presenter
 
         static async Task<string> WaitForElementWithAttributeAsync(WebView2 webView2, string targetAttribute, string highestNValue)
         {
-            // You can adjust the maximum number of retries and the delay between retries as needed.
-            int maxRetries = 10;
-            int currentRetry = 0;
-            string result = null;
-
-            while (currentRetry < maxRetries)
+            try
             {
-                result = await webView2.ExecuteScriptAsync(
-                    $@"document.querySelector('[data-testid^=""{highestNValue}""]')?.textContent"
-                );
+                // You can adjust the maximum number of retries and the delay between retries as needed.
+                int maxRetries = 10;
+                int currentRetry = 0;
+                string result = null;
 
-                if (!string.IsNullOrEmpty(result))
+                while (currentRetry < maxRetries)
                 {
-                    return System.Text.RegularExpressions.Regex.Unescape(result);
+                    result = await webView2.ExecuteScriptAsync(
+                        $@"document.querySelector('[data-testid^=""{highestNValue}""]')?.textContent"
+                    );
+
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        return System.Text.RegularExpressions.Regex.Unescape(result);
+                    }
+
+                    // Wait for a short period before retrying
+                    await Task.Delay(1000); // Adjust the delay as needed
+                    currentRetry++;
                 }
 
-                // Wait for a short period before retrying
-                await Task.Delay(1000); // Adjust the delay as needed
-                currentRetry++;
+                Console.WriteLine("Element not found after retries.");
+
+                return null;
             }
-
-            Console.WriteLine("Element not found after retries.");
-
-            return null;
+            catch(Exception ex)
+            {
+                throw new Exception("Error while waiting for element with attribute", ex);
+            }
         }
 
         static async Task<string> FindHighestNAsync(WebView2 webView2)
         {
-            string jsCode = @"
-                let elements = document.querySelectorAll('[data-testid^=""conversation-turn-""]');
-                let highestN = -1;
-                elements.forEach(element => {
-                    let value = parseInt(element.getAttribute('data-testid').substring('conversation-turn-'.length));
-                    if (!isNaN(value) && value > highestN) {
-                        highestN = value;
-                    }
-                });
-                highestN;
-            ";
-
-            string result = await webView2.ExecuteScriptAsync(jsCode);
-
-            if (!string.IsNullOrEmpty(result) && int.TryParse(result, out int highestNValue))
+            try
             {
-                return $"conversation-turn-{highestNValue}";
-            }
+                string jsCode = @"
+                    let elements = document.querySelectorAll('[data-testid^=""conversation-turn-""]');
+                    let highestN = -1;
+                    elements.forEach(element => {
+                        let value = parseInt(element.getAttribute('data-testid').substring('conversation-turn-'.length));
+                        if (!isNaN(value) && value > highestN) {
+                            highestN = value;
+                        }
+                    });
+                    highestN;
+                 ";
 
-            Console.WriteLine("No matching element found.");
-            return null;
+                string result = await webView2.ExecuteScriptAsync(jsCode);
+
+                if (!string.IsNullOrEmpty(result) && int.TryParse(result, out int highestNValue))
+                {
+                    return $"conversation-turn-{highestNValue}";
+                }
+
+                Console.WriteLine("No matching element found.");
+                return null;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error while finding highest N", ex);
+            }
         }
 
         static async Task GenerateByGPTAsync(WebView2 webView2, IArticleView view, string newTitle, ArticleModel article)
         {
-           
-
-            string jsCode = @"
+            try
+            {
+                string jsCode = @"
                 let inputElement = document.getElementById('prompt-textarea');
                 inputElement.focus();
                 document.execCommand('insertText', false, '{placeholder}');
@@ -685,19 +679,24 @@ namespace GPTArticleGen.Presenter
                 document.querySelector('[data-testid=""send-button""]').disabled = false;
             ";
 
-            jsCode = jsCode.Replace("{placeholder}", newTitle);
+                jsCode = jsCode.Replace("{placeholder}", newTitle);
 
-            string targetAttribute = "conversation-turn-"; // You can set the target attribute here
+                string targetAttribute = "conversation-turn-"; // You can set the target attribute here
 
-            string result = await ExecuteJavaScriptAndWaitAsync(webView2, jsCode, targetAttribute);
+                string result = await ExecuteJavaScriptAndWaitAsync(webView2, jsCode, targetAttribute);
 
-            if (!string.IsNullOrEmpty(result))
-            {
-                article.RawData = result;
+                if (!string.IsNullOrEmpty(result))
+                {
+                    article.RawData = result;
+                }
+                else
+                {
+                    Console.WriteLine("No matching element found.");
+                }
             }
-            else
+            catch(Exception ex)
             {
-                Console.WriteLine("No matching element found.");
+                throw new Exception("Error while generating article by GPT", ex);
             }
         }
 
@@ -726,7 +725,9 @@ namespace GPTArticleGen.Presenter
 
         static async Task EditRegenerateByGPTAsync(WebView2 webView2, IArticleView view, string newTitle, ArticleModel article)
         {
-            string jsCode = @"
+            try
+            {
+                string jsCode = @"
                 (async()=>{
                     document.querySelector('.p-1.gizmo\\:pl-0.rounded-md.disabled\\:dark\\:hover\\:text-gray-400.dark\\:hover\\:text-gray-200.dark\\:text-gray-400.hover\\:bg-gray-100.hover\\:text-gray-700.dark\\:hover\\:bg-gray-700').click();
                     await new Promise(r => setTimeout(r, 1000));    
@@ -738,20 +739,25 @@ namespace GPTArticleGen.Presenter
                 })();
             ";
 
-            jsCode = jsCode.Replace("{placeholder}", newTitle);
+                jsCode = jsCode.Replace("{placeholder}", newTitle);
 
-            string targetAttribute = "conversation-turn-"; // You can set the target attribute here
+                string targetAttribute = "conversation-turn-"; // You can set the target attribute here
 
-            string result = await ExecuteJavaScriptAndWaitAsync(webView2, jsCode, targetAttribute);
-            await Task.Delay(TimeSpan.FromSeconds(5));
+                string result = await ExecuteJavaScriptAndWaitAsync(webView2, jsCode, targetAttribute);
+                await Task.Delay(TimeSpan.FromSeconds(5));
 
-            if (!string.IsNullOrEmpty(result))
-            {
-                article.RawData = result;
+                if (!string.IsNullOrEmpty(result))
+                {
+                    article.RawData = result;
+                }
+                else
+                {
+                    Console.WriteLine("No matching element found.");
+                }
             }
-            else
+            catch(Exception)
             {
-                Console.WriteLine("No matching element found.");
+                throw new Exception("Error while editing article by GPT");
             }
         }
         #endregion
@@ -991,184 +997,201 @@ namespace GPTArticleGen.Presenter
 
         public async Task AddToPageFunctionAsync(List<ArticleModel> articles)
         {
-            // Initialize SQLiteDB
-            //SQLiteDB db = new SQLiteDB();
-
-            int i = 0;
-            if (progressDialog != null)
-                progressDialog.UpdateAddToPageProgress(i);
-            foreach (ArticleModel article in articles)
-            {
-                // Create an object to hold your article data
-                var articleData = new
-                {
-                    title = article.Title,
-                    content = article.Content,
-                    status = "publish",
-                    tags = new[] { "[tag]" },
-                    featured_media = !string.IsNullOrEmpty(article.ImagePath) ? "[featured_image]" : null,
-                    yoast_meta = new
-                    {
-                        yoast_wpseo_title = article.MetaTitle,
-                        yoast_wpseo_metadesc = article.MetaDescription
-                    }
-                };
-
-                // Serialize the object to JSON
-                article.PostData = JsonConvert.SerializeObject(articleData);
-
-                article.PostData = article.PostData.Replace("\"[tag]\"", "[tag]");
-
-                List<string> tags = new List<string>();
-
-                // Get tags
-                if (!String.IsNullOrEmpty(article.Tags))
-                    tags = article.Tags.Split(", ").ToList();
-
-                //Add to wordpress
-                if (await _wordpressRepository.AddPostAsync(tags, article))
-                {
-                    //Add to database
-                    article.IsPublished = true;
-                    LogsModel logs = new LogsModel()
-                    {
-                        PromptTitle = article.PromptTitle,
-                        Site = article.Site,
-                        Username = article.Username,
-                        PostUrl = article.PostUrl,
-                        PostId = article.Id,
-                        Date = article.Date
-                    };
-                    await _db.InsertLogAsync(logs);
-                    //await _db.UpdateArticleWithoutImageIdAsync(article);
-                    _view.Logs = await _db.GetAllLogs();
-
-                    // Save to file
-                    await SaveDataAsync();
-                }
-                else
-                {
-                    Debug.WriteLine("Failed to add post to wordpress. Post title: " + article.Title);
-                }
-
+            try {
+                int i = 0;
                 if (progressDialog != null)
-                    progressDialog.UpdateAddToPageProgress(++i);
+                    progressDialog.UpdateAddToPageProgress(i);
+                foreach (ArticleModel article in articles)
+                {
+                    // Create an object to hold your article data
+                    var articleData = new
+                    {
+                        title = article.Title,
+                        content = article.Content,
+                        status = "publish",
+                        tags = new[] { "[tag]" },
+                        featured_media = !string.IsNullOrEmpty(article.ImagePath) ? "[featured_image]" : null,
+                        yoast_meta = new
+                        {
+                            yoast_wpseo_title = article.MetaTitle,
+                            yoast_wpseo_metadesc = article.MetaDescription
+                        }
+                    };
 
-                //await db.InsertArticleAsync(article);
+                    // Serialize the object to JSON
+                    article.PostData = JsonConvert.SerializeObject(articleData);
+
+                    article.PostData = article.PostData.Replace("\"[tag]\"", "[tag]");
+
+                    List<string> tags = new List<string>();
+
+                    // Get tags
+                    if (!String.IsNullOrEmpty(article.Tags))
+                        tags = article.Tags.Split(", ").ToList();
+
+                    //Add to wordpress
+                    if (await _wordpressRepository.AddPostAsync(tags, article))
+                    {
+                        //Add to database
+                        article.IsPublished = true;
+                        LogsModel logs = new LogsModel()
+                        {
+                            PromptTitle = article.PromptTitle,
+                            Site = article.Site,
+                            Username = article.Username,
+                            PostUrl = article.PostUrl,
+                            PostId = article.Id,
+                            Date = article.Date
+                        };
+                        await _db.InsertLogAsync(logs);
+                        //await _db.UpdateArticleWithoutImageIdAsync(article);
+                        _view.Logs = await _db.GetAllLogs();
+
+                        // Save to file
+                        await SaveDataAsync();
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Failed to add post to wordpress. Post title: " + article.Title);
+                    }
+
+                    if (progressDialog != null)
+                        progressDialog.UpdateAddToPageProgress(++i);
+                }
+
             }
+            catch(Exception ex)
+            {
+                throw;
+            }
+            
         }
 
         public async Task GenerateForAllFunctionAsync(List<ArticleModel> articles)
         {
-            bool isFirst = true;
-
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-
-            await Task.Run(async () =>
+            try
             {
-                // Update the UI with the result on the UI thread
-                Program.SyncContext.Post(async _ =>
+                bool isFirst = true;
+
+                var taskCompletionSource = new TaskCompletionSource<bool>();
+
+                await Task.Run(async () =>
                 {
-                    //_view.DisableUI();
-
-                    int i = 0;
-                    if (progressDialog != null)
-                        progressDialog.UpdateGenerateArticleProgress(i);
-                    foreach (ArticleModel selected in articles)
+                    // Update the UI with the result on the UI thread
+                    Program.SyncContext.Post(async _ =>
                     {
-                        List<string> endMarkers = new List<string>() 
-                            { selected.TitleName, selected.ContentName, selected.TagsName, selected.MetaTitleName, selected.MetaDescriptionName };
+                        //_view.DisableUI();
 
-                        while (selected.Retries <= _view.MaxRetries)
+                        int i = 0;
+                        if (progressDialog != null)
+                            progressDialog.UpdateGenerateArticleProgress(i);
+                        foreach (ArticleModel selected in articles)
                         {
-                            if (isFirst)
+                            List<string> endMarkers = new List<string>()
+                                { selected.TitleName, selected.ContentName, selected.TagsName, selected.MetaTitleName, selected.MetaDescriptionName };
+
+                            while (selected.Retries <= _view.MaxRetries)
                             {
-                                await GenerateByGPTAsync(_view.WebView2, _view, selected.PromptFormat.Replace("{title}", selected.PromptTitle), selected);
-                                isFirst = false;
-                            }
-                            else
-                                await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.PromptFormat.Replace("{title}", selected.PromptTitle), selected);
+                                if (isFirst)
+                                {
+                                    await GenerateByGPTAsync(_view.WebView2, _view, selected.PromptFormat.Replace("{title}", selected.PromptTitle), selected);
+                                    isFirst = false;
+                                }
+                                else
+                                    await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.PromptFormat.Replace("{title}", selected.PromptTitle), selected);
 
-                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, selected.TitleName, endMarkers);
-                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, selected.ContentName, endMarkers);
-                            selected.Tags = await ExtractValueBetweenAsync(selected.RawData, selected.TagsName, endMarkers);
-                            selected.MetaTitle = await ExtractValueBetweenAsync(selected.RawData, selected.MetaTitleName, endMarkers);
-                            selected.MetaDescription = await ExtractValueBetweenAsync(selected.RawData, selected.MetaDescriptionName, endMarkers);
+                                selected.Title = await ExtractValueBetweenAsync(selected.RawData, selected.TitleName, endMarkers);
+                                selected.Content = await ExtractValueBetweenAsync(selected.RawData, selected.ContentName, endMarkers);
+                                selected.Tags = await ExtractValueBetweenAsync(selected.RawData, selected.TagsName, endMarkers);
+                                selected.MetaTitle = await ExtractValueBetweenAsync(selected.RawData, selected.MetaTitleName, endMarkers);
+                                selected.MetaDescription = await ExtractValueBetweenAsync(selected.RawData, selected.MetaDescriptionName, endMarkers);
 
-                            selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
+                                selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
 
-                            if (selected.Retries == 1 && progressDialog != null)
-                                progressDialog.UpdateGenerateArticleProgress(++i);
+                                if (selected.Retries == 1 && progressDialog != null)
+                                    progressDialog.UpdateGenerateArticleProgress(++i);
 
-                            selected.Retries++;
+                                selected.Retries++;
 
-                            SelectedTitleChanged(this, EventArgs.Empty);
+                                SelectedTitleChanged(this, EventArgs.Empty);
 
-                            await Task.Delay(TimeSpan.FromSeconds(2));
+                                await Task.Delay(TimeSpan.FromSeconds(2));
 
-                            if (!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags))
-                            {
-                                break;
+                                if (!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags))
+                                {
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    // Signal that the work is done
-                    taskCompletionSource.SetResult(true);
+                        // Signal that the work is done
+                        taskCompletionSource.SetResult(true);
 
-                    //_view.EnableUI();
-                }, null);
-            });
+                        //_view.EnableUI();
+                    }, null);
+                });
 
-            // Wait for the Task.Run to complete
-            await taskCompletionSource.Task;
-            _taskCompletionSource.SetResult(true);
-            // Wait for all tasks to complete
-            Debug.WriteLine("Generation for all finished");
+                // Wait for the Task.Run to complete
+                await taskCompletionSource.Task;
+                _taskCompletionSource.SetResult(true);
+                // Wait for all tasks to complete
+                Debug.WriteLine("Generation for all finished");
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task AddImagesFunctionAsync(List<ArticleModel> articles)
         {
-            int i = 0;
-            if (progressDialog != null)
-                progressDialog.UpdateAddImagesProgress(i);
-            foreach (ArticleModel article in articles)
+            try
             {
-                // Modify the article title to replace spaces with hyphens and make it lowercase.
-                string modifiedTitle = article.PromptTitle.Replace(" ", "-").ToLower();
-
-                // Comment if you want use this symbols as file name
-                modifiedTitle = modifiedTitle.Replace("?", "");
-                modifiedTitle = modifiedTitle.Replace("!", "");
-                modifiedTitle = modifiedTitle.Replace(".", "");
-                modifiedTitle = modifiedTitle.Replace(",", "");
-                modifiedTitle = modifiedTitle.Replace(":", "");
-
-                // Directory path where your images are stored.
-                string imageDirectory = @"C:\Users\holcm\Desktop\images";
-
-                // Get a list of all files in the directory.
-                string[] files = Directory.GetFiles(imageDirectory);
-
-                // Define a regular expression to match image files with any extension.
-                Regex imageFileRegex = new Regex($"{modifiedTitle}\\.(\\w+)", RegexOptions.IgnoreCase);
-
-                // Iterate through files.
-                foreach (string file in files)
-                {
-                    string fileName = Path.GetFileName(file);
-                    // Check if the file name matches the modified article title and is an image file.
-                    Match match = imageFileRegex.Match(Path.GetFileName(fileName));
-                    if (match.Success)
-                    {
-                        // You found an image file. You can use it here.
-                        string fileExtension = match.Groups[1].Value;
-                        Debug.WriteLine($"Found image for article: {article.PromptTitle}. File: {file}. Extension: {fileExtension}");
-                        article.ImagePath = file;
-                    }
-                }
+                int i = 0;
                 if (progressDialog != null)
-                    progressDialog.UpdateAddImagesProgress(++i);
+                    progressDialog.UpdateAddImagesProgress(i);
+                foreach (ArticleModel article in articles)
+                {
+                    // Modify the article title to replace spaces with hyphens and make it lowercase.
+                    string modifiedTitle = article.PromptTitle.Replace(" ", "-").ToLower();
+
+                    // Comment if you want use this symbols as file name
+                    modifiedTitle = modifiedTitle.Replace("?", "");
+                    modifiedTitle = modifiedTitle.Replace("!", "");
+                    modifiedTitle = modifiedTitle.Replace(".", "");
+                    modifiedTitle = modifiedTitle.Replace(",", "");
+                    modifiedTitle = modifiedTitle.Replace(":", "");
+
+                    // Directory path where your images are stored.
+                    string imageDirectory = @"C:\Users\holcm\Desktop\images";
+
+                    // Get a list of all files in the directory.
+                    string[] files = Directory.GetFiles(imageDirectory);
+
+                    // Define a regular expression to match image files with any extension.
+                    Regex imageFileRegex = new Regex($"{modifiedTitle}\\.(\\w+)", RegexOptions.IgnoreCase);
+
+                    // Iterate through files.
+                    foreach (string file in files)
+                    {
+                        string fileName = Path.GetFileName(file);
+                        // Check if the file name matches the modified article title and is an image file.
+                        Match match = imageFileRegex.Match(Path.GetFileName(fileName));
+                        if (match.Success)
+                        {
+                            // You found an image file. You can use it here.
+                            string fileExtension = match.Groups[1].Value;
+                            Debug.WriteLine($"Found image for article: {article.PromptTitle}. File: {file}. Extension: {fileExtension}");
+                            article.ImagePath = file;
+                        }
+                    }
+                    if (progressDialog != null)
+                        progressDialog.UpdateAddImagesProgress(++i);
+                }
+            }
+            catch
+            {
+                throw;
             }
         }
 
