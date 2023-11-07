@@ -331,16 +331,16 @@ namespace GPTArticleGen.Presenter
                 progressDialog = new ProgressDialogPresenter(progressDialogView, _view.Titles.Count, _view.Titles.Count, _view.Titles.Count);
                 progressDialog.Initialize();
 
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     // Run your time-consuming tasks here
-                    ImportAllImages(sender, e);
+                    await AddImagesFunctionAsync(new List<ArticleModel>(_view.Titles));
 
                     _taskCompletionSource = new TaskCompletionSource<bool>();
-                    GenerateForAll(sender, e);
+                    await GenerateForAllFunctionAsync(new List<ArticleModel>(_view.Titles));
                     _taskCompletionSource.Task.Wait();  // Wait for task to complete
 
-                    AddToPageAsync(sender, e);
+                    await AddToPageFunctionAsync(new List<ArticleModel>(_view.Titles));
                 });
             }
             catch (Exception ex)
