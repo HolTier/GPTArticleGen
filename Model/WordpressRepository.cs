@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.VisualBasic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +15,7 @@ namespace GPTArticleGen.Model
 {
     public class WordpressRepository
     {
-        public async Task<bool> AddPostAsync(List<string> tags, string postData, int articleId, string username, string password, string siteUrl, string featuredImageBase64)
+        public async Task<bool> AddPostAsync(List<string> tags, ArticleModel article)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -22,41 +24,57 @@ namespace GPTArticleGen.Model
                 {
                     //List<string> tags = new List<string>() { "Test", "NNowy1", "testowe" };
 
-                    tagClient.DefaultRequestHeaders.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{username}:{password}")));
+                    tagClient.DefaultRequestHeaders.Add("Authorization", "Basic " 
+                        + Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{article.Username}:{article.Password}")));
                     foreach (string tagName in tags)
                     {
-                        postData = await GetTagsAsync(tagName, tagClient, postData, siteUrl);
+                        article.PostData = await GetTagsAsync(tagName, tagClient, article.PostData, article.Site);
                     }
 
                     if (tags.Count > 0)
-                        postData = postData.Replace(",[tag]", "");
+                        article.PostData = article.PostData.Replace(",[tag]", "");
                     else
-                        postData = postData.Replace("[tag]", "");
+                        article.PostData = article.PostData.Replace("[tag]", "");
 
                     // Check if the featured image is set
-                    if (!string.IsNullOrEmpty(featuredImageBase64))
+                    if (!string.IsNullOrEmpty(article.ImagePath))
                     {
                         // Upload and set the featured image
-                        string featuredImageId = await UploadFeaturedImageAsync(featuredImageBase64, siteUrl, username, password, articleId);
+                        string featuredImageId = await UploadFeaturedImageAsync(article.ImagePath, article.Site, article.Username, article.Password, article.Id);
                         if (!string.IsNullOrEmpty(featuredImageId))
                         {
-                            postData = postData.Replace("[featured_image]", featuredImageId);
+                            article.PostData = article.PostData.Replace("[featured_image]", featuredImageId);
                         }
                     }
 
-                    client.BaseAddress = new Uri($"{siteUrl}/wp-json/wp/v2/posts");
-                    client.DefaultRequestHeaders.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{username}:{password}")));
+                    client.BaseAddress = new Uri($"{article.Site}/wp-json/wp/v2/posts");
+                    client.DefaultRequestHeaders.Add("Authorization", "Basic " 
+                        + Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{article.Username}:{article.Password}")));
 
                     // Set the content type to JSON
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
                     // Send the POST request to create a new post
-                    HttpResponseMessage response = await client.PostAsync("", new StringContent(postData, System.Text.Encoding.UTF8, "application/json"));
+                    HttpResponseMessage response = await client.PostAsync("", new StringContent(article.PostData, System.Text.Encoding.UTF8, "application/json"));
 
                     if (response.IsSuccessStatusCode)
                     {
                         Debug.WriteLine("Post created successfully.");
-                        return true;
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        var postResponse = JsonConvert.DeserializeObject<PostCreationResponse>(responseContent);
+
+                        if (postResponse != null)
+                        {
+                            // Use the extracted post ID to construct the URL of the newly created post
+                            article.PostUrl = postResponse.Link;
+
+                            return true;
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Failed to extract post ID from the response content.");
+                            return false;
+                        }
                     }
                     else
                     {
@@ -173,5 +191,11 @@ namespace GPTArticleGen.Model
             // For example, you can replace spaces with dashes and convert to lowercase
             return input.Replace(" ", "-").ToLower();
         }
+    }
+
+    public class PostCreationResponse
+    {
+        public int Id { get; set; }
+        public string Link { get; set; }
     }
 }

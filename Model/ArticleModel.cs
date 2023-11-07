@@ -27,6 +27,7 @@ namespace GPTArticleGen.Model
         public string PostData { get; set; }
         public int Retries { get; set; } = 1;
         public int PageId { get; set; }
+        public string PostUrl { get; set; }
 
         // Page
         public string Site { get; set; }

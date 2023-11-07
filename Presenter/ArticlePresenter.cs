@@ -1010,25 +1010,29 @@ namespace GPTArticleGen.Presenter
             {
                 string fullFilePath = Path.Combine(_view.ExportFilePath, _view.ExportFileName);
 
-                if (File.Exists(fullFilePath))
+                if (File.Exists(fullFilePath) && !Properties.Settings.Default.CreateNewFile)
                 {
                     using (StreamWriter writer = File.AppendText(fullFilePath))
                     {
                         foreach (ArticleModel article in _view.Titles)
                         {
+                            string line = string.Join(",",new string[] { article.PromptTitle, article.Site, article.Username, article.PostUrl });
                             if (article.IsPublished)
-                                await writer.WriteLineAsync(article.PromptTitle);
+                                await writer.WriteLineAsync(line);
                         }
                     }
                 }
                 else
                 {
-                    using (StreamWriter writer = new StreamWriter(fullFilePath))
+                    using (StreamWriter writer = new StreamWriter(fullFilePath + ".csv"))
                     {
+                        string header = string.Join(",", new string[] { "Title", "Site", "Username", "PostUrl" });
+                        await writer.WriteLineAsync(header);
                         foreach (ArticleModel article in _view.Titles)
                         {
+                            string line = string.Join(",", new string[] { article.PromptTitle, article.Site, article.Username, article.PostUrl });
                             if (article.IsPublished)
-                                await writer.WriteLineAsync(article.PromptTitle);
+                                await writer.WriteLineAsync(line);
                         }
                     }
                 }
@@ -1086,15 +1090,14 @@ namespace GPTArticleGen.Presenter
                     tags = article.Tags.Split(", ").ToList();
 
                 //Add to wordpress
-                if (await _wordpressRepository.AddPostAsync(tags, article.PostData, article.Id, article.Username, article.Password, article.Site, article.ImagePath))
+                if (await _wordpressRepository.AddPostAsync(tags, article))
                 {
                     //Add to database
                     article.IsPublished = true;
                     await _db.UpdateArticleWithoutImageIdAsync(article);
 
                     // Save to file
-                    if(Properties.Settings.Default.CreateNewFile == true)
-                        await SaveDataAsync();
+                    await SaveDataAsync();
                 }
                 else
                 {
