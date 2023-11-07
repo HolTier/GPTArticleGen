@@ -926,7 +926,7 @@ namespace GPTArticleGen.Presenter
         {
             if (!string.IsNullOrEmpty(_view.ExportFilePath) && !string.IsNullOrEmpty(_view.ExportFileName))
             {
-                string fullFilePath = Path.Combine(_view.ExportFilePath, _view.ExportFileName);
+                string fullFilePath = Path.Combine(_view.ExportFilePath, _view.ExportFileName + ".csv");
 
                 if (File.Exists(fullFilePath) && !Properties.Settings.Default.CreateNewFile)
                 {
@@ -942,7 +942,16 @@ namespace GPTArticleGen.Presenter
                 }
                 else
                 {
-                    using (StreamWriter writer = new StreamWriter(fullFilePath + ".csv"))
+                    int fileNumber = 0;
+                    string exportName = _view.ExportFileName;
+                    while (File.Exists(fullFilePath))
+                    {
+                        exportName = $"{_view.ExportFileName}({fileNumber}).csv";
+                        fullFilePath = Path.Combine(_view.ExportFilePath, exportName);
+                        fileNumber++;
+                    }
+
+                    using (StreamWriter writer = new StreamWriter(fullFilePath))
                     {
                         string header = string.Join(",", new string[] { "Title", "Site", "Username", "PostUrl" });
                         await writer.WriteLineAsync(header);
