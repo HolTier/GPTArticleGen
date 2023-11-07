@@ -175,5 +175,17 @@ namespace GPTArticleGen.Properties {
                 this["MetaDescriptionName"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AddTime {
+            get {
+                return ((bool)(this["AddTime"]));
+            }
+            set {
+                this["AddTime"] = value;
+            }
+        }
     }
 }

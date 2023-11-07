@@ -74,6 +74,7 @@ namespace GPTArticleGen.Presenter
             _view.MetaDescriptionTextBoxChanged += MetaDescriptionTextBoxChanged;
             _view.AddToPageSelected += AddToPageSelected;
             _view.ImportSelectedImages += ImportSelectedImages;
+            _view.CreateNewFileChanged += CreateNewFileChanged;
             /*
             _view.TitleConfigurationTextBoxChanged += TitleConfigurationTextBoxChanged;
             _view.ContentConfigurationTextBoxChanged += ContentConfigurationTextBoxChanged;
@@ -106,7 +107,8 @@ namespace GPTArticleGen.Presenter
             _view.ImagesFilePath = Properties.Settings.Default.ImagesPath;
             _view.ExportFilePath = Properties.Settings.Default.ExportFilePath;
             _view.ExportFileName = Properties.Settings.Default.ExportFileName;
-            _view.CreateNewFile = Properties.Settings.Default.CreateNewFile;  
+            _view.CreateNewFile = Properties.Settings.Default.CreateNewFile;
+            _view.AddTime = Properties.Settings.Default.AddTime;
 
             // Configuration default
             _view.DefaultPrompt = Properties.Settings.Default.DefaultPrompt;
@@ -311,6 +313,7 @@ namespace GPTArticleGen.Presenter
             _view.ExportFilePath = Properties.Settings.Default.ExportFilePath;
             _view.ExportFileName = Properties.Settings.Default.ExportFileName;
             _view.CreateNewFile = Properties.Settings.Default.CreateNewFile;
+            _view.AddTime = Properties.Settings.Default.AddTime;
         }
 
         private void SaveSettings(object? sender, EventArgs e)
@@ -322,6 +325,7 @@ namespace GPTArticleGen.Presenter
             Properties.Settings.Default.ExportFilePath = _view.ExportFilePath;
             Properties.Settings.Default.ExportFileName = _view.ExportFileName;
             Properties.Settings.Default.CreateNewFile = _view.CreateNewFile;
+            Properties.Settings.Default.AddTime = _view.AddTime;
 
             // Save the changes
             Properties.Settings.Default.Save();
@@ -554,6 +558,11 @@ namespace GPTArticleGen.Presenter
                 await AddImagesFunctionAsync(new List<ArticleModel>() { article });
 
             SelectedTitleChanged(this, EventArgs.Empty);
+        }
+
+        private void CreateNewFileChanged(object? sender, EventArgs e)
+        {
+            _view.AddTimeEnable = _view.CreateNewFile;
         }
 
         #endregion
@@ -942,15 +951,22 @@ namespace GPTArticleGen.Presenter
                 }
                 else
                 {
-                    int fileNumber = 0;
-                    string exportName = _view.ExportFileName;
-                    while (File.Exists(fullFilePath))
+                    if (!Properties.Settings.Default.AddTime)
                     {
-                        exportName = $"{_view.ExportFileName}({fileNumber}).csv";
-                        fullFilePath = Path.Combine(_view.ExportFilePath, exportName);
-                        fileNumber++;
+                        int fileNumber = 0;
+                        string exportName = _view.ExportFileName;
+                        while (File.Exists(fullFilePath))
+                        {
+                            exportName = $"{_view.ExportFileName}({fileNumber}).csv";
+                            fullFilePath = Path.Combine(_view.ExportFilePath, exportName);
+                            fileNumber++;
+                        }
                     }
-
+                    else
+                    {
+                        fullFilePath = Path.Combine(_view.ExportFilePath, 
+                            $"{_view.ExportFileName}_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.csv");
+                    }
                     using (StreamWriter writer = new StreamWriter(fullFilePath))
                     {
                         string header = string.Join(",", new string[] { "Title", "Site", "Username", "PostUrl" });

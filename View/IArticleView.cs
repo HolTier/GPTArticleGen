@@ -52,6 +52,8 @@ namespace GPTArticleGen.View
         string ExportFilePath { get; set; }
         string ExportFileName { get; set; }
         bool CreateNewFile { get; set; }
+        bool AddTime { get; set; }
+        bool AddTimeEnable { get; set; }
 
         // Events
         event EventHandler GenerateArticle;
@@ -72,6 +74,7 @@ namespace GPTArticleGen.View
         event EventHandler GeneratrForSelected;
         event EventHandler AddToPageSelected;
         event EventHandler ImportSelectedImages;
+        event EventHandler CreateNewFileChanged;
 
         event EventHandler TitleNameTextBoxChanged;
         event EventHandler ContentNameTextBoxChanged;

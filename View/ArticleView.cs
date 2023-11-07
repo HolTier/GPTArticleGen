@@ -51,6 +51,7 @@ namespace GPTArticleGen.View
             generateForSelectedButton.Click += (sender, args) => GeneratrForSelected?.Invoke(this, EventArgs.Empty);
             addToPageSelectedButton.Click += (sender, args) => AddToPageSelected?.Invoke(this, EventArgs.Empty);
             importSelectedImagesButton.Click += (sender, args) => ImportSelectedImages?.Invoke(this, EventArgs.Empty);
+            createNewFileCheckBox.CheckedChanged += (sender, args) => CreateNewFileChanged?.Invoke(this, EventArgs.Empty);
 
             promptFormatTextBox.TextChanged += (sender, args) => PromptFormatTextBoxChanged?.Invoke(this, EventArgs.Empty);
             //promptTextBox.TextChanged += (sender, args) => PromptTextBoxChanged?.Invoke(this, EventArgs.Empty);
@@ -318,6 +319,18 @@ namespace GPTArticleGen.View
             }
         }
 
+        public bool AddTime
+        {
+            get => addTimeCheckBox.Checked;
+            set => addTimeCheckBox.Checked = value;
+        }
+
+        public bool AddTimeEnable
+        {
+            get => addTimeCheckBox.Enabled;
+            set => addTimeCheckBox.Enabled = value;
+        }
+
         public event EventHandler GenerateArticle;
         public event EventHandler GenerateForAll;
         public event EventHandler ChangeDefaultPrompt;
@@ -350,6 +363,7 @@ namespace GPTArticleGen.View
         public event EventHandler MetaDescriptionTextBoxChanged;
         public event EventHandler AddToPageSelected;
         public event EventHandler ImportSelectedImages;
+        public event EventHandler CreateNewFileChanged;
 
         /*
 public event EventHandler TitleConfigurationTextBoxChanged;
