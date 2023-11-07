@@ -25,7 +25,7 @@ namespace GPTArticleGen.View
         private BindingList<ArticleDatabaseModel> _articleDatabases = new BindingList<ArticleDatabaseModel>();
         private BindingList<PageModel> _pageDatabases = new BindingList<PageModel>();
         Control _uiControl;
-
+        private BindingList<LogsModel> _logs;
 
         public ArticleView()
         {
@@ -44,7 +44,7 @@ namespace GPTArticleGen.View
             cancelSettingsButton.Click += (sender, args) => CancelSettings?.Invoke(this, EventArgs.Empty);
             addImagesButton.Click += (sender, args) => AddImages?.Invoke(this, EventArgs.Empty);
             runGenerationButton.Click += (sender, args) => RunGeneration?.Invoke(this, EventArgs.Empty);
-            databaseComboBox.SelectedValueChanged += (sender, args) => DatabaseSelectionChanged?.Invoke(this, EventArgs.Empty);
+            //databaseComboBox.SelectedValueChanged += (sender, args) => DatabaseSelectionChanged?.Invoke(this, EventArgs.Empty);
             //generateFromDatabaseButton.Click += (sender, args) => GenerateFromDatabase?.Invoke(this, EventArgs.Empty);
             browseImagesPathButton.Click += (sender, args) => BrowseImagePath?.Invoke(this, EventArgs.Empty);
             browseExportFilePathButton.Click += (sender, args) => BrowseExportFilePath?.Invoke(this, EventArgs.Empty);
@@ -221,12 +221,6 @@ namespace GPTArticleGen.View
                     databaseGridView.DataSource = _pageDatabases;
             }
         }
-
-        public string DatabaseComboBoxSelectedItem
-        {
-            get => databaseComboBox.SelectedItem as string;
-            set => databaseComboBox.SelectedItem = value;
-        }
         public string ImagesFilePath
         {
             get => imagesPathTextBox.Text;
@@ -312,6 +306,16 @@ namespace GPTArticleGen.View
         {
             get => imagePictureBox.ImageLocation;
             set => imagePictureBox.ImageLocation = value;
+        }
+        public BindingList<LogsModel> Logs
+        {
+            get => _logs;
+            set
+            {
+                _logs = value;
+                if (databaseGridView.DataSource != _logs)
+                    databaseGridView.DataSource = _logs;
+            }
         }
 
         public event EventHandler GenerateArticle;

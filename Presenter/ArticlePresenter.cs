@@ -83,7 +83,7 @@ namespace GPTArticleGen.Presenter
             */
         }
 
-        public void Initialize()
+        public async void Initialize()
         {
             // Initialize your view with the data from the model
             _view.Title = _model.Title;
@@ -96,18 +96,13 @@ namespace GPTArticleGen.Presenter
 
             // Initialize SQLiteDB
             _db = new SQLiteDB();
-            _db.OpenConnection();
-
-            _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(_db.GetArticles().Result);
-
-            _db.CloseConnection();
+            _view.Logs = await _db.GetAllLogs();
 
             //_basicPrompt = Properties.Settings.Default.BasicPrompt;
             //Debug.WriteLine("Basic prompt: " + _basicPrompt);
             //Debug.WriteLine("Propertise basic prompt:" + Properties.Settings.Default.BasicPrompt);
             //_view.DefaultPrompt = _basicPrompt;
             _view.MaxRetries = Properties.Settings.Default.MaxRetries;
-            _view.DatabaseComboBoxSelectedItem = "Articles";
             _view.ImagesFilePath = Properties.Settings.Default.ImagesPath;
             _view.ExportFilePath = Properties.Settings.Default.ExportFilePath;
             _view.ExportFileName = Properties.Settings.Default.ExportFileName;
@@ -128,7 +123,9 @@ namespace GPTArticleGen.Presenter
         private async void AddToPageAsync(object? sender, EventArgs e)
         {
             List<ArticleModel> articles = new List<ArticleModel>(_view.Titles);
-            await AddToPageFunctionAsync(articles);
+
+            if(articles.Count > 0)
+                await AddToPageFunctionAsync(articles);
         }
 
         private async void ImportTitles(object? sender, EventArgs e)
@@ -175,7 +172,7 @@ namespace GPTArticleGen.Presenter
                     // Run your time-consuming tasks here
                     List<ArticleModel> articles = new List<ArticleModel>(_view.Titles);
                     _taskCompletionSource = new TaskCompletionSource<bool>();
-                    GenerateForAllFunctionAsync(articles);
+                    await GenerateForAllFunctionAsync(articles);
                     _taskCompletionSource.Task.Wait();  // Wait for task to complete
                 });
             }
@@ -360,15 +357,6 @@ namespace GPTArticleGen.Presenter
 
                     AddToPageAsync(sender, e);
                 });
-
-                if(_view.DatabaseComboBoxSelectedItem == "Articles")
-                {
-                    _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(await _db.GetArticles());
-                }
-                else if(_view.DatabaseComboBoxSelectedItem == "Pages")
-                {
-                    _view.PageDatabases = new BindingList<PageModel>(await _db.GetPages());
-                }
             }
             catch (Exception ex)
             {
@@ -379,54 +367,12 @@ namespace GPTArticleGen.Presenter
 
         private async void DatabaseSelectionChanged(object? sender, EventArgs e)
         {
-            if(_view.DatabaseComboBoxSelectedItem == "Articles")
-            {
-                _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(await _db.GetArticles());
-            }
-            else if(_view.DatabaseComboBoxSelectedItem == "Pages")
-            {
-                _view.PageDatabases = new BindingList<PageModel>(await _db.GetPages());
-            }
+            
         }
 
         private async void GenerateFromDatabase(object? sender, EventArgs e)
         {
-            try
-            {
-                List<ArticleModel> articles = new List<ArticleModel>((await _db.GetArticlesAsArticleModelAsync()).Where(item => item.IsPublished == false).ToList());
-                
-                ProgressDialogView progressDialogView = new ProgressDialogView();
-                progressDialogView.Show();  // Show the dialog non-modally
-
-                progressDialog = new ProgressDialogPresenter(progressDialogView, articles.Count, articles.Count, articles.Count);
-                progressDialog.Initialize();
-
-                await Task.Run(async () =>
-                {
-                    // Run your time-consuming tasks here
-                    AddImagesFunctionAsync(articles);
-
-                    _taskCompletionSource = new TaskCompletionSource<bool>();
-                    GenerateForAllFunctionAsync(articles);
-                    _taskCompletionSource.Task.Wait();  // Wait for task to complete
-
-                    AddToPageFunctionAsync(articles);
-                });
-
-                if (_view.DatabaseComboBoxSelectedItem == "Articles")
-                {
-                    _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(await _db.GetArticles());
-                }
-                else if (_view.DatabaseComboBoxSelectedItem == "Pages")
-                {
-                    _view.PageDatabases = new BindingList<PageModel>(await _db.GetPages());
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions
-                Debug.WriteLine(ex);
-            }
+            
         }
 
         private void BrowseExportFilePath(object? sender, EventArgs e)
@@ -480,7 +426,7 @@ namespace GPTArticleGen.Presenter
                     // Run your time-consuming tasks here
                     
                     _taskCompletionSource = new TaskCompletionSource<bool>();
-                    GenerateForAllFunctionAsync(articles);
+                    await GenerateForAllFunctionAsync(articles);
                     _taskCompletionSource.Task.Wait();  // Wait for task to complete
                 });
             }
@@ -596,7 +542,8 @@ namespace GPTArticleGen.Presenter
 
         private async void AddToPageSelected(object? sender, EventArgs e)
         {
-            await AddToPageFunctionAsync(new List<ArticleModel>() { _view.SelectedTitle });
+            if(_view.SelectedTitle != null)
+                await AddToPageFunctionAsync(new List<ArticleModel>() { _view.SelectedTitle });
         }
 
         private async void ImportSelectedImages(object? sender, EventArgs e)
@@ -939,14 +886,6 @@ namespace GPTArticleGen.Presenter
                                 Username = pageValues[1],
                                 Password = pageValues[2]
                             };
-
-                            _db.OpenConnection();
-                            _pageModel.Id = await _db.GetPageIdByAttributes(_pageModel);
-                            if(_pageModel.Id == -1)
-                            {
-                                _pageModel.Id = await _db.AddPageAndReturnId(_pageModel);
-                            }
-                            _db.CloseConnection();
                         }
                         else if (values.Length >= 1)
                         {
@@ -970,32 +909,11 @@ namespace GPTArticleGen.Presenter
                                 Password = _pageModel.Password
                             };
                             
-                            _db.OpenConnection();
-                            int id = await _db.CheckIfArticleIsInDatabase(article);
-                            if(id == -1)
-                            {
-                                await _db.InsertArticleAsync(article);
-                                article.Id = await _db.GetLastArticleIdAsync();
-                            }
-                            else
-                            {
-                                article.Id = id;
-                            }
-                            _db.CloseConnection();
                             _view.Titles.Add(article);
                             
                             //_db.CloseConnection();
                         }
                     }
-                }
-
-                if (_view.DatabaseComboBoxSelectedItem == "Articles")
-                {
-                    _view.ArticleDatabases = new BindingList<ArticleDatabaseModel>(await _db.GetArticles());
-                }
-                else if (_view.DatabaseComboBoxSelectedItem == "Pages")
-                {
-                    _view.PageDatabases = new BindingList<PageModel>(await _db.GetPages());
                 }
             }
             else
@@ -1078,13 +996,6 @@ namespace GPTArticleGen.Presenter
 
                 List<string> tags = new List<string>();
 
-                // Find page by ID
-
-                _db.OpenConnection();
-                BindingList<PageModel> pages = new BindingList<PageModel>(_db.GetPages().Result);
-                PageModel page = pages.FirstOrDefault(item => item.Id == article.PageId);
-                _db.CloseConnection();
-
                 // Get tags
                 if (!String.IsNullOrEmpty(article.Tags))
                     tags = article.Tags.Split(", ").ToList();
@@ -1094,7 +1005,18 @@ namespace GPTArticleGen.Presenter
                 {
                     //Add to database
                     article.IsPublished = true;
-                    await _db.UpdateArticleWithoutImageIdAsync(article);
+                    LogsModel logs = new LogsModel()
+                    {
+                        PromptTitle = article.PromptTitle,
+                        Site = article.Site,
+                        Username = article.Username,
+                        PostUrl = article.PostUrl,
+                        PostId = article.Id,
+                        Date = article.Date
+                    };
+                    await _db.InsertLogAsync(logs);
+                    //await _db.UpdateArticleWithoutImageIdAsync(article);
+                    _view.Logs = await _db.GetAllLogs();
 
                     // Save to file
                     await SaveDataAsync();
@@ -1161,9 +1083,6 @@ namespace GPTArticleGen.Presenter
 
                             if (!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags))
                             {
-                                _db.OpenConnection();
-                                await _db.UpdateArticleTitleContentTags(selected);
-                                _db.CloseConnection();
                                 break;
                             }
                         }

@@ -27,6 +27,7 @@ namespace GPTArticleGen.Model
         public string PostData { get; set; }
         public int Retries { get; set; } = 1;
         public int PageId { get; set; }
+        public int PostId { get; set; }
         public string PostUrl { get; set; }
 
         // Page
@@ -39,5 +40,6 @@ namespace GPTArticleGen.Model
         public string TagsName { get; set; }
         public string MetaTitleName { get; set; }
         public string MetaDescriptionName { get; set; }
+        public DateTime Date { get; set; }
     }
 }

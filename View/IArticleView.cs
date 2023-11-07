@@ -29,7 +29,7 @@ namespace GPTArticleGen.View
         BindingList<ArticleModel> Titles { get; set; }
         BindingList<ArticleDatabaseModel> ArticleDatabases { get; set; }
         BindingList<PageModel> PageDatabases { get; set; }
-        string DatabaseComboBoxSelectedItem { get; set; }
+        BindingList<LogsModel> Logs { get; set; }
 
         // Configurations Local
         string TitleName { get; set; }

@@ -88,7 +88,6 @@
             defaultPromptTextBox = new TextBox();
             defaultLabel = new Label();
             tabDatabase = new TabPage();
-            databaseComboBox = new ComboBox();
             databaseGridView = new DataGridView();
             titlesListBox = new ListBox();
             generateForSelectedButton = new Button();
@@ -717,7 +716,6 @@
             // 
             // tabDatabase
             // 
-            tabDatabase.Controls.Add(databaseComboBox);
             tabDatabase.Controls.Add(databaseGridView);
             tabDatabase.Location = new Point(4, 29);
             tabDatabase.Name = "tabDatabase";
@@ -727,26 +725,17 @@
             tabDatabase.Text = "Database";
             tabDatabase.UseVisualStyleBackColor = true;
             // 
-            // databaseComboBox
-            // 
-            databaseComboBox.FormattingEnabled = true;
-            databaseComboBox.Items.AddRange(new object[] { "Articles", "Pages" });
-            databaseComboBox.Location = new Point(3, 3);
-            databaseComboBox.Name = "databaseComboBox";
-            databaseComboBox.Size = new Size(151, 28);
-            databaseComboBox.TabIndex = 1;
-            // 
             // databaseGridView
             // 
             databaseGridView.AllowUserToAddRows = false;
             databaseGridView.AllowUserToDeleteRows = false;
             databaseGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            databaseGridView.Location = new Point(3, 34);
+            databaseGridView.Location = new Point(3, 3);
             databaseGridView.Name = "databaseGridView";
             databaseGridView.ReadOnly = true;
             databaseGridView.RowHeadersWidth = 51;
             databaseGridView.RowTemplate.Height = 29;
-            databaseGridView.Size = new Size(840, 502);
+            databaseGridView.Size = new Size(840, 533);
             databaseGridView.TabIndex = 0;
             // 
             // titlesListBox
@@ -942,7 +931,6 @@
         private Button runGenerationButton;
         private TabPage tabDatabase;
         private DataGridView databaseGridView;
-        private ComboBox databaseComboBox;
         private Button addToPageSelectedButton;
         private Label addToPageLabel;
         private Label generateFromChatLabel;

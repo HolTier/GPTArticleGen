@@ -66,7 +66,10 @@ namespace GPTArticleGen.Model
                         if (postResponse != null)
                         {
                             // Use the extracted post ID to construct the URL of the newly created post
+                            Debug.WriteLine("Post ID: " + postResponse.Id);
+                            article.Id = postResponse.Id;
                             article.PostUrl = postResponse.Link;
+                            article.Date = DateTime.Now;
 
                             return true;
                         }
@@ -171,7 +174,6 @@ namespace GPTArticleGen.Model
                         string imageResponseContent = await imageResponse.Content.ReadAsStringAsync();
                         JObject image = JObject.Parse(imageResponseContent);
                         SQLiteDB db = new SQLiteDB();
-                        db.UpdateArticleImageId(articleId, (int)image["id"]);
                         string imageId = image["id"].ToString();
                         return imageId;
                     }
