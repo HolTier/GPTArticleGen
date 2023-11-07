@@ -127,59 +127,8 @@ namespace GPTArticleGen.Presenter
         #region Event Handlers
         private async void AddToPageAsync(object? sender, EventArgs e)
         {
-            // Initialize SQLiteDB
-            SQLiteDB db = new SQLiteDB();
-
-            int i = 0;
-            if(progressDialog != null)
-                progressDialog.UpdateAddToPageProgress(i);
-            foreach (ArticleModel article in _view.Titles)
-            {
-                // Create an object to hold your article data
-                var articleData = new
-                {
-                    title = article.Title,
-                    content = article.Content,
-                    status = "publish",
-                    tags = new[] { "[tag]" },
-                    featured_media = !string.IsNullOrEmpty(article.ImagePath) ? "[featured_image]" : null
-                };
-
-                // Serialize the object to JSON
-                article.PostData = JsonConvert.SerializeObject(articleData);
-
-                article.PostData = article.PostData.Replace("\"[tag]\"", "[tag]");
-
-                List<string> tags = new List<string>();
-
-                // Find page by ID
-                
-                _db.OpenConnection();
-                BindingList<PageModel> pages = new BindingList<PageModel>(_db.GetPages().Result);
-                PageModel page = pages.FirstOrDefault(item => item.Id == article.SiteId);
-                _db.CloseConnection();
-
-                // Get tags
-                if (!String.IsNullOrEmpty(article.Tags))
-                    tags = article.Tags.Split(", ").ToList();
-
-                //Add to wordpress
-                if(await _wordpressRepository.AddPostAsync(tags, article.PostData, article.Id,page.Username, page.Password, page.Site, article.ImagePath))
-                {
-                    //Add to database
-                    article.IsPublished = true;
-                    await db.UpdateArticleWithoutImageIdAsync(article);
-                }
-                else
-                {
-                    Debug.WriteLine("Failed to add post to wordpress. Post title: " + article.Title );
-                }
-
-                if(progressDialog != null)
-                    progressDialog.UpdateAddToPageProgress(++i);
-
-                //await db.InsertArticleAsync(article);
-            }
+            List<ArticleModel> articles = new List<ArticleModel>(_view.Titles);
+            await AddToPageFunctionAsync(articles);
         }
 
         private async void ImportTitles(object? sender, EventArgs e)
@@ -219,69 +168,22 @@ namespace GPTArticleGen.Presenter
 
         private async void GenerateForAll(object? sender, EventArgs e)
         {
-            bool isFirst = true;
-
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-
-            await Task.Run(async () =>
+            try
             {
-                // Update the UI with the result on the UI thread
-                Program.SyncContext.Post(async _ =>
+                await Task.Run(async () =>
                 {
-                    //_view.DisableUI();
-
-                    int i = 0;
-                    if(progressDialog != null)
-                        progressDialog.UpdateGenerateArticleProgress(i);
-                    foreach (ArticleModel selected in _view.Titles)
-                    {
-                        while (selected.Retries <= _view.MaxRetries)
-                        {
-                            if (isFirst)
-                            {
-                                await GenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
-                                isFirst = false;
-                            }
-                            else
-                                await EditRegenerateByGPTAsync(_view.WebView2, _view, selected.Prompt, selected);
-
-                            selected.Title = await ExtractValueBetweenAsync(selected.RawData, _view.TitleName,_endMarkersList);
-                            selected.Content = await ExtractValueBetweenAsync(selected.RawData, _view.ContentName, _endMarkersList);
-                            selected.Tags = await ExtractTagsAsync(selected.RawData, _view.TagsName, _endMarkersList);
-
-                            selected.Tags = SubstreingFromString(selected.Tags, selected.Retries);
-
-                            if(selected.Retries == 1 && progressDialog != null)
-                                progressDialog.UpdateGenerateArticleProgress(++i);
-
-                            selected.Retries++;
-
-                            SelectedTitleChanged(this, EventArgs.Empty);
-
-                            await Task.Delay(TimeSpan.FromSeconds(2));
-
-                            if(!String.IsNullOrEmpty(selected.Title) && !String.IsNullOrEmpty(selected.Content) && !String.IsNullOrEmpty(selected.Tags))
-                            {
-                                _db.OpenConnection();
-                                await _db.UpdateArticleTitleContentTags(selected);
-                                _db.CloseConnection();
-                                break;
-                            }
-                        }
-                    }
-
-                    // Signal that the work is done
-                    taskCompletionSource.SetResult(true);
-
-                    //_view.EnableUI();
-                }, null);
-            });
-
-            // Wait for the Task.Run to complete
-            await taskCompletionSource.Task;
-            _taskCompletionSource.SetResult(true);
-            // Wait for all tasks to complete
-            Debug.WriteLine("Generation for all finished");
+                    // Run your time-consuming tasks here
+                    List<ArticleModel> articles = new List<ArticleModel>(_view.Titles);
+                    _taskCompletionSource = new TaskCompletionSource<bool>();
+                    GenerateForAllFunctionAsync(articles);
+                    _taskCompletionSource.Task.Wait();  // Wait for task to complete
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                Debug.WriteLine(ex);
+            }
         }
 
         private void RegenarateArticle(object? sender, EventArgs e)
